@@ -147,6 +147,35 @@ def fetch_rss(url: str, limit=5):
     return {"feed": url, "items": items}
 
 
+def fetch_stocktwits_symbol(symbol: str):
+    url = f"https://api.stocktwits.com/api/2/streams/symbol/{urllib.parse.quote(symbol)}.json"
+    data = get_json(url)
+    msgs = data.get("messages", [])[:30]
+    bullish = 0
+    bearish = 0
+    for m in msgs:
+        entities = m.get("entities") or {}
+        sentiment = entities.get("sentiment") or {}
+        sent = sentiment.get("basic")
+        if sent == "Bullish":
+            bullish += 1
+        elif sent == "Bearish":
+            bearish += 1
+
+    total_tagged = bullish + bearish
+    score = None
+    if total_tagged > 0:
+        score = round(((bullish - bearish) / total_tagged) * 100, 1)
+
+    return {
+        "symbol": symbol,
+        "messages_checked": len(msgs),
+        "bullish": bullish,
+        "bearish": bearish,
+        "sentiment_score": score,
+    }
+
+
 def main():
     cfg = json.loads(CFG.read_text(encoding="utf-8"))
 
@@ -154,7 +183,8 @@ def main():
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "macro": [],
         "market": [],
-        "news": []
+        "news": [],
+        "social": []
     }
 
     for s in cfg["macro"]["fred_series"]:
@@ -179,6 +209,12 @@ def main():
             out["news"].append(fetch_rss(f))
         except Exception as e:
             out["news"].append({"feed": f, "error": str(e), "items": []})
+
+    for s in cfg.get("social", {}).get("symbols", []):
+        try:
+            out["social"].append(fetch_stocktwits_symbol(s))
+        except Exception as e:
+            out["social"].append({"symbol": s, "error": str(e)})
 
     OUT.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"OK snapshot -> {OUT}")
