@@ -51,7 +51,7 @@ def pct(a, b):
         return None
 
 
-def score_ticker(ticker: str, chg5, chg20):
+def score_ticker_tech_base(ticker: str, chg5, chg20):
     score = 50
     reasons = []
 
@@ -77,7 +77,6 @@ def score_ticker(ticker: str, chg5, chg20):
             score -= 15
             reasons.append("tendencia_20d_debil")
 
-    # sesgo de priorización NASDAQ tech
     if ticker in {"NVDA", "MSFT", "AMZN", "META", "AMD", "AVGO", "QQQ"}:
         score += 4
         reasons.append("universo_prioritario")
@@ -99,7 +98,7 @@ def fetch_yahoo_ticker(ticker: str):
 
     chg5 = pct(closes[-1], closes[-6]) if len(closes) >= 6 else None
     chg20 = pct(closes[-1], closes[-21]) if len(closes) >= 21 else None
-    score, reasons = score_ticker(ticker, chg5, chg20)
+    score_tech, reasons = score_ticker_tech_base(ticker, chg5, chg20)
 
     return {
         "ticker": ticker,
@@ -111,7 +110,8 @@ def fetch_yahoo_ticker(ticker: str):
         "lastCloseSeries": close,
         "chg_5d_pct": chg5,
         "chg_20d_pct": chg20,
-        "score": score,
+        "score_tech": score_tech,
+        "score": score_tech,
         "reasons": reasons,
     }
 
@@ -176,6 +176,89 @@ def fetch_stocktwits_symbol(symbol: str):
     }
 
 
+def macro_regime(out):
+    vals = {m.get("series"): m.get("latest_value") for m in out.get("macro", []) if isinstance(m, dict)}
+    vix = None
+    dgs10 = None
+    try:
+        vix = float(vals.get("VIXCLS")) if vals.get("VIXCLS") not in (None, "") else None
+    except Exception:
+        pass
+    try:
+        dgs10 = float(vals.get("DGS10")) if vals.get("DGS10") not in (None, "") else None
+    except Exception:
+        pass
+
+    macro_adj = 0
+    macro_reasons = []
+    if vix is not None:
+        if vix < 18:
+            macro_adj += 8
+            macro_reasons.append("macro_vix_bajo")
+        elif vix <= 22:
+            macro_adj += 2
+            macro_reasons.append("macro_vix_neutro")
+        else:
+            macro_adj -= 8
+            macro_reasons.append("macro_vix_alto")
+    if dgs10 is not None and dgs10 > 4.5:
+        macro_adj -= 3
+        macro_reasons.append("macro_yield10_alto")
+
+    return {
+        "vix": vix,
+        "dgs10": dgs10,
+        "macro_adj": macro_adj,
+        "macro_reasons": macro_reasons,
+    }
+
+
+def social_map(out):
+    mp = {}
+    for s in out.get("social", []):
+        if not isinstance(s, dict):
+            continue
+        sym = s.get("symbol")
+        ss = s.get("sentiment_score")
+        if sym:
+            mp[sym] = ss
+    return mp
+
+
+def apply_final_score(out):
+    regime = macro_regime(out)
+    smap = social_map(out)
+
+    for m in out.get("market", []):
+        if not isinstance(m, dict) or not m.get("ok"):
+            continue
+        tech = int(m.get("score_tech", m.get("score", 50)) or 50)
+        social = smap.get(m.get("ticker"))
+        social_adj = 0
+        social_reason = None
+        if social is not None:
+            if social >= 50:
+                social_adj = 8
+                social_reason = "social_bullish"
+            elif social <= -40:
+                social_adj = -8
+                social_reason = "social_bearish"
+
+        final = tech + regime["macro_adj"] + social_adj
+        final = max(0, min(100, final))
+        m["score_social"] = social
+        m["score_macro_adj"] = regime["macro_adj"]
+        m["score_final"] = final
+        m["score"] = final
+        reasons = m.get("reasons", [])
+        reasons.extend(regime["macro_reasons"])
+        if social_reason:
+            reasons.append(social_reason)
+        m["reasons"] = list(dict.fromkeys(reasons))
+
+    out["macro_regime"] = regime
+
+
 def main():
     cfg = json.loads(CFG.read_text(encoding="utf-8"))
 
@@ -199,11 +282,6 @@ def main():
         except Exception as e:
             out["market"].append({"ticker": t, "error": str(e), "score": 0})
 
-    # ranking simple por score
-    ranked = [m for m in out["market"] if isinstance(m, dict) and m.get("ok")]
-    ranked.sort(key=lambda x: x.get("score", 0), reverse=True)
-    out["top_opportunities"] = ranked[:5]
-
     for f in cfg["news"]["rss_feeds"]:
         try:
             out["news"].append(fetch_rss(f))
@@ -215,6 +293,12 @@ def main():
             out["social"].append(fetch_stocktwits_symbol(s))
         except Exception as e:
             out["social"].append({"symbol": s, "error": str(e)})
+
+    apply_final_score(out)
+
+    ranked = [m for m in out["market"] if isinstance(m, dict) and m.get("ok")]
+    ranked.sort(key=lambda x: x.get("score_final", x.get("score", 0)), reverse=True)
+    out["top_opportunities"] = ranked[:5]
 
     OUT.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"OK snapshot -> {OUT}")
