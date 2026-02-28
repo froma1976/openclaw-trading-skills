@@ -66,13 +66,31 @@ def fetch_yahoo_ticker(ticker: str):
     }
 
 
+def translate_to_es(text: str) -> str:
+    text = (text or "").strip()
+    if not text:
+        return text
+    try:
+        # Endpoint gratuito (no oficial) de Google Translate para MVP
+        q = urllib.parse.quote(text)
+        url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=es&dt=t&q={q}"
+        data = get_text(url)
+        parsed = json.loads(data)
+        translated = "".join(chunk[0] for chunk in parsed[0] if chunk and chunk[0])
+        return translated or text
+    except Exception:
+        return text
+
+
 def fetch_rss(url: str, limit=5):
     xml = get_text(url)
     root = ET.fromstring(xml)
     items = []
     for item in root.findall(".//item")[:limit]:
+        title = (item.findtext("title") or "").strip()
         items.append({
-            "title": (item.findtext("title") or "").strip(),
+            "title": title,
+            "title_es": translate_to_es(title),
             "link": (item.findtext("link") or "").strip(),
             "pubDate": (item.findtext("pubDate") or "").strip(),
         })
