@@ -42,6 +42,50 @@ def fetch_fred_series(series_id: str):
     return {"series": series_id, "latest_date": latest_date, "latest_value": latest_value}
 
 
+def pct(a, b):
+    try:
+        if a is None or b is None or b == 0:
+            return None
+        return round(((a - b) / b) * 100, 2)
+    except Exception:
+        return None
+
+
+def score_ticker(ticker: str, chg5, chg20):
+    score = 50
+    reasons = []
+
+    if chg5 is not None:
+        if chg5 > 2:
+            score += 12
+            reasons.append("momento_5d_fuerte")
+        elif chg5 > 0:
+            score += 6
+            reasons.append("momento_5d_positivo")
+        elif chg5 < -2:
+            score -= 10
+            reasons.append("momento_5d_debil")
+
+    if chg20 is not None:
+        if chg20 > 5:
+            score += 18
+            reasons.append("tendencia_20d_fuerte")
+        elif chg20 > 0:
+            score += 8
+            reasons.append("tendencia_20d_positiva")
+        elif chg20 < -5:
+            score -= 15
+            reasons.append("tendencia_20d_debil")
+
+    # sesgo de priorización NASDAQ tech
+    if ticker in {"NVDA", "MSFT", "AMZN", "META", "AMD", "AVGO", "QQQ"}:
+        score += 4
+        reasons.append("universo_prioritario")
+
+    score = max(0, min(100, score))
+    return score, reasons
+
+
 def fetch_yahoo_ticker(ticker: str):
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(ticker)}?range=3mo&interval=1d"
     data = get_json(url)
@@ -49,12 +93,14 @@ def fetch_yahoo_ticker(ticker: str):
     if not res:
         return {"ticker": ticker, "ok": False}
     meta = res[0].get("meta", {})
-    closes = res[0].get("indicators", {}).get("quote", [{}])[0].get("close", [])
-    close = None
-    for v in reversed(closes):
-        if v is not None:
-            close = float(v)
-            break
+    closes_raw = res[0].get("indicators", {}).get("quote", [{}])[0].get("close", [])
+    closes = [float(v) for v in closes_raw if v is not None]
+    close = closes[-1] if closes else None
+
+    chg5 = pct(closes[-1], closes[-6]) if len(closes) >= 6 else None
+    chg20 = pct(closes[-1], closes[-21]) if len(closes) >= 21 else None
+    score, reasons = score_ticker(ticker, chg5, chg20)
+
     return {
         "ticker": ticker,
         "ok": True,
@@ -63,6 +109,10 @@ def fetch_yahoo_ticker(ticker: str):
         "regularMarketPrice": meta.get("regularMarketPrice"),
         "previousClose": meta.get("previousClose"),
         "lastCloseSeries": close,
+        "chg_5d_pct": chg5,
+        "chg_20d_pct": chg20,
+        "score": score,
+        "reasons": reasons,
     }
 
 
@@ -117,7 +167,12 @@ def main():
         try:
             out["market"].append(fetch_yahoo_ticker(t))
         except Exception as e:
-            out["market"].append({"ticker": t, "error": str(e)})
+            out["market"].append({"ticker": t, "error": str(e), "score": 0})
+
+    # ranking simple por score
+    ranked = [m for m in out["market"] if isinstance(m, dict) and m.get("ok")]
+    ranked.sort(key=lambda x: x.get("score", 0), reverse=True)
+    out["top_opportunities"] = ranked[:5]
 
     for f in cfg["news"]["rss_feeds"]:
         try:
