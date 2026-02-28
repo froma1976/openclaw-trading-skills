@@ -148,6 +148,70 @@ def summary(conn):
     return t, u, c
 
 
+def table(headers, rows):
+    widths = [len(h) for h in headers]
+    for row in rows:
+        for i, col in enumerate(row):
+            widths[i] = max(widths[i], len(str(col)))
+
+    sep = "+" + "+".join("-" * (w + 2) for w in widths) + "+"
+    head = "| " + " | ".join(str(h).ljust(widths[i]) for i, h in enumerate(headers)) + " |"
+
+    lines = [sep, head, sep]
+    for row in rows:
+        lines.append("| " + " | ".join(str(col).ljust(widths[i]) for i, col in enumerate(row)) + " |")
+    lines.append(sep)
+    return "\n".join(lines)
+
+
+def dashboard(conn, limit_tasks=10):
+    task_counts = conn.execute(
+        "SELECT status, COUNT(*) c FROM tasks GROUP BY status ORDER BY c DESC"
+    ).fetchall()
+    token_by_model = conn.execute(
+        "SELECT model, SUM(tokens_in) tin, SUM(tokens_out) tout, SUM(tokens_in + tokens_out) total "
+        "FROM token_usage GROUP BY model ORDER BY total DESC"
+    ).fetchall()
+    recent_tasks = conn.execute(
+        "SELECT task_id, status, assigned_by, title, updated_at FROM tasks ORDER BY updated_at DESC LIMIT ?",
+        (limit_tasks,),
+    ).fetchall()
+    cron_rows = conn.execute(
+        "SELECT name, cron_expr, CASE WHEN active=1 THEN 'activa' ELSE 'inactiva' END AS estado, "
+        "COALESCE(owner_user_id, '-') AS owner FROM cron_tasks ORDER BY name"
+    ).fetchall()
+
+    print("\n=== DASHBOARD REGISTRO AGENTE ===")
+
+    if task_counts:
+        rows = [(r["status"], r["c"]) for r in task_counts]
+        print("\n[TAREAS POR ESTADO]")
+        print(table(["estado", "cantidad"], rows))
+    else:
+        print("\n[TAREAS POR ESTADO]\n(sin datos)")
+
+    if token_by_model:
+        rows = [(r["model"], r["tin"] or 0, r["tout"] or 0, r["total"] or 0) for r in token_by_model]
+        print("\n[TOKENS POR MODELO]")
+        print(table(["modelo", "in", "out", "total"], rows))
+    else:
+        print("\n[TOKENS POR MODELO]\n(sin datos)")
+
+    if recent_tasks:
+        rows = [(r["task_id"], r["status"], r["assigned_by"], (r["title"] or "")[:40], r["updated_at"]) for r in recent_tasks]
+        print("\n[ULTIMAS TAREAS]")
+        print(table(["task_id", "estado", "asignado_por", "titulo", "actualizado"], rows))
+    else:
+        print("\n[ULTIMAS TAREAS]\n(sin datos)")
+
+    if cron_rows:
+        rows = [(r["name"], r["cron_expr"], r["estado"], r["owner"]) for r in cron_rows]
+        print("\n[CRON]")
+        print(table(["nombre", "expresion", "estado", "owner"], rows))
+    else:
+        print("\n[CRON]\n(sin datos)")
+
+
 def main():
     p = argparse.ArgumentParser(description="Registro centralizado del agente")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -183,6 +247,8 @@ def main():
     s.add_argument("--by", default="agent")
 
     sub.add_parser("summary")
+    d = sub.add_parser("dashboard")
+    d.add_argument("--limit-tasks", type=int, default=10)
 
     args = p.parse_args()
     conn = connect()
@@ -227,6 +293,9 @@ def main():
         for r in c:
             st = "activa" if r["active"] else "inactiva"
             print(f"- {r['name']} [{st}] {r['cron_expr']} owner={r['owner_user_id'] or '-'}")
+    elif args.cmd == "dashboard":
+        init_db(conn)
+        dashboard(conn, args.limit_tasks)
 
 
 if __name__ == "__main__":

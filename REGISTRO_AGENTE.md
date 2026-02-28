@@ -31,6 +31,9 @@ py -3 agent_activity_registry.py add-usage --model openai-codex/gpt-5.3-codex --
 
 # Ver resumen
 py -3 agent_activity_registry.py summary
+
+# Ver dashboard (tabla única)
+py -3 agent_activity_registry.py dashboard
 ```
 
 ## Dónde guarda
