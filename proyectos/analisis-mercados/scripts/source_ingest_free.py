@@ -51,6 +51,51 @@ def pct(a, b):
         return None
 
 
+def sma(values, n):
+    if len(values) < n:
+        return None
+    return sum(values[-n:]) / n
+
+
+def stddev(values, n):
+    if len(values) < n:
+        return None
+    w = values[-n:]
+    m = sum(w) / n
+    var = sum((x - m) ** 2 for x in w) / n
+    return var ** 0.5
+
+
+def ema(values, n):
+    if len(values) < n:
+        return None
+    k = 2 / (n + 1)
+    e = sum(values[:n]) / n
+    for v in values[n:]:
+        e = (v * k) + (e * (1 - k))
+    return e
+
+
+def rsi14(values):
+    if len(values) < 15:
+        return None
+    gains = []
+    losses = []
+    for i in range(1, len(values)):
+        d = values[i] - values[i - 1]
+        gains.append(max(d, 0))
+        losses.append(max(-d, 0))
+    avg_gain = sum(gains[:14]) / 14
+    avg_loss = sum(losses[:14]) / 14
+    for i in range(14, len(gains)):
+        avg_gain = (avg_gain * 13 + gains[i]) / 14
+        avg_loss = (avg_loss * 13 + losses[i]) / 14
+    if avg_loss == 0:
+        return 100.0
+    rs = avg_gain / avg_loss
+    return 100 - (100 / (1 + rs))
+
+
 def score_ticker_tech_base(ticker: str, chg5, chg20):
     score = 50
     reasons = []
@@ -98,7 +143,53 @@ def fetch_yahoo_ticker(ticker: str):
 
     chg5 = pct(closes[-1], closes[-6]) if len(closes) >= 6 else None
     chg20 = pct(closes[-1], closes[-21]) if len(closes) >= 21 else None
+
+    ema20 = ema(closes, 20)
+    ema50 = ema(closes, 50)
+    rsi = rsi14(closes)
+    bb_mid = sma(closes, 20)
+    bb_std = stddev(closes, 20)
+    bb_upper = (bb_mid + 2 * bb_std) if bb_mid is not None and bb_std is not None else None
+    bb_lower = (bb_mid - 2 * bb_std) if bb_mid is not None and bb_std is not None else None
+
     score_tech, reasons = score_ticker_tech_base(ticker, chg5, chg20)
+
+    if close is not None and ema20 is not None:
+        if close > ema20:
+            score_tech += 6
+            reasons.append("price_above_ema20")
+        else:
+            score_tech -= 6
+            reasons.append("price_below_ema20")
+
+    if ema20 is not None and ema50 is not None:
+        if ema20 > ema50:
+            score_tech += 6
+            reasons.append("ema20_above_ema50")
+        else:
+            score_tech -= 6
+            reasons.append("ema20_below_ema50")
+
+    if rsi is not None:
+        if 50 <= rsi <= 70:
+            score_tech += 5
+            reasons.append("rsi_constructivo")
+        elif rsi > 75:
+            score_tech -= 3
+            reasons.append("rsi_sobrecompra")
+        elif rsi < 35:
+            score_tech -= 5
+            reasons.append("rsi_debil")
+
+    if close is not None and bb_upper is not None and bb_lower is not None:
+        if close > bb_upper:
+            reasons.append("bollinger_breakout")
+            score_tech += 4
+        elif close < bb_lower:
+            reasons.append("bollinger_breakdown")
+            score_tech -= 4
+
+    score_tech = max(0, min(100, int(round(score_tech))))
 
     return {
         "ticker": ticker,
@@ -110,9 +201,14 @@ def fetch_yahoo_ticker(ticker: str):
         "lastCloseSeries": close,
         "chg_5d_pct": chg5,
         "chg_20d_pct": chg20,
+        "ema20": round(ema20, 3) if ema20 is not None else None,
+        "ema50": round(ema50, 3) if ema50 is not None else None,
+        "rsi14": round(rsi, 2) if rsi is not None else None,
+        "bb_upper": round(bb_upper, 3) if bb_upper is not None else None,
+        "bb_lower": round(bb_lower, 3) if bb_lower is not None else None,
         "score_tech": score_tech,
         "score": score_tech,
-        "reasons": reasons,
+        "reasons": list(dict.fromkeys(reasons)),
     }
 
 
