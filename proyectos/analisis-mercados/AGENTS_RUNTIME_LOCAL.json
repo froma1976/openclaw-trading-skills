@@ -37,6 +37,12 @@
       "role": "abogado del diablo / antisesgo",
       "model": "deterministic",
       "why": "busca invalidar la tesis: euforia, divergencia y sobreextensión"
+    },
+    {
+      "id": "gpt53-council-agent",
+      "role": "árbitro final (GPT‑5.3)",
+      "model": "openai-codex/gpt-5.3-codex",
+      "why": "entra solo en casos críticos para dictamen final"
     }
   ],
   "fallback": {
