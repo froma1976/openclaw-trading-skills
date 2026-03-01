@@ -4,6 +4,7 @@ import os
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
+import re
 from datetime import datetime, UTC, timedelta
 from pathlib import Path
 
@@ -328,6 +329,85 @@ def fetch_earnings_fmp(symbol: str):
         return None
 
 
+def fetch_yahoo_options_signal(symbol: str):
+    try:
+        url = f"https://query2.finance.yahoo.com/v7/finance/options/{urllib.parse.quote(symbol)}"
+        data = get_json(url)
+        res = data.get("optionChain", {}).get("result", [])
+        if not res:
+            return {"symbol": symbol, "call_oi": None, "put_oi": None, "cp_ratio": None}
+        opts = (res[0].get("options") or [{}])[0]
+        calls = opts.get("calls") or []
+        puts = opts.get("puts") or []
+        call_oi = sum(int(c.get("openInterest") or 0) for c in calls)
+        put_oi = sum(int(p.get("openInterest") or 0) for p in puts)
+        cp_ratio = round(call_oi / put_oi, 3) if put_oi > 0 else None
+        return {"symbol": symbol, "call_oi": call_oi, "put_oi": put_oi, "cp_ratio": cp_ratio}
+    except Exception as e:
+        return {"symbol": symbol, "error": str(e), "call_oi": None, "put_oi": None, "cp_ratio": None}
+
+
+def fetch_openinsider_latest(limit=40):
+    # Fuente pública para señales de insider buying
+    try:
+        html = get_text("http://openinsider.com/latest-insider-trading")
+        rows = []
+        # Extrae símbolo + tipo transacción + importe aproximado
+        for m in re.finditer(r"<tr[^>]*>(.*?)</tr>", html, flags=re.S | re.I):
+            tr = m.group(1)
+            tds = re.findall(r"<td[^>]*>(.*?)</td>", tr, flags=re.S | re.I)
+            if len(tds) < 9:
+                continue
+            txt = [re.sub(r"<[^>]+>", "", x).strip() for x in tds]
+            # columnas aproximadas en OpenInsider
+            ticker = txt[3] if len(txt) > 3 else ""
+            tr_type = txt[7] if len(txt) > 7 else ""
+            value = txt[11] if len(txt) > 11 else ""
+            if ticker:
+                rows.append({"symbol": ticker, "type": tr_type, "value": value})
+            if len(rows) >= limit:
+                break
+        return rows
+    except Exception:
+        return []
+
+
+def build_openinsider_map(rows):
+    mp = {}
+    for r in rows:
+        s = r.get("symbol")
+        if not s:
+            continue
+        t = (r.get("type") or "").upper()
+        # En insider forms: P suele ser purchase
+        is_buy = ("P" in t) or ("BUY" in t)
+        cur = mp.get(s, {"insider_buys": 0, "insider_events": 0})
+        cur["insider_events"] += 1
+        if is_buy:
+            cur["insider_buys"] += 1
+        mp[s] = cur
+    return mp
+
+
+def fetch_finviz_headlines(symbol: str, limit=5):
+    try:
+        url = f"https://finviz.com/quote.ashx?t={urllib.parse.quote(symbol)}"
+        html = get_text(url)
+        # titulares dentro de la tabla news-table
+        items = []
+        for m in re.finditer(r"<a[^>]+href=\"([^\"]+)\"[^>]*>(.*?)</a>", html, flags=re.S | re.I):
+            link = m.group(1)
+            title = re.sub(r"<[^>]+>", "", m.group(2)).strip()
+            if not title:
+                continue
+            items.append({"title": title, "title_es": translate_to_es(title), "link": link})
+            if len(items) >= limit:
+                break
+        return {"symbol": symbol, "items": items}
+    except Exception:
+        return {"symbol": symbol, "items": []}
+
+
 def fetch_stocktwits_symbol(symbol: str):
     url = f"https://api.stocktwits.com/api/2/streams/symbol/{urllib.parse.quote(symbol)}.json"
     data = get_json(url)
@@ -419,16 +499,23 @@ def headline_signal_map(out):
         "options": ["options", "open interest", "calls"],
     }
 
+    def scan_text(text):
+        t = (text or "").lower()
+        for s in symbols:
+            if s.lower() not in t:
+                continue
+            mp[s]["hits"] += 1
+            for k, kws in KEY.items():
+                if any(kw in t for kw in kws):
+                    mp[s][k] += 1
+
     for feed in out.get("news", []):
         for item in feed.get("items", []):
-            t = ((item.get("title") or "") + " " + (item.get("title_es") or "")).lower()
-            for s in symbols:
-                if s.lower() not in t:
-                    continue
-                mp[s]["hits"] += 1
-                for k, kws in KEY.items():
-                    if any(kw in t for kw in kws):
-                        mp[s][k] += 1
+            scan_text((item.get("title") or "") + " " + (item.get("title_es") or ""))
+
+    for fn in out.get("finviz_news", []):
+        for item in fn.get("items", []):
+            scan_text((item.get("title") or "") + " " + (item.get("title_es") or ""))
     return mp
 
 
@@ -453,11 +540,25 @@ def earnings_map(out):
     return mp
 
 
+def options_map(out):
+    mp = {}
+    for o in out.get("options", []):
+        if isinstance(o, dict) and o.get("symbol"):
+            mp[o["symbol"]] = o
+    return mp
+
+
+def insider_map(out):
+    return out.get("insider_map", {}) if isinstance(out.get("insider_map"), dict) else {}
+
+
 def apply_final_score(out):
     regime = macro_regime(out)
     smap = social_map(out)
     hmap = headline_signal_map(out)
     emap = earnings_map(out)
+    omap = options_map(out)
+    imap = insider_map(out)
 
     for m in out.get("market", []):
         if not isinstance(m, dict) or not m.get("ok"):
@@ -468,6 +569,8 @@ def apply_final_score(out):
         social = smap.get(ticker)
         hs = hmap.get(ticker, {"fundamental": 0, "catalyst": 0, "spinoff": 0, "insider": 0, "options": 0, "hits": 0})
         er = emap.get(ticker)
+        op = omap.get(ticker, {})
+        ins = imap.get(ticker, {"insider_buys": 0, "insider_events": 0})
 
         social_adj = 0
         social_reason = None
@@ -504,6 +607,22 @@ def apply_final_score(out):
         insider_score = 10 if hs["insider"] > 0 else 0
         options_score = 10 if hs["options"] > 0 else 0
 
+        # refuerzo real de insiders (OpenInsider)
+        if ins.get("insider_buys", 0) >= 1:
+            insider_score = max(insider_score, min(12, 6 + ins.get("insider_buys", 0) * 2))
+
+        # refuerzo real de opciones (Yahoo options chain)
+        cp = op.get("cp_ratio")
+        if cp is not None:
+            try:
+                cp = float(cp)
+                if cp >= 1.4:
+                    options_score = max(options_score, 10)
+                elif cp <= 0.7:
+                    options_score = max(0, options_score - 4)
+            except Exception:
+                pass
+
         asym_bonus = fundamental_score + catalyst_score + spinoff_score + insider_score + options_score
 
         final = tech + regime["macro_adj"] + social_adj + asym_bonus
@@ -530,6 +649,8 @@ def apply_final_score(out):
         m["spinoff_score"] = spinoff_score
         m["insider_score"] = insider_score
         m["options_flow_score"] = options_score
+        m["options_cp_ratio"] = op.get("cp_ratio")
+        m["insider_buys"] = ins.get("insider_buys", 0)
         m["convergence_count"] = conv_count
         m["state"] = state
         m["score_final"] = final
@@ -565,7 +686,10 @@ def main():
         "market": [],
         "news": [],
         "social": [],
-        "earnings": []
+        "earnings": [],
+        "options": [],
+        "finviz_news": [],
+        "insider_map": {}
     }
 
     for s in cfg["macro"]["fred_series"]:
@@ -597,6 +721,18 @@ def main():
         e = fetch_earnings_finnhub(t) or fetch_earnings_fmp(t)
         if e:
             out["earnings"].append(e)
+
+    # Options flow básico (Yahoo options)
+    for t in cfg["market"]["tickers"]:
+        out["options"].append(fetch_yahoo_options_signal(t))
+
+    # Finviz headlines por ticker (refuerza catalizador)
+    for t in cfg["market"]["tickers"][:8]:
+        out["finviz_news"].append(fetch_finviz_headlines(t, limit=3))
+
+    # OpenInsider (insider buying)
+    insider_rows = fetch_openinsider_latest(limit=120)
+    out["insider_map"] = build_openinsider_map(insider_rows)
 
     apply_final_score(out)
 
