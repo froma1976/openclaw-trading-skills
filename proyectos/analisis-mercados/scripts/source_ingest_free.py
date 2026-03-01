@@ -321,15 +321,46 @@ def social_map(out):
     return mp
 
 
+def headline_signal_map(out):
+    # Heurística gratis: extrae señales de titulares (earnings/guidance/spinoff/insider/options/catalyst)
+    symbols = [m.get("ticker") for m in out.get("market", []) if isinstance(m, dict) and m.get("ticker")]
+    mp = {s: {"fundamental": 0, "catalyst": 0, "spinoff": 0, "insider": 0, "options": 0, "hits": 0} for s in symbols}
+
+    KEY = {
+        "fundamental": ["earnings", "beneficio", "results", "beat", "miss", "guidance", "outlook"],
+        "catalyst": ["launch", "trial", "approval", "contract", "data center", "ai"],
+        "spinoff": ["spin-off", "spinoff", "escisión"],
+        "insider": ["insider", "director buy", "ceo bought"],
+        "options": ["options", "open interest", "calls"],
+    }
+
+    for feed in out.get("news", []):
+        for item in feed.get("items", []):
+            t = ((item.get("title") or "") + " " + (item.get("title_es") or "")).lower()
+            for s in symbols:
+                if s.lower() not in t:
+                    continue
+                mp[s]["hits"] += 1
+                for k, kws in KEY.items():
+                    if any(kw in t for kw in kws):
+                        mp[s][k] += 1
+    return mp
+
+
 def apply_final_score(out):
     regime = macro_regime(out)
     smap = social_map(out)
+    hmap = headline_signal_map(out)
 
     for m in out.get("market", []):
         if not isinstance(m, dict) or not m.get("ok"):
             continue
+
+        ticker = m.get("ticker")
         tech = int(m.get("score_tech", m.get("score", 50)) or 50)
-        social = smap.get(m.get("ticker"))
+        social = smap.get(ticker)
+        hs = hmap.get(ticker, {"fundamental": 0, "catalyst": 0, "spinoff": 0, "insider": 0, "options": 0, "hits": 0})
+
         social_adj = 0
         social_reason = None
         if social is not None:
@@ -340,16 +371,57 @@ def apply_final_score(out):
                 social_adj = -8
                 social_reason = "social_bearish"
 
-        final = tech + regime["macro_adj"] + social_adj
+        # Sub-scores asimetría V2 (MVP heurístico con fuentes gratis)
+        fundamental_score = min(20, hs["fundamental"] * 5)
+        catalyst_score = min(15, hs["catalyst"] * 5)
+        spinoff_score = 12 if hs["spinoff"] > 0 else 0
+        insider_score = 10 if hs["insider"] > 0 else 0
+        options_score = 10 if hs["options"] > 0 else 0
+
+        asym_bonus = fundamental_score + catalyst_score + spinoff_score + insider_score + options_score
+
+        final = tech + regime["macro_adj"] + social_adj + asym_bonus
         final = max(0, min(100, final))
+
+        # Convergencia: estructural + capital + técnico
+        structural_ok = (fundamental_score + catalyst_score + spinoff_score) >= 10
+        capital_ok = (insider_score + options_score) > 0 or (social is not None and social >= 50)
+        technical_ok = tech >= 55
+        conv_count = sum([1 if structural_ok else 0, 1 if capital_ok else 0, 1 if technical_ok else 0])
+
+        state = "WATCH"
+        if conv_count >= 2 and final >= 65:
+            state = "READY"
+        if conv_count == 3 and final >= 75:
+            state = "TRIGGERED"
+
         m["score_social"] = social
         m["score_macro_adj"] = regime["macro_adj"]
+        m["score_asymmetry"] = asym_bonus
+        m["fundamental_inflection_score"] = fundamental_score
+        m["catalyst_score"] = catalyst_score
+        m["spinoff_score"] = spinoff_score
+        m["insider_score"] = insider_score
+        m["options_flow_score"] = options_score
+        m["convergence_count"] = conv_count
+        m["state"] = state
         m["score_final"] = final
         m["score"] = final
+
         reasons = m.get("reasons", [])
         reasons.extend(regime["macro_reasons"])
         if social_reason:
             reasons.append(social_reason)
+        if fundamental_score > 0:
+            reasons.append("fundamental_inflection")
+        if catalyst_score > 0:
+            reasons.append("catalyst_detected")
+        if spinoff_score > 0:
+            reasons.append("spinoff_detected")
+        if insider_score > 0:
+            reasons.append("insider_signal_detected")
+        if options_score > 0:
+            reasons.append("options_flow_detected")
         m["reasons"] = list(dict.fromkeys(reasons))
 
     out["macro_regime"] = regime
