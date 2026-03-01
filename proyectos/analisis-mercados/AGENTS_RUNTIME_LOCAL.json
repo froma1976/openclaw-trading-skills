@@ -5,7 +5,7 @@
     {
       "id": "alpha-scout",
       "role": "orquestador",
-      "model": "ollama/qwen3:8b",
+      "model": "ollama/phi4-mini",
       "why": "mejor equilibrio para síntesis + decisión"
     },
     {
@@ -31,6 +31,12 @@
       "role": "riesgo/ejecución",
       "model": "deterministic",
       "why": "reglas duras de riesgo e invalidación"
+    },
+    {
+      "id": "devil-advocate-agent",
+      "role": "abogado del diablo / antisesgo",
+      "model": "deterministic",
+      "why": "busca invalidar la tesis: euforia, divergencia y sobreextensión"
     }
   ],
   "fallback": {
