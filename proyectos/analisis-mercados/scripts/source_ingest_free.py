@@ -202,7 +202,8 @@ def score_ticker_tech_base(ticker: str, chg5, chg20):
 
 
 def fetch_yahoo_ticker(ticker: str):
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(ticker)}?range=3mo&interval=1d"
+    # 1 año para poder medir sobreextensión vs SMA200
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(ticker)}?range=1y&interval=1d"
     data = get_json(url)
     res = data.get("chart", {}).get("result", [])
     if not res:
@@ -220,6 +221,7 @@ def fetch_yahoo_ticker(ticker: str):
 
     ema20 = ema(closes, 20)
     ema50 = ema(closes, 50)
+    sma200 = sma(closes, 200)
     rsi = rsi14(closes)
     bb_mid = sma(closes, 20)
     bb_std = stddev(closes, 20)
@@ -290,6 +292,13 @@ def fetch_yahoo_ticker(ticker: str):
 
     score_tech = max(0, min(100, int(round(score_tech))))
 
+    overextension_pct = None
+    try:
+        if close is not None and sma200 not in (None, 0):
+            overextension_pct = round(((close - sma200) / sma200) * 100, 2)
+    except Exception:
+        overextension_pct = None
+
     return {
         "ticker": ticker,
         "ok": True,
@@ -302,6 +311,8 @@ def fetch_yahoo_ticker(ticker: str):
         "chg_20d_pct": chg20,
         "ema20": round(ema20, 3) if ema20 is not None else None,
         "ema50": round(ema50, 3) if ema50 is not None else None,
+        "sma200": round(sma200, 3) if sma200 is not None else None,
+        "overextension_200d_pct": overextension_pct,
         "rsi14": round(rsi, 2) if rsi is not None else None,
         "bb_upper": round(bb_upper, 3) if bb_upper is not None else None,
         "bb_lower": round(bb_lower, 3) if bb_lower is not None else None,
@@ -516,12 +527,20 @@ def macro_regime(out):
     vals = {m.get("series"): m.get("latest_value") for m in out.get("macro", []) if isinstance(m, dict)}
     vix = None
     dgs10 = None
+    dxy = None
     try:
         vix = float(vals.get("VIXCLS")) if vals.get("VIXCLS") not in (None, "") else None
     except Exception:
         pass
     try:
         dgs10 = float(vals.get("DGS10")) if vals.get("DGS10") not in (None, "") else None
+    except Exception:
+        pass
+    # DXY aproximado si está en config (DTWEXBGS / DEXUSEU opcional)
+    try:
+        dxy_key = "DTWEXBGS" if vals.get("DTWEXBGS") not in (None, "") else None
+        if dxy_key:
+            dxy = float(vals.get(dxy_key))
     except Exception:
         pass
 
@@ -540,10 +559,14 @@ def macro_regime(out):
     if dgs10 is not None and dgs10 > 4.5:
         macro_adj -= 3
         macro_reasons.append("macro_yield10_alto")
+    if dxy is not None and dxy > 120:
+        macro_adj -= 2
+        macro_reasons.append("macro_dxy_fuerte")
 
     return {
         "vix": vix,
         "dgs10": dgs10,
+        "dxy": dxy,
         "macro_adj": macro_adj,
         "macro_reasons": macro_reasons,
     }
@@ -701,7 +724,38 @@ def apply_final_score(out):
         asym_bonus = fundamental_score + catalyst_score + spinoff_score + insider_score + options_score
 
         final = tech + regime["macro_adj"] + social_adj + asym_bonus
-        final = max(0, min(100, final))
+
+        # CAPA: abogado del diablo + burbuja + divergencias
+        devil_reasons = []
+        rel_vol = m.get("rel_volume")
+        chg5 = m.get("chg_5d_pct")
+        rsi = m.get("rsi14")
+        overext = m.get("overextension_200d_pct")
+
+        # 1) Divergencia precio-volumen
+        if chg5 is not None and chg5 > 0 and rel_vol is not None and rel_vol < 1.0:
+            devil_reasons.append("Divergencia bajista: precio sube con volumen débil")
+            final -= 8
+
+        # 2) Euforia (hype)
+        euphoria = False
+        if (rsi is not None and rsi >= 75) or (chg5 is not None and chg5 >= 6):
+            euphoria = True
+            devil_reasons.append("Euforia detectada: momentum excesivo")
+            final -= 6
+
+        # 3) Sobreextensión vs SMA200
+        if overext is not None and overext > 20:
+            devil_reasons.append("Sobreextensión >20% sobre media 200d")
+            final -= 10
+
+        # 4) Correlación cruzada macro adversa
+        macro_headwind = (regime.get("dgs10") is not None and regime.get("dgs10") > 4.5) or (regime.get("dxy") is not None and regime.get("dxy") > 120)
+        if macro_headwind:
+            devil_reasons.append("Viento macro en contra (DXY/10Y al alza)")
+            final -= 5
+
+        final = max(0, min(100, int(round(final))))
 
         # Convergencia: estructural + capital + técnico
         structural_ok = (fundamental_score + catalyst_score + spinoff_score) >= 10
@@ -714,6 +768,20 @@ def apply_final_score(out):
             state = "READY"
         if conv_count == 3 and final >= 75:
             state = "TRIGGERED"
+
+        # Bubble level
+        bubble_level = "Bajo"
+        if (overext is not None and overext > 20) or (rsi is not None and rsi >= 78):
+            bubble_level = "Crítico"
+        elif euphoria or (overext is not None and overext > 12):
+            bubble_level = "Medio"
+
+        confidence = final
+        decision = "AVOID"
+        if confidence >= 85 and state in {"READY", "TRIGGERED"} and bubble_level != "Crítico":
+            decision = "BUY"
+        elif confidence >= 65:
+            decision = "HOLD"
 
         m["score_social"] = social
         m["earnings_label"] = earnings_label(er)
@@ -730,6 +798,10 @@ def apply_final_score(out):
         m["state"] = state
         m["score_final"] = final
         m["score"] = final
+        m["confidence_pct"] = confidence
+        m["bubble_level"] = bubble_level
+        m["argumento_en_contra"] = devil_reasons[0] if devil_reasons else "Sin objeción crítica detectada"
+        m["decision_final"] = decision
 
         reasons = m.get("reasons", [])
         reasons.extend(regime["macro_reasons"])
@@ -747,6 +819,12 @@ def apply_final_score(out):
             reasons.append("insider_signal_detected")
         if options_score > 0:
             reasons.append("options_flow_detected")
+        if bubble_level == "Crítico":
+            reasons.append("bubble_critical")
+        if macro_headwind:
+            reasons.append("macro_headwind")
+        if devil_reasons:
+            reasons.append("devil_advocate_active")
         m["reasons"] = list(dict.fromkeys(reasons))
 
     out["macro_regime"] = regime
