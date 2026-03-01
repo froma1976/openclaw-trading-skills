@@ -18,8 +18,26 @@ def run_ollama(model: str, prompt: str, timeout=90):
     return ok, dt, (p.stdout or p.stderr or "").strip()[:300]
 
 
+def ensure_ollama():
+    ps = ROOT / "scripts" / "ensure_ollama.ps1"
+    if not ps.exists():
+        return
+    try:
+        subprocess.run([
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(ps),
+        ], capture_output=True, text=True, timeout=40)
+    except Exception:
+        pass
+
+
 def main():
     cfg = json.loads(CFG.read_text(encoding="utf-8"))
+    ensure_ollama()
     rows = []
     for a in cfg.get("agents", []):
         model = a.get("model", "deterministic")
