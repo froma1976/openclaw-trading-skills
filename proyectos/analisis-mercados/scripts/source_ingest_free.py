@@ -140,8 +140,11 @@ def fetch_yahoo_ticker(ticker: str):
     if not res:
         return {"ticker": ticker, "ok": False}
     meta = res[0].get("meta", {})
-    closes_raw = res[0].get("indicators", {}).get("quote", [{}])[0].get("close", [])
+    quote = res[0].get("indicators", {}).get("quote", [{}])[0]
+    closes_raw = quote.get("close", [])
+    vols_raw = quote.get("volume", [])
     closes = [float(v) for v in closes_raw if v is not None]
+    vols = [float(v) for v in vols_raw if v is not None]
     close = closes[-1] if closes else None
 
     chg5 = pct(closes[-1], closes[-6]) if len(closes) >= 6 else None
@@ -156,6 +159,16 @@ def fetch_yahoo_ticker(ticker: str):
     bb_lower = (bb_mid - 2 * bb_std) if bb_mid is not None and bb_std is not None else None
 
     score_tech, reasons = score_ticker_tech_base(ticker, chg5, chg20)
+
+    vol_avg20 = (sum(vols[-20:]) / 20) if len(vols) >= 20 else None
+    vol_last = vols[-1] if vols else None
+    rel_volume = (vol_last / vol_avg20) if (vol_last is not None and vol_avg20 not in (None, 0)) else None
+
+    # ruptura simple de máximo 20 sesiones previas
+    breakout_20 = False
+    if len(closes) >= 21 and close is not None:
+        prev_high_20 = max(closes[-21:-1])
+        breakout_20 = close > prev_high_20
 
     if close is not None and ema20 is not None:
         if close > ema20:
@@ -192,6 +205,21 @@ def fetch_yahoo_ticker(ticker: str):
             reasons.append("bollinger_breakdown")
             score_tech -= 4
 
+    if rel_volume is not None:
+        if rel_volume >= 1.5:
+            score_tech += 8
+            reasons.append("rel_volume_fuerte")
+        elif rel_volume >= 1.2:
+            score_tech += 4
+            reasons.append("rel_volume_ok")
+
+    if breakout_20 and (rel_volume is not None and rel_volume >= 1.2):
+        score_tech += 10
+        reasons.append("breakout_20_confirmado")
+    elif breakout_20:
+        score_tech += 4
+        reasons.append("breakout_20_sin_confirmacion")
+
     score_tech = max(0, min(100, int(round(score_tech))))
 
     return {
@@ -209,6 +237,8 @@ def fetch_yahoo_ticker(ticker: str):
         "rsi14": round(rsi, 2) if rsi is not None else None,
         "bb_upper": round(bb_upper, 3) if bb_upper is not None else None,
         "bb_lower": round(bb_lower, 3) if bb_lower is not None else None,
+        "rel_volume": round(rel_volume, 2) if rel_volume is not None else None,
+        "breakout_20": breakout_20,
         "score_tech": score_tech,
         "score": score_tech,
         "reasons": list(dict.fromkeys(reasons)),
@@ -402,6 +432,19 @@ def headline_signal_map(out):
     return mp
 
 
+def earnings_label(e):
+    if not e:
+        return "No Data"
+    eps_a = e.get("eps_actual")
+    eps_e = e.get("eps_estimate")
+    if eps_a is None or eps_e is None:
+        return "Earnings Pending"
+    try:
+        return "Earnings Beat" if float(eps_a) > float(eps_e) else "Earnings Miss/Inline"
+    except Exception:
+        return "Earnings Pending"
+
+
 def earnings_map(out):
     mp = {}
     for e in out.get("earnings", []):
@@ -479,6 +522,7 @@ def apply_final_score(out):
             state = "TRIGGERED"
 
         m["score_social"] = social
+        m["earnings_label"] = earnings_label(er)
         m["score_macro_adj"] = regime["macro_adj"]
         m["score_asymmetry"] = asym_bonus
         m["fundamental_inflection_score"] = fundamental_score
