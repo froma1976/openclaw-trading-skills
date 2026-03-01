@@ -1,0 +1,45 @@
+{
+  "mode": "autopilot",
+  "project": "analisis-mercados",
+  "agents": [
+    {
+      "id": "alpha-scout",
+      "role": "orquestador",
+      "model": "ollama/qwen3:8b",
+      "why": "mejor equilibrio para síntesis + decisión"
+    },
+    {
+      "id": "macro-agent",
+      "role": "macro/liquidez",
+      "model": "ollama/phi4-mini",
+      "why": "rápido y suficiente para clasificación macro"
+    },
+    {
+      "id": "news-catalyst-agent",
+      "role": "noticias/catalizadores",
+      "model": "ollama/qwen3:8b",
+      "why": "mejor comprensión contextual"
+    },
+    {
+      "id": "technical-agent",
+      "role": "técnico/indicadores",
+      "model": "deterministic",
+      "why": "EMA/RSI/Bollinger se calculan por código, no por LLM"
+    },
+    {
+      "id": "risk-exec-agent",
+      "role": "riesgo/ejecución",
+      "model": "deterministic",
+      "why": "reglas duras de riesgo e invalidación"
+    }
+  ],
+  "fallback": {
+    "reasoning": "ollama/qwen3:8b",
+    "fast": "ollama/phi4-mini"
+  },
+  "constraints": {
+    "max_ram_gb": 15,
+    "prefer_local_models": true,
+    "no_cloud_required": true
+  }
+}
