@@ -15,11 +15,15 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT = OUT_DIR / "latest_snapshot_free.json"
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "").strip()
 FMP_API_KEY = os.getenv("FMP_API_KEY", "").strip()
+FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY", "").strip()
+FIRECRAWL_BASE_URL = os.getenv("FIRECRAWL_BASE_URL", "https://api.firecrawl.dev").strip()
+FIRECRAWL_TIMEOUT_SEC = int(os.getenv("FIRECRAWL_TIMEOUT_SEC", "12") or "12")
+FIRECRAWL_ENABLED = os.getenv("FIRECRAWL_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def load_env_fallback():
-    global FINNHUB_API_KEY, FMP_API_KEY
-    if FINNHUB_API_KEY and FMP_API_KEY:
+    global FINNHUB_API_KEY, FMP_API_KEY, FIRECRAWL_API_KEY, FIRECRAWL_BASE_URL, FIRECRAWL_TIMEOUT_SEC, FIRECRAWL_ENABLED
+    if FINNHUB_API_KEY and FMP_API_KEY and FIRECRAWL_API_KEY:
         return
     env_path = Path(r"C:/Users/Fernando/.openclaw/.env")
     if not env_path.exists():
@@ -34,6 +38,17 @@ def load_env_fallback():
                 FINNHUB_API_KEY = v
             elif k == 'FMP_API_KEY' and not FMP_API_KEY:
                 FMP_API_KEY = v
+            elif k == 'FIRECRAWL_API_KEY' and not FIRECRAWL_API_KEY:
+                FIRECRAWL_API_KEY = v
+            elif k == 'FIRECRAWL_BASE_URL' and not FIRECRAWL_BASE_URL:
+                FIRECRAWL_BASE_URL = v
+            elif k == 'FIRECRAWL_TIMEOUT_SEC':
+                try:
+                    FIRECRAWL_TIMEOUT_SEC = int(v)
+                except Exception:
+                    pass
+            elif k == 'FIRECRAWL_ENABLED':
+                FIRECRAWL_ENABLED = v.strip().lower() in {'1', 'true', 'yes', 'on'}
     except Exception:
         pass
 
@@ -48,6 +63,37 @@ def get_text(url: str):
     req = urllib.request.Request(url, headers={"User-Agent": "alpha-scout/1.0"})
     with urllib.request.urlopen(req, timeout=20) as r:
         return r.read().decode("utf-8", errors="ignore")
+
+
+def firecrawl_scrape(url: str):
+    if not (FIRECRAWL_ENABLED and FIRECRAWL_API_KEY):
+        return None
+    try:
+        endpoint = f"{FIRECRAWL_BASE_URL.rstrip('/')}/v1/scrape"
+        payload = json.dumps({
+            "url": url,
+            "formats": ["markdown"],
+            "onlyMainContent": True,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            endpoint,
+            data=payload,
+            method="POST",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {FIRECRAWL_API_KEY}",
+                "User-Agent": "alpha-scout/1.0",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=FIRECRAWL_TIMEOUT_SEC) as r:
+            data = json.loads(r.read().decode("utf-8", errors="ignore"))
+        md = (data.get("data") or {}).get("markdown") if isinstance(data, dict) else None
+        if isinstance(md, str) and md.strip():
+            text = re.sub(r"\s+", " ", md).strip()
+            return text[:600]
+        return None
+    except Exception:
+        return None
 
 
 def fetch_fred_series(series_id: str):
@@ -421,9 +467,17 @@ def fetch_finviz_headlines(symbol: str, limit=5):
             title = re.sub(r"<[^>]+>", "", m.group(2)).strip()
             if not title:
                 continue
-            items.append({"title": title, "title_es": translate_to_es(title), "link": link})
+            row = {"title": title, "title_es": translate_to_es(title), "link": link}
+            items.append(row)
             if len(items) >= limit:
                 break
+
+        # Firecrawl piloto: enriquecer solo el primer link para no penalizar ciclos
+        if items and FIRECRAWL_ENABLED and FIRECRAWL_API_KEY:
+            summary = firecrawl_scrape(items[0].get("link") or "")
+            if summary:
+                items[0]["summary_fc"] = summary
+
         return {"symbol": symbol, "items": items}
     except Exception:
         return {"symbol": symbol, "items": []}
