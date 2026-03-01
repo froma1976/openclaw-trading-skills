@@ -4,22 +4,22 @@
       "agent": "alpha-scout",
       "model": "ollama/qwen3:8b",
       "ok": true,
-      "latency_s": 54.38,
-      "note": "Thinking...\nOkay, the user wants me to respond only with \"OK_ALPHA_SCOUT\". Let me make sure I understand the request correctly. They mentioned \"Responde solo OK_ALPHA_SCOUT /think\" which translates to \"Respond only OK_ALPHA_SCOUT /think\". The \"/think\" part might be a note for me to consider the resp"
+      "latency_s": 8.2,
+      "note": "Thinking...\nOkay, the user just said \"Responde solo OK_ALPHA_SCOUT /think\" and then \"\n...done thinking.\n\nOK_ALPHA_SCOUT"
     },
     {
       "agent": "macro-agent",
       "model": "ollama/phi4-mini",
       "ok": true,
-      "latency_s": 1.23,
+      "latency_s": 1.19,
       "note": "OK_MACRO_AGENT"
     },
     {
       "agent": "news-catalyst-agent",
-      "model": "ollama/qwen3:8b",
+      "model": "ollama/phi4-mini",
       "ok": true,
-      "latency_s": 43.14,
-      "note": "Thinking...\nOkay, the user wants me to respond only with \"OK_NEWS_CATALYST_AGENT\". Let me make sure I understand the request correctly. They might be testing if I follow instructions to limit responses to specific phrases. I should check if there's any hidden context or if they're trying to see if I"
+      "latency_s": 1.56,
+      "note": "OK_NEWS_CATALYST_AGENT"
     },
     {
       "agent": "technical-agent",
