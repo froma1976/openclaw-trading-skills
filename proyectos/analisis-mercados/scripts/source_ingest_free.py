@@ -17,6 +17,27 @@ FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "").strip()
 FMP_API_KEY = os.getenv("FMP_API_KEY", "").strip()
 
 
+def load_env_fallback():
+    global FINNHUB_API_KEY, FMP_API_KEY
+    if FINNHUB_API_KEY and FMP_API_KEY:
+        return
+    env_path = Path(r"C:/Users/Fernando/.openclaw/.env")
+    if not env_path.exists():
+        return
+    try:
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            if not line or line.strip().startswith('#') or '=' not in line:
+                continue
+            k, v = line.split('=', 1)
+            k = k.strip(); v = v.strip()
+            if k == 'FINNHUB_API_KEY' and not FINNHUB_API_KEY:
+                FINNHUB_API_KEY = v
+            elif k == 'FMP_API_KEY' and not FMP_API_KEY:
+                FMP_API_KEY = v
+    except Exception:
+        pass
+
+
 def get_json(url: str):
     req = urllib.request.Request(url, headers={"User-Agent": "alpha-scout/1.0"})
     with urllib.request.urlopen(req, timeout=20) as r:
@@ -678,6 +699,7 @@ def apply_final_score(out):
 
 
 def main():
+    load_env_fallback()
     cfg = json.loads(CFG.read_text(encoding="utf-8"))
 
     out = {
