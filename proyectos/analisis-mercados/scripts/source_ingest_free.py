@@ -4,7 +4,7 @@ import os
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parents[1]
@@ -250,8 +250,8 @@ def fetch_earnings_finnhub(symbol: str):
     if not FINNHUB_API_KEY:
         return None
     try:
-        frm = datetime.now(UTC).strftime("%Y-%m-%d")
-        to = datetime.now(UTC).strftime("%Y-%m-%d")
+        frm = (datetime.now(UTC) - timedelta(days=7)).strftime("%Y-%m-%d")
+        to = (datetime.now(UTC) + timedelta(days=14)).strftime("%Y-%m-%d")
         url = (
             "https://finnhub.io/api/v1/calendar/earnings"
             f"?from={frm}&to={to}&symbol={urllib.parse.quote(symbol)}&token={urllib.parse.quote(FINNHUB_API_KEY)}"
@@ -260,6 +260,8 @@ def fetch_earnings_finnhub(symbol: str):
         arr = data.get("earningsCalendar", []) or []
         if not arr:
             return None
+        # prioriza el evento más cercano
+        arr = sorted(arr, key=lambda x: str(x.get("date") or "9999-99-99"))
         e = arr[0]
         return {
             "symbol": symbol,
