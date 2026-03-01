@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
@@ -11,6 +12,8 @@ CFG = BASE / "sources_config_free.json"
 OUT_DIR = BASE / "data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT = OUT_DIR / "latest_snapshot_free.json"
+FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "").strip()
+FMP_API_KEY = os.getenv("FMP_API_KEY", "").strip()
 
 
 def get_json(url: str):
@@ -243,6 +246,56 @@ def fetch_rss(url: str, limit=5):
     return {"feed": url, "items": items}
 
 
+def fetch_earnings_finnhub(symbol: str):
+    if not FINNHUB_API_KEY:
+        return None
+    try:
+        frm = datetime.now(UTC).strftime("%Y-%m-%d")
+        to = datetime.now(UTC).strftime("%Y-%m-%d")
+        url = (
+            "https://finnhub.io/api/v1/calendar/earnings"
+            f"?from={frm}&to={to}&symbol={urllib.parse.quote(symbol)}&token={urllib.parse.quote(FINNHUB_API_KEY)}"
+        )
+        data = get_json(url)
+        arr = data.get("earningsCalendar", []) or []
+        if not arr:
+            return None
+        e = arr[0]
+        return {
+            "symbol": symbol,
+            "source": "finnhub",
+            "date": e.get("date"),
+            "eps_estimate": e.get("epsEstimate"),
+            "eps_actual": e.get("epsActual"),
+            "revenue_estimate": e.get("revenueEstimate"),
+            "revenue_actual": e.get("revenueActual"),
+        }
+    except Exception:
+        return None
+
+
+def fetch_earnings_fmp(symbol: str):
+    if not FMP_API_KEY:
+        return None
+    try:
+        url = f"https://financialmodelingprep.com/api/v3/historical/earning_calendar/{urllib.parse.quote(symbol)}?limit=1&apikey={urllib.parse.quote(FMP_API_KEY)}"
+        data = get_json(url)
+        if not isinstance(data, list) or not data:
+            return None
+        e = data[0]
+        return {
+            "symbol": symbol,
+            "source": "fmp",
+            "date": e.get("date"),
+            "eps_estimate": e.get("epsEstimated"),
+            "eps_actual": e.get("eps"),
+            "revenue_estimate": e.get("revenueEstimated"),
+            "revenue_actual": e.get("revenue"),
+        }
+    except Exception:
+        return None
+
+
 def fetch_stocktwits_symbol(symbol: str):
     url = f"https://api.stocktwits.com/api/2/streams/symbol/{urllib.parse.quote(symbol)}.json"
     data = get_json(url)
@@ -347,10 +400,19 @@ def headline_signal_map(out):
     return mp
 
 
+def earnings_map(out):
+    mp = {}
+    for e in out.get("earnings", []):
+        if isinstance(e, dict) and e.get("symbol"):
+            mp[e["symbol"]] = e
+    return mp
+
+
 def apply_final_score(out):
     regime = macro_regime(out)
     smap = social_map(out)
     hmap = headline_signal_map(out)
+    emap = earnings_map(out)
 
     for m in out.get("market", []):
         if not isinstance(m, dict) or not m.get("ok"):
@@ -360,6 +422,7 @@ def apply_final_score(out):
         tech = int(m.get("score_tech", m.get("score", 50)) or 50)
         social = smap.get(ticker)
         hs = hmap.get(ticker, {"fundamental": 0, "catalyst": 0, "spinoff": 0, "insider": 0, "options": 0, "hits": 0})
+        er = emap.get(ticker)
 
         social_adj = 0
         social_reason = None
@@ -373,6 +436,24 @@ def apply_final_score(out):
 
         # Sub-scores asimetría V2 (MVP heurístico con fuentes gratis)
         fundamental_score = min(20, hs["fundamental"] * 5)
+        # refuerzo por earnings reales cuando existen
+        if er:
+            eps_a = er.get("eps_actual")
+            eps_e = er.get("eps_estimate")
+            rev_a = er.get("revenue_actual")
+            rev_e = er.get("revenue_estimate")
+            try:
+                if eps_a is not None and eps_e is not None and float(eps_a) > float(eps_e):
+                    fundamental_score += 8
+            except Exception:
+                pass
+            try:
+                if rev_a is not None and rev_e is not None and float(rev_a) > float(rev_e):
+                    fundamental_score += 6
+            except Exception:
+                pass
+            fundamental_score = min(25, fundamental_score)
+
         catalyst_score = min(15, hs["catalyst"] * 5)
         spinoff_score = 12 if hs["spinoff"] > 0 else 0
         insider_score = 10 if hs["insider"] > 0 else 0
@@ -414,6 +495,8 @@ def apply_final_score(out):
             reasons.append(social_reason)
         if fundamental_score > 0:
             reasons.append("fundamental_inflection")
+        if er:
+            reasons.append("earnings_calendar_signal")
         if catalyst_score > 0:
             reasons.append("catalyst_detected")
         if spinoff_score > 0:
@@ -435,7 +518,8 @@ def main():
         "macro": [],
         "market": [],
         "news": [],
-        "social": []
+        "social": [],
+        "earnings": []
     }
 
     for s in cfg["macro"]["fred_series"]:
@@ -461,6 +545,12 @@ def main():
             out["social"].append(fetch_stocktwits_symbol(s))
         except Exception as e:
             out["social"].append({"symbol": s, "error": str(e)})
+
+    # Earnings calendar (si hay API key)
+    for t in cfg["market"]["tickers"]:
+        e = fetch_earnings_finnhub(t) or fetch_earnings_fmp(t)
+        if e:
+            out["earnings"].append(e)
 
     apply_final_score(out)
 
