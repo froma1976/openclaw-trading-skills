@@ -84,8 +84,12 @@
       .kpi .v{font-size:22px}
       th,td{padding:7px;font-size:12px}
       .foot{font-size:11px}
-      .office-map{height:620px}
-      .agent-bubble{min-width:120px;max-width:160px;font-size:11px}
+
+      /* Oficina en móvil: vista clara tipo lista (sin solapes) */
+      .office-map{height:auto;min-height:0;padding:8px;display:grid;grid-template-columns:1fr;gap:8px}
+      .room-box{position:static;max-width:100%;font-size:12px}
+      .room:after{display:none}
+      .agent-bubble{display:none}
     }
   </style>
 </head>
@@ -412,7 +416,7 @@
     <div class="grid tab-section" data-tab="oficina">
       <div class="card col-12">
         <h2>🏢 Oficina viva de agentes</h2>
-        <p class="muted">Sí, pueden reunirse varios a la vez en la sala cónclave. Los puntos se mueven entre despachos y sala común.</p>
+        <p class="muted">Sí, pueden reunirse varios a la vez en la sala cónclave. En móvil se muestra una vista simplificada (sin solapes) para que se lea mejor.</p>
         <div class="office-legend">
           <span class="legend-item">🔵 En despacho</span>
           <span class="legend-item">🟠 En tránsito</span>
