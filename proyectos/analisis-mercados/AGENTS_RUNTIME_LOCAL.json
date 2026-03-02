@@ -40,9 +40,9 @@
     },
     {
       "id": "gpt53-council-agent",
-      "role": "árbitro final (GPT‑5.3)",
-      "model": "openai-codex/gpt-5.3-codex",
-      "why": "entra solo en casos críticos para dictamen final"
+      "role": "árbitro final (local)",
+      "model": "ollama/qwen3:8b",
+      "why": "entra solo en casos críticos para dictamen final en local"
     }
   ],
   "fallback": {
