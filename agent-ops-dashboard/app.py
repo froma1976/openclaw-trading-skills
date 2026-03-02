@@ -545,34 +545,61 @@ def update_task_status(task_id: str = Form(...), status: str = Form(...)):
 
 
 @app.post("/orders/complete")
-def complete_order(order_id: str = Form(...), result: str = Form("simulada")):
+def complete_order(order_id: str = Form(...)):
     orders = load_orders()
     pending = orders.get("pending", [])
     completed = orders.get("completed", [])
+
+    # Precio actual desde snapshot para calcular resultado automático
+    signals = load_signals_snapshot()
+    market = signals.get("market", []) if isinstance(signals, dict) else []
+    price_map = {}
+    for m in market:
+        if isinstance(m, dict) and m.get("ticker"):
+            try:
+                price_map[m.get("ticker")] = float(m.get("regularMarketPrice") or m.get("lastCloseSeries"))
+            except Exception:
+                pass
+
     moved = None
     keep = []
     for o in pending:
         if o.get("id") == order_id and moved is None:
+            ticker = o.get("ticker")
+            entry = o.get("entry_price")
+            close_px = price_map.get(ticker)
+
+            result = "neutral"
+            try:
+                if close_px is not None and entry is not None:
+                    result = "ganada" if float(close_px) >= float(entry) else "perdida"
+            except Exception:
+                result = "neutral"
+
             o["status"] = "completed"
             o["result"] = result
             o["closed_at"] = now_iso()
+            if close_px is not None:
+                o["close_price"] = close_px
             moved = o
         else:
             keep.append(o)
+
     orders["pending"] = keep
     if moved:
         completed.append(moved)
         orders["completed"] = completed
         ORDERS_PATH.parent.mkdir(parents=True, exist_ok=True)
         ORDERS_PATH.write_text(json.dumps(orders, ensure_ascii=False, indent=2), encoding="utf-8")
-        r_mult = 1 if result == "ganada" else (-1 if result == "perdida" else 0)
+        res = moved.get("result")
+        r_mult = 1 if res == "ganada" else (-1 if res == "perdida" else 0)
         append_journal({
             "ts": now_iso(),
             "order_id": moved.get("id"),
             "ticker": moved.get("ticker"),
             "state": moved.get("state"),
             "score": moved.get("score"),
-            "result": result,
+            "result": res,
             "r_multiple": r_mult,
         })
     return RedirectResponse(url="/", status_code=303)
