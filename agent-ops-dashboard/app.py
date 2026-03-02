@@ -671,6 +671,10 @@ def autopilot_run(threshold: int = Form(60), assigned_to: str = Form("alpha-scou
                 (fp,),
             ).fetchone()
             if row:
+                # Aunque la tarea ya exista, en modo simulador intentamos abrir orden si aplica
+                if state in {"WATCH", "READY", "TRIGGERED"}:
+                    if upsert_order_pending(ticker, score, state, entry_price):
+                        orders_created += 1
                 continue
             task_id = f"tsk_{hashlib.sha1((title + now_iso()).encode()).hexdigest()[:10]}"
             ts = now_iso()
@@ -690,7 +694,8 @@ def autopilot_run(threshold: int = Form(60), assigned_to: str = Form("alpha-scou
                 (task_id, title, details, "autopilot", assigned_to, "pending", fp, "auto-signals", ts, ts, "alta", ts, due_at, next_check),
             )
             created += 1
-            if state in {"READY", "TRIGGERED"}:
+            # Modo simulador dinámico: también permite WATCH para generar operativa ficticia
+            if state in {"WATCH", "READY", "TRIGGERED"}:
                 if upsert_order_pending(ticker, score, state, entry_price):
                     orders_created += 1
 
