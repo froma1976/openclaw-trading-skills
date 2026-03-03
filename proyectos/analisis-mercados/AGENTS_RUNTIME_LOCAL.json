@@ -43,6 +43,36 @@
       "role": "árbitro final (local)",
       "model": "ollama/qwen3:8b",
       "why": "entra solo en casos críticos para dictamen final en local"
+    },
+    {
+      "id": "crypto-news-spy-agent",
+      "role": "espía de noticias cripto",
+      "model": "deterministic",
+      "why": "rastrea catalizadores y titulares cripto en tiempo real"
+    },
+    {
+      "id": "crypto-euphoria-spy-agent",
+      "role": "espía de euforia",
+      "model": "deterministic",
+      "why": "detecta euforia y riesgo de trampa de liquidez"
+    },
+    {
+      "id": "crypto-flow-spy-agent",
+      "role": "espía de flujo/volumen",
+      "model": "deterministic",
+      "why": "vigila volumen y movimiento para entradas rápidas"
+    },
+    {
+      "id": "crypto-whale-spy-agent",
+      "role": "espía de ballenas",
+      "model": "deterministic",
+      "why": "marca señales de manos fuertes"
+    },
+    {
+      "id": "crypto-execution-agent",
+      "role": "ejecución rápida cripto",
+      "model": "deterministic",
+      "why": "abre/cierra operaciones intradía en segundos/minutos"
     }
   ],
   "fallback": {
