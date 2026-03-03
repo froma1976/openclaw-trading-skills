@@ -58,7 +58,13 @@ def main():
 
     today = datetime.now(UTC).date().isoformat()
     if daily.get("date") != today:
-        daily = {"date": today, "trades": 0}
+        daily = {"date": today, "trades": 0, "loss_streak": 0, "paused": False, "pause_reason": ""}
+    if "loss_streak" not in daily:
+        daily["loss_streak"] = 0
+    if "paused" not in daily:
+        daily["paused"] = False
+    if "pause_reason" not in daily:
+        daily["pause_reason"] = ""
 
     closed_now = 0
     # Close logic: target/stop/timeout
@@ -95,6 +101,10 @@ def main():
                 pnl = 0.0
             o["pnl_usd"] = round(pnl, 6)
             portfolio["cash_usd"] = float(portfolio.get("cash_usd", 0)) + float(o.get("notional_usd", 0)) + pnl
+            if result == "perdida" or pnl < 0:
+                daily["loss_streak"] = int(daily.get("loss_streak", 0)) + 1
+            else:
+                daily["loss_streak"] = 0
             completed.append(o)
             closed_now += 1
         else:
@@ -134,13 +144,19 @@ def main():
                 pass
 
     risk_blocked = daily_pnl <= (-DAILY_LOSS_LIMIT_USD)
+    if int(daily.get("loss_streak", 0)) >= 3:
+        daily["paused"] = True
+        daily["pause_reason"] = "3 pérdidas seguidas"
+    if risk_blocked:
+        daily["paused"] = True
+        daily["pause_reason"] = "límite de pérdida diaria"
 
     for c in top:
         if daily.get("trades", 0) >= MAX_TRADES_DAY:
             break
         if hour_trades >= MAX_TRADES_HOUR:
             break
-        if risk_blocked:
+        if risk_blocked or bool(daily.get("paused")):
             break
         if len(active) >= MAX_ACTIVE_POSITIONS:
             break
@@ -228,6 +244,9 @@ def main():
         "daily_pnl_usd": round(daily_pnl, 4),
         "daily_loss_limit_usd": DAILY_LOSS_LIMIT_USD,
         "risk_blocked": risk_blocked,
+        "paused": bool(daily.get("paused")),
+        "pause_reason": daily.get("pause_reason", ""),
+        "loss_streak": int(daily.get("loss_streak", 0)),
         "cash_usd": portfolio.get("cash_usd", 0),
         "equity_usd": portfolio.get("equity_usd", 0),
     }, ensure_ascii=False))
