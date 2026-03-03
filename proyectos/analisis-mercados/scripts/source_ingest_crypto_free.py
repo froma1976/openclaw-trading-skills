@@ -5,8 +5,15 @@ from pathlib import Path
 from urllib import request
 
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
-COINS = ["bitcoin", "ethereum", "solana"]
-SYMBOL = {"bitcoin": "BTC", "ethereum": "ETH", "solana": "SOL"}
+COINS = [
+    "bitcoin", "ethereum", "solana", "bnb", "ripple", "cardano", "dogecoin",
+    "chainlink", "avalanche-2", "polkadot", "matic-network", "litecoin"
+]
+SYMBOL = {
+    "bitcoin": "BTC", "ethereum": "ETH", "solana": "SOL", "bnb": "BNB", "ripple": "XRP",
+    "cardano": "ADA", "dogecoin": "DOGE", "chainlink": "LINK", "avalanche-2": "AVAX",
+    "polkadot": "DOT", "matic-network": "MATIC", "litecoin": "LTC"
+}
 
 
 def get_json(url: str):
