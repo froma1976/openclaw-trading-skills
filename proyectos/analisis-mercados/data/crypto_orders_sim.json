@@ -1,6 +1,50 @@
 {
   "active": [
     {
+      "id": "crp_ltc_1772552660",
+      "ticker": "LTC",
+      "opened_at": "2026-03-03T15:44:20Z",
+      "entry_price": 54.16,
+      "qty": 1.84638109,
+      "notional_usd": 100.0,
+      "target_price": 54.80992,
+      "stop_price": 53.78088,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "confidence": 75,
+      "score": 75,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      }
+    },
+    {
+      "id": "crp_avax_1772552660",
+      "ticker": "AVAX",
+      "opened_at": "2026-03-03T15:44:20Z",
+      "entry_price": 9.08,
+      "qty": 11.01321586,
+      "notional_usd": 100.0,
+      "target_price": 9.18896,
+      "stop_price": 9.01644,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "confidence": 75,
+      "score": 75,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      }
+    }
+  ],
+  "completed": [
+    {
       "id": "crp_sol_1772551484",
       "ticker": "SOL",
       "opened_at": "2026-03-03T15:24:44Z",
@@ -11,12 +55,21 @@
       "mode": "scalp_intradia",
       "confidence": 68,
       "score": 68,
-      "current_price": 83.44
+      "current_price": 84.62,
+      "closed_at": "2026-03-03T15:44:20Z",
+      "close_price": 84.62,
+      "result": "ganada",
+      "pnl_usd": 0.0
     }
   ],
-  "completed": [],
   "daily": {
     "date": "2026-03-03",
-    "trades": 1
+    "trades": 3
+  },
+  "portfolio": {
+    "capital_initial_usd": 300.0,
+    "cash_usd": 100.0,
+    "market_value_usd": 200.0,
+    "equity_usd": 300.0
   }
 }

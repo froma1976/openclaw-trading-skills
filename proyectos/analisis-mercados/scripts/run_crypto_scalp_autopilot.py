@@ -10,6 +10,9 @@ TARGET_PCT = 1.2
 STOP_PCT = 0.7
 TIMEOUT_MIN = 45
 MAX_TRADES_DAY = 30
+CRYPTO_CAPITAL_INITIAL_USD = 300.0
+MAX_ACTIVE_POSITIONS = 2
+ALLOC_PER_TRADE_USD = 100.0
 
 
 def now_iso():
@@ -39,10 +42,17 @@ def main():
     assets = snap.get("assets", []) or []
     px = {a.get("ticker"): float(a.get("price_usd")) for a in assets if a.get("ticker") and a.get("price_usd")}
 
-    book = load_json(ORD, {"active": [], "completed": [], "daily": {}})
+    book = load_json(ORD, {"active": [], "completed": [], "daily": {}, "portfolio": {}})
     active = book.get("active", []) or []
     completed = book.get("completed", []) or []
     daily = book.get("daily", {}) or {}
+    portfolio = book.get("portfolio", {}) or {}
+
+    if not portfolio:
+        portfolio = {
+            "capital_initial_usd": CRYPTO_CAPITAL_INITIAL_USD,
+            "cash_usd": CRYPTO_CAPITAL_INITIAL_USD,
+        }
 
     today = datetime.now(UTC).date().isoformat()
     if daily.get("date") != today:
@@ -75,6 +85,14 @@ def main():
             o["closed_at"] = now_iso()
             o["close_price"] = round(cur, 6)
             o["result"] = result
+            try:
+                qty = float(o.get("qty") or 0)
+                entry = float(o.get("entry_price") or 0)
+                pnl = (cur - entry) * qty
+            except Exception:
+                pnl = 0.0
+            o["pnl_usd"] = round(pnl, 6)
+            portfolio["cash_usd"] = float(portfolio.get("cash_usd", 0)) + float(o.get("notional_usd", 0)) + pnl
             completed.append(o)
             closed_now += 1
         else:
@@ -87,6 +105,8 @@ def main():
 
     for c in top:
         if daily.get("trades", 0) >= MAX_TRADES_DAY:
+            break
+        if len(active) >= MAX_ACTIVE_POSITIONS:
             break
         t = c.get("ticker")
         if t in active_tickers:
@@ -105,11 +125,19 @@ def main():
         if p is None:
             continue
 
+        cash = float(portfolio.get("cash_usd", 0))
+        notional = min(ALLOC_PER_TRADE_USD, cash)
+        if notional < 20:
+            continue
+        qty = notional / p
+
         order = {
             "id": f"crp_{t.lower()}_{int(datetime.now().timestamp())}",
             "ticker": t,
             "opened_at": now_iso(),
             "entry_price": round(p, 6),
+            "qty": round(qty, 8),
+            "notional_usd": round(notional, 2),
             "target_price": round(p * (1 + TARGET_PCT / 100), 6),
             "stop_price": round(p * (1 - STOP_PCT / 100), 6),
             "state": "ACTIVE",
@@ -125,13 +153,28 @@ def main():
             },
         }
         active.append(order)
+        portfolio["cash_usd"] = round(float(portfolio.get("cash_usd", 0)) - notional, 2)
         active_tickers.add(t)
         opened_now += 1
         daily["trades"] = int(daily.get("trades", 0)) + 1
 
+    active_value = 0.0
+    for o in active:
+        t = o.get("ticker")
+        cp = px.get(t)
+        if cp is not None:
+            try:
+                active_value += float(o.get("qty", 0)) * float(cp)
+            except Exception:
+                pass
+
+    portfolio["market_value_usd"] = round(active_value, 2)
+    portfolio["equity_usd"] = round(float(portfolio.get("cash_usd", 0)) + active_value, 2)
+
     book["active"] = active
     book["completed"] = completed[-1000:]
     book["daily"] = daily
+    book["portfolio"] = portfolio
     ORD.parent.mkdir(parents=True, exist_ok=True)
     ORD.write_text(json.dumps(book, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -141,6 +184,8 @@ def main():
         "active_total": len(active),
         "daily_trades": daily.get("trades", 0),
         "max_trades_day": MAX_TRADES_DAY,
+        "cash_usd": portfolio.get("cash_usd", 0),
+        "equity_usd": portfolio.get("equity_usd", 0),
     }, ensure_ascii=False))
 
 
