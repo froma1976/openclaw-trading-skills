@@ -55,18 +55,22 @@
     .pulse{animation:pulse 1.2s infinite}
     .conclave{margin-top:12px;padding:10px;border:1px dashed #3e5f98;border-radius:12px;background:linear-gradient(180deg,#101a31,#0c1426)}
     .conclave-title{font-weight:700;color:#d6e5ff;margin-bottom:6px}
-    .office-map{position:relative;height:520px;border:1px solid #2a3a5b;border-radius:14px;background:linear-gradient(180deg,#0a1224,#0a1020);overflow:hidden}
-    .room-box{position:absolute;border:1px solid #35518a;border-radius:10px;padding:8px 10px;font-size:12px;color:#cfe0ff;background:#0f1a33dd;max-width:260px;line-height:1.35}
+    .office-map{display:grid;grid-template-columns:repeat(3,minmax(280px,1fr));gap:14px;border:1px solid #2a3a5b;border-radius:14px;background:linear-gradient(180deg,#0a1224,#0a1020);padding:14px}
+    .room-box{position:relative;border:1px solid #35518a;border-radius:12px;padding:10px 12px;font-size:12px;color:#cfe0ff;background:#0f1a33dd;line-height:1.35;min-height:130px}
     .room-box .room-name{font-weight:700;color:#e6efff;display:block;margin-bottom:2px}
-    .agent-bubble{position:absolute;min-width:140px;max-width:210px;padding:7px 11px;border-radius:999px;border:1px solid #4f6ea8;background:#12284acc;color:#dbe9ff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 0 0 0 rgba(56,189,248,.55);transition:all .8s ease;backdrop-filter:blur(4px)}
-    .agent-bubble.in-conclave{background:#153a22cc;border-color:#2f7a49;white-space:normal;line-height:1.2;padding:6px 10px;border-radius:14px;max-width:180px}
-    .agent-bubble.in-transit{background:#3b2c0acc;border-color:#9a7a2e}
+    .room-box.conclave-room{grid-column:1/-1;min-height:160px;border-color:#3f7d57;background:linear-gradient(180deg,#10281a,#0d1d14)}
+    .room-agents{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .agent-tag{padding:6px 10px;border-radius:999px;border:1px solid #4f6ea8;background:#12284acc;color:#dbe9ff;font-size:12px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .agent-tag.in-transit{background:#3b2c0acc;border-color:#9a7a2e}
+    .agent-tag.in-conclave{background:#153a22cc;border-color:#2f7a49}
     .office-legend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0}
     .legend-item{font-size:12px;border:1px solid #2a3a5b;border-radius:999px;padding:4px 8px;color:#cfdcff;background:#0d162a}
     .chat-log{margin-top:10px;border:1px solid #2a3a5b;border-radius:12px;background:linear-gradient(180deg,#0b1222,#0a1020);padding:10px;max-height:340px;overflow:auto;font-size:13px;line-height:1.55}
     .chat-row{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
     .chat-time{color:#93a4c9;font-size:12px;min-width:50px}
     .chat-msg{padding:7px 10px;border-radius:10px;border:1px solid #2a3a5b;background:#111b31;max-width:100%}
+    .modal-backdrop{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:9999}
+    .modal{width:min(980px,95vw);max-height:90vh;overflow:auto;background:#0d1423;border:1px solid #35518a;border-radius:14px;padding:14px}
     @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(56,189,248,.55)}70%{box-shadow:0 0 0 10px rgba(56,189,248,0)}100%{box-shadow:0 0 0 0 rgba(56,189,248,0)}}
     body.expert .expert-only{display:inline-flex}
     .simple-note{display:inline-flex}
@@ -85,11 +89,11 @@
       th,td{padding:7px;font-size:12px}
       .foot{font-size:11px}
 
-      /* Oficina en móvil: vista clara tipo lista (sin solapes) */
-      .office-map{height:auto;min-height:0;padding:8px;display:grid;grid-template-columns:1fr;gap:8px}
-      .room-box{position:static;max-width:100%;font-size:12px}
+      /* Oficina en móvil: cajas en una columna */
+      .office-map{grid-template-columns:1fr;padding:10px;gap:10px}
+      .room-box{font-size:12px;min-height:120px}
+      .room-box.conclave-room{grid-column:auto}
       .room:after{display:none}
-      .agent-bubble{display:none}
     }
   </style>
 </head>
@@ -129,6 +133,7 @@
       <button class="tab-btn active" data-tab-btn="inicio">Inicio</button>
       <button class="tab-btn" data-tab-btn="oportunidades">Oportunidades</button>
       <button class="tab-btn" data-tab-btn="cartera">Cartera</button>
+      <button class="tab-btn" data-tab-btn="crypto">Cripto</button>
       <button class="tab-btn" data-tab-btn="oficina">Oficina</button>
       <button class="tab-btn expert-only" data-tab-btn="agentes">Agentes</button>
       <button class="tab-btn expert-only" data-tab-btn="fuentes">Fuentes</button>
@@ -261,12 +266,13 @@
       <div class="card col-12">
         <h2>Cartera (USD) — vista simple</h2>
         <table>
-          <tr><th>Capital inicial</th><th>Cash</th><th>Valor posiciones</th><th>Equity</th><th>Nº posiciones</th></tr>
+          <tr><th>Capital inicial</th><th>Cash</th><th>Valor posiciones</th><th>Equity base</th><th>Equity total (incl. PnL activo est.)</th><th>Nº posiciones</th></tr>
           <tr>
             <td>{{ portfolio.capital_initial_usd if portfolio.capital_initial_usd is not none else '-' }}</td>
             <td>{{ '%.2f'|format(portfolio_cash_usd) }}</td>
             <td>{{ '%.2f'|format(portfolio_market_value_usd) }}</td>
             <td>{{ '%.2f'|format(portfolio_equity_usd) }}</td>
+            <td><span class="badge {{ 'ok' if (orders_kpi.unrealized_usd_est or 0) >= 0 else 'no' }}">{{ '%.2f'|format(portfolio_equity_live_est) }}</span></td>
             <td>{{ portfolio_positions|length }}</td>
           </tr>
         </table>
@@ -276,9 +282,10 @@
         <h2>KPIs de rendimiento (simulado)</h2>
         {% set kpi = orders_kpi|default({'pending':0,'closed':0,'wins':0,'losses':0,'neutral':0,'win_rate':0}) %}
         <table>
-          <tr><th>Órdenes pendientes</th><th>Órdenes cerradas</th><th>Ganadas</th><th>Perdidas</th><th>Neutrales</th><th>Win Rate</th><th>Expectancy (R)</th><th>Max Drawdown (R)</th></tr>
+          <tr><th>Pendientes de entrada</th><th>Órdenes activas</th><th>Órdenes cerradas</th><th>Ganadas</th><th>Perdidas</th><th>Neutrales</th><th>Win Rate</th><th>Expectancy (R)</th><th>Max Drawdown (R)</th><th>PnL activo (USD est.)</th></tr>
           <tr>
             <td>{{ kpi.pending }}</td>
+            <td>{{ kpi.active }}</td>
             <td>{{ kpi.closed }}</td>
             <td>{{ kpi.wins }}</td>
             <td>{{ kpi.losses }}</td>
@@ -286,6 +293,7 @@
             <td>{{ kpi.win_rate }}%</td>
             <td>{{ kpi.expectancy_r }}</td>
             <td>{{ kpi.max_drawdown_r }}</td>
+            <td><span class="badge {{ 'ok' if (kpi.unrealized_usd_est or 0) >= 0 else 'no' }}">{{ kpi.unrealized_usd_est }}</span></td>
           </tr>
         </table>
       </div>
@@ -297,14 +305,14 @@
       </div>
 
       <div class="card col-12">
-        <h2>Órdenes pendientes</h2>
+        <h2>Órdenes activas (ya entramos)</h2>
         <table>
-          <tr><th>ID</th><th>Ticker</th><th>Estado</th><th>Score</th><th>Entrada</th><th>Target</th><th>Stop</th><th>Creada</th><th>Cierre manual (opcional)</th></tr>
-          {% for o in orders_pending %}
+          <tr><th>Ticker</th><th>Estado</th><th>Tipo</th><th>Score</th><th>Entrada</th><th>Precio actual</th><th>% desde entrada</th><th>PnL USD est.</th><th>Target</th><th>Stop</th><th>Creada</th><th>Cierre manual (opcional)</th></tr>
+          {% for o in orders_active %}
             {% set st = o.state or 'WATCH' %}
-            {% set st_human = 'Entrada simulada activa' if st == 'WATCH' else ('Lista para ejecutar' if st == 'READY' else ('Ejecución inmediata' if st == 'TRIGGERED' else st)) %}
+            {% set st_human = 'ACTIVA' %}
             <tr>
-              <td>{{ o.id }}</td><td>{{ o.ticker }}</td><td>{{ st_human }}</td><td>{{ o.score }}</td><td>{{ o.entry_price or '-' }}</td><td>{{ o.target_price or '-' }}</td><td>{{ o.stop_price or '-' }}</td><td>{{ o.created_at }}</td>
+              <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}')">{{ o.ticker }}</button></td><td>{{ st_human }}</td><td>{{ o.entry_kind or 'automática' }}</td><td>{{ o.score }}</td><td>{{ o.entry_price or '-' }}</td><td>{{ o.current_price if o.current_price is not none else '-' }}</td><td>{% if o.pct_move is not none %}<span class="badge {{ 'ok' if o.pct_move >= 0 else 'no' }}">{{ o.pct_move }}%</span>{% else %}-{% endif %}</td><td>{% if o.pnl_usd_est is not none %}<span class="badge {{ 'ok' if o.pnl_usd_est >= 0 else 'no' }}">{{ o.pnl_usd_est }}</span>{% else %}-{% endif %}</td><td>{{ o.target_price or '-' }}</td><td>{{ o.stop_price or '-' }}</td><td>{{ o.created_at }}</td>
               <td>
                 <form method="post" action="/orders/complete" style="display:flex;gap:6px;align-items:center">
                   <input type="hidden" name="order_id" value="{{ o.id }}" />
@@ -313,9 +321,20 @@
               </td>
             </tr>
           {% endfor %}
-          {% if orders_pending|length == 0 %}<tr><td colspan="9">Sin órdenes pendientes</td></tr>{% endif %}
+          {% if orders_active|length == 0 %}<tr><td colspan="12">Sin órdenes activas</td></tr>{% endif %}
         </table>
-        <div class="muted" style="margin-top:8px">Cierre automático: el sistema marca ganada/perdida según Target/Stop en precio real. "Cerrar manual" fuerza cierre y calcula resultado automáticamente con precio actual vs entrada.</div>
+        <div class="muted" style="margin-top:8px">Cierre automático: el sistema marca ganada/perdida según Target/Stop en precio real. "Cerrar manual" fuerza cierre y calcula resultado automáticamente con precio actual vs entrada. PnL USD es una estimación rápida por unidad.</div>
+      </div>
+
+      <div class="card col-12">
+        <h2>Pendientes de entrada (aún no ejecutadas)</h2>
+        <table>
+          <tr><th>ID</th><th>Ticker</th><th>Estado</th><th>Score</th><th>Creada</th></tr>
+          {% for o in orders_pending %}
+            <tr><td>{{ o.id }}</td><td>{{ o.ticker }}</td><td>{{ o.state or 'WATCH' }}</td><td>{{ o.score }}</td><td>{{ o.created_at }}</td></tr>
+          {% endfor %}
+          {% if orders_pending|length == 0 %}<tr><td colspan="5">No hay pendientes de entrada</td></tr>{% endif %}
+        </table>
       </div>
 
       <div class="card col-12">
@@ -413,6 +432,31 @@
 
     </div>
 
+    <div class="grid tab-section" data-tab="crypto">
+      <div class="card col-12">
+        <h2>Cripto Scout (simulado) — lenguaje natural</h2>
+        <p class="muted">Fuente: {{ crypto_signals.source or 'N/D' }} · actualización: {{ crypto_signals.generated_at or 'N/D' }}{% if crypto_signals.freshness_min is not none %} (hace {{ crypto_signals.freshness_min }} min){% endif %}</p>
+        <table>
+          <tr><th>Activo</th><th>Precio USD</th><th>24h</th><th>7d</th><th>Score</th><th>Estado</th><th>Decisión</th><th>Lectura en cristiano</th></tr>
+          {% for c in crypto_signals.top_opportunities[:10] if crypto_signals.top_opportunities is defined %}
+            <tr>
+              <td><strong>{{ c.ticker }}</strong> · {{ c.name }}</td>
+              <td>{{ c.price_usd }}</td>
+              <td><span class="badge {{ 'ok' if c.chg_24h_pct >= 0 else 'no' }}">{{ c.chg_24h_pct }}%</span></td>
+              <td><span class="badge {{ 'ok' if c.chg_7d_pct >= 0 else 'no' }}">{{ c.chg_7d_pct }}%</span></td>
+              <td>{{ c.score }}</td>
+              <td>{{ c.state }}</td>
+              <td><span class="badge {{ 'ok' if c.decision_final=='BUY' else ('warn' if c.decision_final=='HOLD' else 'no') }}">{{ c.decision_final }}</span></td>
+              <td>{{ c.argumento_en_contra }}</td>
+            </tr>
+          {% endfor %}
+          {% if crypto_signals.top_opportunities is not defined or crypto_signals.top_opportunities|length == 0 %}
+            <tr><td colspan="8">Sin datos cripto todavía (ejecuta ingest cripto).</td></tr>
+          {% endif %}
+        </table>
+      </div>
+    </div>
+
     <div class="grid tab-section" data-tab="oficina">
       <div class="card col-12">
         <h2>🏢 Oficina viva de agentes</h2>
@@ -423,37 +467,45 @@
           <span class="legend-item">🟢 En cónclave</span>
         </div>
         <div class="office-map" id="officeMap">
-          <div class="room-box" style="left:16px;top:16px">
+          <div class="room-box" id="room-macro">
             <span class="room-name">Macro</span>
             Aquí se analiza el contexto global: volatilidad, tipos y viento de mercado.
+            <div class="room-agents" id="room-agents-macro-agent"></div>
           </div>
-          <div class="room-box" style="left:290px;top:16px">
+          <div class="room-box" id="room-news">
             <span class="room-name">Noticias y catalizadores</span>
             Aquí se detectan noticias relevantes y eventos que pueden mover el precio.
+            <div class="room-agents" id="room-agents-news-catalyst-agent"></div>
           </div>
-          <div class="room-box" style="left:560px;top:16px">
+          <div class="room-box" id="room-technical">
             <span class="room-name">Técnico</span>
             Aquí se revisan tendencia, volumen, ruptura y estructura del gráfico.
+            <div class="room-agents" id="room-agents-technical-agent"></div>
           </div>
-          <div class="room-box" style="left:16px;top:180px">
+          <div class="room-box" id="room-risk">
             <span class="room-name">Riesgo y ejecución</span>
             Aquí se valida exposición, stop/target y disciplina operativa.
+            <div class="room-agents" id="room-agents-risk-exec-agent"></div>
           </div>
-          <div class="room-box" style="left:290px;top:180px">
+          <div class="room-box" id="room-devil">
             <span class="room-name">Abogado del Diablo</span>
             Aquí se atacan las tesis para evitar compras por euforia o sesgo.
+            <div class="room-agents" id="room-agents-devil-advocate-agent"></div>
           </div>
-          <div class="room-box" style="left:560px;top:180px">
+          <div class="room-box" id="room-alpha">
             <span class="room-name">Alpha Scout</span>
             Aquí se orquesta todo y se decide qué pasa a WATCH/READY/TRIGGERED.
+            <div class="room-agents" id="room-agents-alpha-scout"></div>
           </div>
-          <div class="room-box" style="left:560px;top:330px">
+          <div class="room-box" id="room-local-council">
             <span class="room-name">Consejo Local (Qwen3)</span>
             Aquí entra solo en casos críticos para arbitrar la decisión final en local.
+            <div class="room-agents" id="room-agents-local-council-agent"></div>
           </div>
-          <div class="room-box" style="left:280px;top:370px">
+          <div class="room-box conclave-room" id="room-conclave">
             <span class="room-name">🧠 Cónclave</span>
             Sala final: se juntan pros y contras para emitir HOLD / BUY / AVOID.
+            <div class="room-agents" id="room-agents-conclave"></div>
           </div>
         </div>
       </div>
@@ -725,6 +777,23 @@
 
     <div class="foot">Última actualización: <span id="ts"></span></div>
   </div>
+
+  <div class="modal-backdrop" id="analysisModal">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <h2 id="anTitle" style="margin:0">Análisis detallado</h2>
+        <button class="tab-btn" type="button" onclick="closeAnalysis()">Cerrar</button>
+      </div>
+      <p id="anNarrativa" class="muted" style="margin-top:8px"></p>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;margin:10px 0">
+        <div class="pill">Precio: <span id="anPrice">-</span></div>
+        <div class="pill">Entrada: <span id="anEntry">-</span></div>
+        <div class="pill">Target: <span id="anTarget">-</span></div>
+        <div class="pill">Stop: <span id="anStop">-</span></div>
+      </div>
+      <svg id="anCandle" viewBox="0 0 900 260" style="width:100%;height:260px;border:1px solid #2a3a5b;border-radius:10px;background:#0b1222"></svg>
+    </div>
+  </div>
   <script>
     document.getElementById('ts').textContent = new Date().toLocaleString();
 
@@ -797,17 +866,6 @@
       const topOps = {{ (signals.top_opportunities if signals.top_opportunities is defined else [])|tojson }};
       const hasConclave = Array.isArray(topOps) && topOps.length > 0;
 
-      const anchors = {
-        'macro-agent':[26,92],
-        'news-catalyst-agent':[305,92],
-        'technical-agent':[575,92],
-        'risk-exec-agent':[26,258],
-        'devil-advocate-agent':[305,258],
-        'alpha-scout':[575,258],
-        'local-council-agent':[575,405],
-        'conclave':[300,440],
-      };
-
       // Versión final: cónclave dinámico según evidencia real del top ticker
       const top = (Array.isArray(topOps) && topOps.length) ? topOps[0] : null;
       const inConclave = new Set();
@@ -832,7 +890,7 @@
         if (inConclave.has('local-council-agent')) {
           gptAlert.innerHTML = '<span class="badge warn">Caso crítico</span> Gaia (Consejo Local Qwen3) está arbitrando la decisión final.';
         } else {
-          gptAlert.innerHTML = '<span class="badge ok">Modo normal</span> Sin arbitraje GPT‑5.3 en este ciclo.';
+          gptAlert.innerHTML = '<span class="badge ok">Modo normal</span> Sin arbitraje del consejo local en este ciclo.';
         }
       }
 
@@ -846,35 +904,37 @@
         'local-council-agent': 'Gaia (Consejo Local Qwen3)',
       };
 
-      let conclaveIdx = 0;
-      agents.forEach((a, idx) => {
-        const bubble = document.createElement('div');
-        bubble.className = 'agent-bubble';
-        bubble.title = agentNames[a.id] || a.id;
+      const roomTargets = {
+        'macro-agent': 'room-agents-macro-agent',
+        'news-catalyst-agent': 'room-agents-news-catalyst-agent',
+        'technical-agent': 'room-agents-technical-agent',
+        'risk-exec-agent': 'room-agents-risk-exec-agent',
+        'devil-advocate-agent': 'room-agents-devil-advocate-agent',
+        'alpha-scout': 'room-agents-alpha-scout',
+        'local-council-agent': 'room-agents-local-council-agent',
+      };
 
+      agents.forEach((a) => {
         const liveRow = (live || []).find(x => x.agent === a.id);
         const txt = ((liveRow && liveRow.text) || '').toLowerCase();
         const transit = txt.includes('envi') || txt.includes('consenso');
         const conclave = inConclave.has(a.id);
 
-        let x = (anchors[a.id] || anchors['alpha-scout'])[0];
-        let y = (anchors[a.id] || anchors['alpha-scout'])[1];
+        const tag = document.createElement('div');
+        tag.className = 'agent-tag';
+        if (transit) tag.classList.add('in-transit');
+        if (conclave) tag.classList.add('in-conclave');
+        tag.textContent = agentNames[a.id] || a.id;
 
+        // Regla visual estricta: cada agente solo puede estar en UNA sala.
+        // Prioridad: cónclave > sala base.
         if (conclave) {
-          const col = conclaveIdx % 3;
-          const row = Math.floor(conclaveIdx / 3);
-          x = 225 + (col * 185);
-          y = 430 + (row * 40);
-          conclaveIdx += 1;
+          const conclaveRoom = document.getElementById('room-agents-conclave');
+          if (conclaveRoom) conclaveRoom.appendChild(tag);
+        } else {
+          const baseRoom = document.getElementById(roomTargets[a.id]);
+          if (baseRoom) baseRoom.appendChild(tag);
         }
-
-        bubble.style.left = x + 'px';
-        bubble.style.top = y + 'px';
-        bubble.textContent = agentNames[a.id] || a.id;
-        if(conclave) bubble.classList.add('in-conclave');
-        if(transit) bubble.classList.add('in-transit');
-
-        map.appendChild(bubble);
       });
 
       // Log narrativo de conversaciones
@@ -905,6 +965,41 @@
         logEl.innerHTML = lines.join('');
       }
     })();
+
+    async function openAnalysis(ticker){
+      const modal = document.getElementById('analysisModal');
+      modal.style.display = 'flex';
+      const res = await fetch(`/api/analysis/${encodeURIComponent(ticker)}`);
+      const d = await res.json();
+      document.getElementById('anTitle').textContent = `Análisis detallado · ${d.ticker}`;
+      document.getElementById('anNarrativa').textContent = d.narrativa || '';
+      document.getElementById('anPrice').textContent = d.price ?? '-';
+      document.getElementById('anEntry').textContent = d.entry_price ?? '-';
+      document.getElementById('anTarget').textContent = d.target_price ?? '-';
+      document.getElementById('anStop').textContent = d.stop_price ?? '-';
+
+      const svg = document.getElementById('anCandle');
+      const c = Array.isArray(d.candles) ? d.candles : [];
+      if(c.length < 2){ svg.innerHTML=''; return; }
+      const w=900,h=260,p=24;
+      const hi=Math.max(...c.map(x=>x.h));
+      const lo=Math.min(...c.map(x=>x.l));
+      const span=(hi-lo)||1;
+      const xStep=(w-2*p)/c.length;
+      const y=v=>h-p-((v-lo)/span)*(h-2*p);
+      const bodyW=Math.max(2, xStep*0.55);
+      let html='';
+      c.forEach((k,i)=>{
+        const x=p+i*xStep+xStep/2;
+        const color=k.c>=k.o ? '#22c55e' : '#ef4444';
+        html += `<line x1="${x}" y1="${y(k.h)}" x2="${x}" y2="${y(k.l)}" stroke="${color}" stroke-width="1.2"/>`;
+        const by=Math.min(y(k.o),y(k.c));
+        const bh=Math.max(1,Math.abs(y(k.o)-y(k.c)));
+        html += `<rect x="${x-bodyW/2}" y="${by}" width="${bodyW}" height="${bh}" fill="${color}" opacity="0.9"/>`;
+      });
+      svg.innerHTML = html;
+    }
+    function closeAnalysis(){ document.getElementById('analysisModal').style.display='none'; }
 
     setTimeout(() => location.reload(), 30000);
   </script>

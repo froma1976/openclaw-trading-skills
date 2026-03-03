@@ -4,9 +4,11 @@ import sqlite3
 import json
 import hashlib
 import subprocess
+import urllib.request
+import urllib.parse
 from datetime import datetime, UTC, timedelta
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -22,6 +24,7 @@ ORDERS_PATH = Path(os.getenv("ORDERS_PATH", "C:/Users/Fernando/.openclaw/workspa
 JOURNAL_PATH = Path(os.getenv("JOURNAL_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/trades_journal.json"))
 SNAPSHOT_PATH = Path(os.getenv("SNAPSHOT_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/latest_snapshot_free.json"))
 BACKUP_ROOT = Path(os.getenv("BACKUP_ROOT", "C:/Users/Fernando/.openclaw/workspace/backups/state"))
+CRYPTO_SIGNALS_PATH = Path(os.getenv("CRYPTO_SIGNALS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json"))
 GPT53_BUDGET_PATH = Path(os.getenv("GPT53_BUDGET_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/gpt53_budget.json"))
 GPT53_MODE = os.getenv("GPT53_MODE", "normal").strip().lower()
 
@@ -161,6 +164,25 @@ def load_signals_snapshot():
         return data
     except Exception:
         return {"generated_at": None, "macro": [], "market": [], "news": [], "freshness_min": None}
+
+
+def load_crypto_snapshot():
+    if not CRYPTO_SIGNALS_PATH.exists():
+        return {"generated_at": None, "assets": [], "top_opportunities": [], "freshness_min": None}
+    try:
+        data = json.loads(CRYPTO_SIGNALS_PATH.read_text(encoding="utf-8"))
+        gen = data.get("generated_at")
+        freshness = None
+        if gen:
+            try:
+                dt = datetime.fromisoformat(gen.replace("Z", "+00:00"))
+                freshness = int((datetime.now(UTC) - dt).total_seconds() // 60)
+            except Exception:
+                freshness = None
+        data["freshness_min"] = freshness
+        return data
+    except Exception:
+        return {"generated_at": None, "assets": [], "top_opportunities": [], "freshness_min": None}
 
 
 def load_agents_runtime():
@@ -492,6 +514,69 @@ def api_summary():
     }
 
 
+@app.get("/api/analysis/{ticker}")
+def api_analysis(ticker: str):
+    tkr = (ticker or "").upper().strip()
+    signals = load_signals_snapshot()
+    market = signals.get("market", []) if isinstance(signals, dict) else []
+    row = next((m for m in market if isinstance(m, dict) and str(m.get("ticker", "")).upper() == tkr), None)
+    top = next((m for m in (signals.get("top_opportunities", []) if isinstance(signals, dict) else []) if str(m.get("ticker", "")).upper() == tkr), None)
+
+    orders = load_orders()
+    ord_row = next((o for o in (orders.get("pending", []) or []) if str(o.get("ticker", "")).upper() == tkr), None)
+
+    price = None
+    try:
+        price = float((row or {}).get("regularMarketPrice") or (row or {}).get("lastCloseSeries"))
+    except Exception:
+        pass
+
+    # vela simple desde Yahoo (últimas 60)
+    candles = []
+    try:
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(tkr)}?range=3mo&interval=1d"
+        req = urllib.request.Request(url, headers={"User-Agent": "agent-ops-dashboard/1.0"})
+        with urllib.request.urlopen(req, timeout=12) as r:
+            data = json.loads(r.read().decode("utf-8", errors="ignore"))
+        res = (((data or {}).get("chart") or {}).get("result") or [{}])[0]
+        ts = res.get("timestamp") or []
+        q = ((res.get("indicators") or {}).get("quote") or [{}])[0]
+        o = q.get("open") or []
+        h = q.get("high") or []
+        l = q.get("low") or []
+        c = q.get("close") or []
+        for i in range(max(0, len(ts) - 60), len(ts)):
+            if i < len(o) and i < len(h) and i < len(l) and i < len(c) and None not in (o[i], h[i], l[i], c[i]):
+                candles.append({"t": int(ts[i]), "o": float(o[i]), "h": float(h[i]), "l": float(l[i]), "c": float(c[i])})
+    except Exception:
+        pass
+
+    reasons = (top or {}).get("reasons") or []
+    contra = (top or {}).get("argumento_en_contra") or "Sin objeción crítica detectada"
+    decision = (top or {}).get("decision_final") or "HOLD"
+    confidence = (top or {}).get("confidence_pct") or (top or {}).get("score_final") or (row or {}).get("score") or 0
+    bubble = (top or {}).get("bubble_level") or "Bajo"
+
+    narrativa = (
+        f"{tkr}: confianza {confidence}%, burbuja {bubble}. "
+        f"Señales a favor: {', '.join(reasons[:4]) if reasons else 'sin señales fuertes'}. "
+        f"Principal objeción: {contra}. Decisión actual: {decision}."
+    )
+
+    return JSONResponse({
+        "ticker": tkr,
+        "price": price,
+        "entry_price": (ord_row or {}).get("entry_price"),
+        "target_price": (ord_row or {}).get("target_price"),
+        "stop_price": (ord_row or {}).get("stop_price"),
+        "decision": decision,
+        "confidence": confidence,
+        "bubble": bubble,
+        "narrativa": narrativa,
+        "candles": candles,
+    })
+
+
 @app.post("/tasks/create")
 def create_task(
     title: str = Form(...),
@@ -777,6 +862,7 @@ def home(request: Request):
     market_value = sum(float(p.get("notional_usd", 0)) for p in positions if p.get("status") == "active")
     equity = cash_usd + market_value
     signals = load_signals_snapshot()
+    crypto_signals = load_crypto_snapshot()
     commits = latest_commits()
     autopilot_log = load_autopilot_log()
     agents_runtime = load_agents_runtime()
@@ -823,6 +909,46 @@ def home(request: Request):
     completed_orders = orders.get("completed", [])
     journal = load_journal()
 
+    # Enriquecer órdenes pendientes con precio actual y variación % vs entrada
+    unrealized_usd_est = 0.0
+    try:
+        market_rows = signals.get("market", []) if isinstance(signals, dict) else []
+        px_map = {}
+        for m in market_rows:
+            if isinstance(m, dict) and m.get("ticker"):
+                p = m.get("regularMarketPrice") or m.get("lastCloseSeries")
+                try:
+                    px_map[str(m.get("ticker"))] = float(p)
+                except Exception:
+                    pass
+
+        for o in pending_orders:
+            t = str(o.get("ticker") or "")
+            cur_px = px_map.get(t)
+            o["current_price"] = round(cur_px, 4) if cur_px is not None else None
+            entry = o.get("entry_price")
+            o["entry_kind"] = "forzada manual" if o.get("forced") else "automática"
+            o["entry_status"] = "entrada abierta"
+            try:
+                if cur_px is not None and entry not in (None, 0, ""):
+                    entry_f = float(entry)
+                    o["pct_move"] = round(((cur_px - entry_f) / entry_f) * 100, 2)
+                    # estimación simple: 1 unidad por señal
+                    o["pnl_usd_est"] = round(cur_px - entry_f, 4)
+                    unrealized_usd_est += (cur_px - entry_f)
+                else:
+                    o["pct_move"] = None
+                    o["pnl_usd_est"] = None
+            except Exception:
+                o["pct_move"] = None
+                o["pnl_usd_est"] = None
+    except Exception:
+        pass
+
+    # Separar órdenes: pendientes de entrada vs activas (entrada abierta)
+    pre_entry_orders = [o for o in pending_orders if o.get("entry_price") in (None, "", 0)]
+    active_orders = [o for o in pending_orders if o.get("entry_price") not in (None, "", 0)]
+
     wins = sum(1 for o in completed_orders if str(o.get("result", "")).lower() == "ganada")
     losses = sum(1 for o in completed_orders if str(o.get("result", "")).lower() == "perdida")
     neutral = sum(1 for o in completed_orders if str(o.get("result", "")).lower() == "neutral")
@@ -867,6 +993,7 @@ def home(request: Request):
 
     freshness = signals.get("freshness_min") if isinstance(signals, dict) else None
     stale = (freshness is None) or (freshness > 20)
+    equity_live_est = round(equity + unrealized_usd_est, 2)
 
     return templates.TemplateResponse(
         "index.html",
@@ -882,7 +1009,9 @@ def home(request: Request):
             "portfolio_cash_usd": cash_usd,
             "portfolio_market_value_usd": market_value,
             "portfolio_equity_usd": equity,
+            "portfolio_equity_live_est": equity_live_est,
             "signals": signals,
+            "crypto_signals": crypto_signals,
             "commits": commits,
             "signals_stale": stale,
             "autopilot_log": autopilot_log,
@@ -890,10 +1019,12 @@ def home(request: Request):
             "agents_health": agents_health,
             "agent_live": agent_live,
             "run_status": run_status,
-            "orders_pending": pending_orders,
+            "orders_pending": pre_entry_orders,
+            "orders_active": active_orders,
             "orders_completed": completed_orders,
             "orders_kpi": {
-                "pending": len(pending_orders),
+                "pending": len(pre_entry_orders),
+                "active": len(active_orders),
                 "closed": total_closed,
                 "wins": wins,
                 "losses": losses,
@@ -901,6 +1032,7 @@ def home(request: Request):
                 "win_rate": win_rate,
                 "expectancy_r": expectancy_r,
                 "max_drawdown_r": max_drawdown_r,
+                "unrealized_usd_est": round(unrealized_usd_est, 2),
             },
             "equity_curve": equity_curve,
             "market_today": market_today,
