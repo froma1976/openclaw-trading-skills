@@ -22,6 +22,31 @@ def get_json(url: str):
         return json.loads(r.read().decode("utf-8"))
 
 
+def fetch_chart_spy(ticker: str) -> int:
+    # Señal rápida de velas 1m/5m (Binance): 1 alcista, -1 bajista, 0 neutra/error
+    try:
+        sym = f"{ticker}USDT"
+        u1 = f"https://api.binance.com/api/v3/klines?symbol={sym}&interval=1m&limit=30"
+        u5 = f"https://api.binance.com/api/v3/klines?symbol={sym}&interval=5m&limit=20"
+        k1 = get_json(u1)
+        k5 = get_json(u5)
+        if not isinstance(k1, list) or not isinstance(k5, list) or len(k1) < 10 or len(k5) < 10:
+            return 0
+        c1 = [float(x[4]) for x in k1 if len(x) > 4]
+        c5 = [float(x[4]) for x in k5 if len(x) > 4]
+        m1s = sum(c1[-7:-1]) / 6
+        m1l = sum(c1[-20:-1]) / 19
+        m5s = sum(c5[-5:-1]) / 4
+        m5l = sum(c5[-12:-1]) / 11
+        if c1[-1] > m1s > m1l and c5[-1] > m5s > m5l:
+            return 1
+        if c1[-1] < m1s < m1l and c5[-1] < m5s < m5l:
+            return -1
+        return 0
+    except Exception:
+        return 0
+
+
 def score_crypto(row: dict):
     ch24 = float(row.get("price_change_percentage_24h") or 0)
     ch7 = float(row.get("price_change_percentage_7d_in_currency") or 0)
@@ -173,6 +198,10 @@ def main():
         sc = score_crypto(r)
 
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
+        spy_chart = fetch_chart_spy(ticker)
+        sc["spy_chart"] = spy_chart
+        sc["spy_confluence"] = int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"] + sc["spy_chart"])
+
         senior_report, technical_report, sentiment_report = build_reports(ticker, p, r, sc)
 
         assets.append({
@@ -197,7 +226,8 @@ def main():
             "spy_euphoria": sc["spy_euphoria"],
             "spy_flow": sc["spy_flow"],
             "spy_whale": sc["spy_whale"],
-            "spy_confluence": int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"]),
+            "spy_chart": sc["spy_chart"],
+            "spy_confluence": sc["spy_confluence"],
             "senior_report": senior_report,
             "technical_report": technical_report,
             "sentiment_report": sentiment_report,

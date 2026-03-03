@@ -73,6 +73,12 @@
       "role": "ejecución rápida cripto",
       "model": "deterministic",
       "why": "abre/cierra operaciones intradía en segundos/minutos"
+    },
+    {
+      "id": "crypto-chart-agent",
+      "role": "analista de velas cripto",
+      "model": "deterministic",
+      "why": "lee velas 1m/5m para confirmar entrada rápida"
     }
   ],
   "fallback": {

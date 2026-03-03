@@ -433,19 +433,43 @@
     </div>
 
     <div class="grid tab-section" data-tab="crypto">
+      {% set cp = crypto_portfolio|default({'capital_initial_usd':300,'cash_usd':300,'market_value_usd':0,'equity_usd':300}) %}
       <div class="card col-12">
         <h2>Cartera Cripto (separada)</h2>
         <table>
-          <tr><th>Capital inicial</th><th>Cash</th><th>Valor activo</th><th>Equity</th><th>Activas</th><th>Cerradas</th><th>PnL activo USD (est.)</th></tr>
+          <tr><th>Capital inicial</th><th>Gastado en operaciones activas</th><th>Cash libre</th><th>Valor activo</th><th>Equity total</th><th>Activas</th><th>Cerradas</th><th>Ganando/Perdiendo ahora (USD est.)</th></tr>
           <tr>
-            <td>{{ crypto_portfolio.capital_initial_usd }}</td>
-            <td>{{ crypto_portfolio.cash_usd }}</td>
-            <td>{{ crypto_portfolio.market_value_usd }}</td>
-            <td><span class="badge {{ 'ok' if (crypto_portfolio.equity_usd or 0) >= (crypto_portfolio.capital_initial_usd or 0) else 'no' }}">{{ crypto_portfolio.equity_usd }}</span></td>
+            <td>{{ cp['capital_initial_usd'] }}</td>
+            <td>{{ '%.2f'|format((cp['capital_initial_usd'] or 0) - (cp['cash_usd'] or 0)) }}</td>
+            <td>{{ cp['cash_usd'] }}</td>
+            <td>{{ cp['market_value_usd'] }}</td>
+            <td><span class="badge {{ 'ok' if (cp['equity_usd'] or 0) >= (cp['capital_initial_usd'] or 0) else 'no' }}">{{ cp['equity_usd'] }}</span></td>
             <td>{{ crypto_orders_active|length }}</td>
             <td>{{ crypto_orders_completed|length }}</td>
             <td><span class="badge {{ 'ok' if (crypto_unrealized_usd_est or 0) >= 0 else 'no' }}">{{ crypto_unrealized_usd_est }}</span></td>
           </tr>
+        </table>
+        <div class="muted" style="margin-top:8px">BUY = entra operación. AVOID = no entramos.</div>
+      </div>
+
+      <div class="card col-12">
+        <h2>Órdenes cripto activas (compradas)</h2>
+        <table>
+          <tr><th>Ticker</th><th>Entrada</th><th>Precio actual</th><th>%</th><th>PnL USD est.</th><th>Gastado (USD)</th><th>Target</th><th>Stop</th><th>Abierta</th></tr>
+          {% for o in crypto_orders_active %}
+            <tr>
+              <td>{{ o.ticker }}</td>
+              <td>{{ o.entry_price }}</td>
+              <td>{{ o.current_price if o.current_price is not none else '-' }}</td>
+              <td>{% if o.pct_move is not none %}<span class="badge {{ 'ok' if o.pct_move >= 0 else 'no' }}">{{ o.pct_move }}%</span>{% else %}-{% endif %}</td>
+              <td>{% if o.pnl_usd_est is not none %}<span class="badge {{ 'ok' if o.pnl_usd_est >= 0 else 'no' }}">{{ o.pnl_usd_est }}</span>{% else %}-{% endif %}</td>
+              <td>{{ o.notional_usd if o.notional_usd is not none else '-' }}</td>
+              <td>{{ o.target_price }}</td>
+              <td>{{ o.stop_price }}</td>
+              <td>{{ o.opened_at }}</td>
+            </tr>
+          {% endfor %}
+          {% if crypto_orders_active|length == 0 %}<tr><td colspan="9">No hay compras activas ahora mismo.</td></tr>{% endif %}
         </table>
       </div>
 
@@ -453,7 +477,7 @@
         <h2>Cripto Scout (simulado) — lenguaje natural</h2>
         <p class="muted">Fuente: {{ crypto_signals.source or 'N/D' }} · actualización: {{ crypto_signals.generated_at or 'N/D' }}{% if crypto_signals.freshness_min is not none %} (hace {{ crypto_signals.freshness_min }} min){% endif %}</p>
         <table>
-          <tr><th>Activo</th><th>Precio USD</th><th>24h</th><th>7d</th><th>Score</th><th>Espías (confluencia)</th><th>Estado</th><th>Decisión</th><th>Lectura en cristiano</th></tr>
+          <tr><th>Activo</th><th>Precio USD</th><th>24h</th><th>7d</th><th>Score</th><th>Espías (confluencia)</th><th>Estado</th><th>Decisión</th><th>Ejecución</th><th>Lectura en cristiano</th></tr>
           {% for c in crypto_signals.top_opportunities[:10] if crypto_signals.top_opportunities is defined %}
             <tr>
               <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ c.ticker }}-USD')">{{ c.ticker }}</button> · {{ c.name }}</td>
@@ -464,11 +488,18 @@
               <td><span class="badge {{ 'ok' if (c.spy_confluence or 0) >= 2 else 'no' }}">{{ c.spy_confluence or 0 }}</span></td>
               <td>{{ c.state }}</td>
               <td><span class="badge {{ 'ok' if c.decision_final=='BUY' else 'no' }}">{{ c.decision_final }}</span></td>
+              <td>
+                {% if c.ticker in active_crypto_tickers %}
+                  <span class="badge ok">COMPRADA</span>
+                {% else %}
+                  <span class="badge no">NO COMPRADA</span>
+                {% endif %}
+              </td>
               <td>{{ c.argumento_en_contra }}</td>
             </tr>
           {% endfor %}
           {% if crypto_signals.top_opportunities is not defined or crypto_signals.top_opportunities|length == 0 %}
-            <tr><td colspan="9">Sin datos cripto todavía (ejecuta ingest cripto).</td></tr>
+            <tr><td colspan="10">Sin datos cripto todavía (ejecuta ingest cripto).</td></tr>
           {% endif %}
         </table>
       </div>
@@ -543,6 +574,11 @@
             <span class="room-name">Ejecución cripto rápida</span>
             Lanza y cierra scalps en ventanas de segundos/minutos.
             <div class="room-agents" id="room-agents-crypto-execution-agent"></div>
+          </div>
+          <div class="room-box" id="room-crypto-chart">
+            <span class="room-name">Analista de velas cripto</span>
+            Lee velas 1m/5m para confirmar si entramos o evitamos.
+            <div class="room-agents" id="room-agents-crypto-chart-agent"></div>
           </div>
           <div class="room-box conclave-room" id="room-conclave">
             <span class="room-name">🧠 Cónclave</span>
@@ -949,6 +985,7 @@
         'crypto-flow-spy-agent': 'Flux (Espía flujo cripto)',
         'crypto-whale-spy-agent': 'Wally (Espía ballenas)',
         'crypto-execution-agent': 'Rex (Ejecución rápida cripto)',
+        'crypto-chart-agent': 'Cora (Analista de velas cripto)',
       };
 
       const roomTargets = {
@@ -964,6 +1001,7 @@
         'crypto-flow-spy-agent': 'room-agents-crypto-flow-spy-agent',
         'crypto-whale-spy-agent': 'room-agents-crypto-whale-spy-agent',
         'crypto-execution-agent': 'room-agents-crypto-execution-agent',
+        'crypto-chart-agent': 'room-agents-crypto-chart-agent',
       };
 
       agents.forEach((a) => {
