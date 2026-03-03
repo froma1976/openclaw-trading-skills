@@ -85,6 +85,30 @@
       "role": "cazador de ruptura temprana",
       "model": "deterministic",
       "why": "detecta aceleración + volumen para entrar al inicio del impulso"
+    },
+    {
+      "id": "crypto-whale-vc-agent",
+      "role": "espía ballenas/VC",
+      "model": "deterministic",
+      "why": "prioriza acumulación smart-money antes de ruido social"
+    },
+    {
+      "id": "crypto-dev-signal-agent",
+      "role": "espía de desarrollo",
+      "model": "deterministic",
+      "why": "premia proyectos con señales de construcción sostenida"
+    },
+    {
+      "id": "crypto-ecosystem-agent",
+      "role": "espía ecosistemas emergentes",
+      "model": "deterministic",
+      "why": "identifica nuevas redes con tracción temprana"
+    },
+    {
+      "id": "crypto-rugcheck-agent",
+      "role": "filtro anti-rug",
+      "model": "deterministic",
+      "why": "bloquea entradas con estructura tokenómica de alto riesgo"
     }
   ],
   "fallback": {

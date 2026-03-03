@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-03-03T17:43:12Z",
+  "generated_at": "2026-03-03T19:01:19Z",
   "assets": [
     {
       "id": "bitcoin",
       "ticker": "BTC",
       "name": "Bitcoin",
-      "price_usd": 68018.0,
-      "chg_24h_pct": -1.23,
-      "chg_7d_pct": 6.34,
+      "price_usd": 68641.0,
+      "chg_24h_pct": -0.39,
+      "chg_7d_pct": 6.89,
       "market_cap_rank": 1,
-      "total_volume": 54887758593,
+      "total_volume": 54452256723,
       "score": 75,
       "score_final": 75,
       "confidence_pct": 75,
@@ -20,7 +20,10 @@
         "liquidez_alta"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.0404,
+      "flow_ratio": 0.0397,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 75,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -31,15 +34,15 @@
       "spy_confluence": 1,
       "senior_report": {
         "setup": {
-          "entry": 68018.0,
-          "tp1": 68834.216,
-          "tp2": 69378.36,
-          "sl": 67541.874
+          "entry": 68641.0,
+          "tp1": 69464.692,
+          "tp2": 70013.82,
+          "sl": 68160.513
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -1.23%",
-          "EMA proxy tendencia 7d: 6.34%",
-          "Volumen/MCAP: 0.0404"
+          "RSI proxy momentum 24h: -0.39%",
+          "EMA proxy tendencia 7d: 6.89%",
+          "Volumen/MCAP: 0.0397"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -47,14 +50,14 @@
       "technical_report": {
         "sesgo": "Bullish",
         "soportes_resistencias": {
-          "soporte_1": 67337.82,
-          "soporte_2": 66317.55,
-          "resistencia_1": 68698.18,
-          "resistencia_2": 69718.45
+          "soporte_1": 67954.59,
+          "soporte_2": 66924.975,
+          "resistencia_1": 69327.41,
+          "resistencia_2": 70357.025
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 66997.73"
+        "invalidacion": "cierres por debajo de 67611.385"
       },
       "sentiment_report": {
         "catalizador": "catalizador débil",
@@ -66,24 +69,26 @@
       "id": "ethereum",
       "ticker": "ETH",
       "name": "Ethereum",
-      "price_usd": 1969.89,
-      "chg_24h_pct": -3.06,
-      "chg_7d_pct": 6.66,
+      "price_usd": 1988.57,
+      "chg_24h_pct": -2.02,
+      "chg_7d_pct": 7.18,
       "market_cap_rank": 2,
-      "total_volume": 25671529316,
-      "score": 68,
-      "score_final": 68,
-      "confidence_pct": 68,
-      "state": "READY",
+      "total_volume": 24961373375,
+      "score": 80,
+      "score_final": 80,
+      "confidence_pct": 80,
+      "state": "TRIGGERED",
       "decision_final": "BUY",
       "reasons": [
-        "momento_24h_debil",
         "tendencia_7d_fuerte",
         "flujo_ok",
         "liquidez_alta"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.108,
+      "flow_ratio": 0.104,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 84,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -94,15 +99,15 @@
       "spy_confluence": 2,
       "senior_report": {
         "setup": {
-          "entry": 1969.89,
-          "tp1": 1993.52868,
-          "tp2": 2009.2878,
-          "sl": 1956.10077
+          "entry": 1988.57,
+          "tp1": 2012.43284,
+          "tp2": 2028.3414,
+          "sl": 1974.65001
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -3.06%",
-          "EMA proxy tendencia 7d: 6.66%",
-          "Volumen/MCAP: 0.1080"
+          "RSI proxy momentum 24h: -2.02%",
+          "EMA proxy tendencia 7d: 7.18%",
+          "Volumen/MCAP: 0.1040"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -110,14 +115,14 @@
       "technical_report": {
         "sesgo": "Bullish",
         "soportes_resistencias": {
-          "soporte_1": 1950.1911,
-          "soporte_2": 1920.64275,
-          "resistencia_1": 1989.5889,
-          "resistencia_2": 2019.13725
+          "soporte_1": 1968.6843,
+          "soporte_2": 1938.85575,
+          "resistencia_1": 2008.4557,
+          "resistencia_2": 2038.28425
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 1940.34165"
+        "invalidacion": "cierres por debajo de 1958.74145"
       },
       "sentiment_report": {
         "catalizador": "flujo y momento intradía",
@@ -129,11 +134,11 @@
       "id": "ripple",
       "ticker": "XRP",
       "name": "XRP",
-      "price_usd": 1.36,
-      "chg_24h_pct": -2.38,
-      "chg_7d_pct": 0.4,
+      "price_usd": 1.37,
+      "chg_24h_pct": -2.36,
+      "chg_7d_pct": 0.59,
       "market_cap_rank": 5,
-      "total_volume": 2953873321,
+      "total_volume": 3236274580,
       "score": 55,
       "score_final": 55,
       "confidence_pct": 55,
@@ -143,7 +148,10 @@
         "liquidez_alta"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.0356,
+      "flow_ratio": 0.0387,
+      "mc_fdv_ratio": 0.611,
+      "rug_block": false,
+      "gem_score": 55,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -154,15 +162,15 @@
       "spy_confluence": 1,
       "senior_report": {
         "setup": {
-          "entry": 1.36,
-          "tp1": 1.37632,
-          "tp2": 1.3872,
-          "sl": 1.35048
+          "entry": 1.37,
+          "tp1": 1.38644,
+          "tp2": 1.3974,
+          "sl": 1.36041
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -2.38%",
-          "EMA proxy tendencia 7d: 0.40%",
-          "Volumen/MCAP: 0.0356"
+          "RSI proxy momentum 24h: -2.36%",
+          "EMA proxy tendencia 7d: 0.59%",
+          "Volumen/MCAP: 0.0387"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -170,14 +178,14 @@
       "technical_report": {
         "sesgo": "Bearish",
         "soportes_resistencias": {
-          "soporte_1": 1.3464,
-          "soporte_2": 1.326,
-          "resistencia_1": 1.3736,
-          "resistencia_2": 1.394
+          "soporte_1": 1.3563,
+          "soporte_2": 1.33575,
+          "resistencia_1": 1.3837,
+          "resistencia_2": 1.40425
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 1.3396"
+        "invalidacion": "cierres por debajo de 1.34945"
       },
       "sentiment_report": {
         "catalizador": "catalizador débil",
@@ -189,24 +197,26 @@
       "id": "solana",
       "ticker": "SOL",
       "name": "Solana",
-      "price_usd": 84.55,
-      "chg_24h_pct": -3.05,
-      "chg_7d_pct": 9.51,
+      "price_usd": 85.42,
+      "chg_24h_pct": -2.2,
+      "chg_7d_pct": 9.57,
       "market_cap_rank": 7,
-      "total_volume": 5378718220,
-      "score": 68,
-      "score_final": 68,
-      "confidence_pct": 68,
-      "state": "READY",
+      "total_volume": 5275825523,
+      "score": 80,
+      "score_final": 80,
+      "confidence_pct": 80,
+      "state": "TRIGGERED",
       "decision_final": "BUY",
       "reasons": [
-        "momento_24h_debil",
         "tendencia_7d_fuerte",
         "flujo_ok",
         "liquidez_alta"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.1116,
+      "flow_ratio": 0.1084,
+      "mc_fdv_ratio": 0.9166,
+      "rug_block": false,
+      "gem_score": 84,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -217,15 +227,15 @@
       "spy_confluence": 2,
       "senior_report": {
         "setup": {
-          "entry": 84.55,
-          "tp1": 85.5646,
-          "tp2": 86.241,
-          "sl": 83.95815
+          "entry": 85.42,
+          "tp1": 86.44504,
+          "tp2": 87.1284,
+          "sl": 84.82206
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -3.05%",
-          "EMA proxy tendencia 7d: 9.51%",
-          "Volumen/MCAP: 0.1116"
+          "RSI proxy momentum 24h: -2.20%",
+          "EMA proxy tendencia 7d: 9.57%",
+          "Volumen/MCAP: 0.1084"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -233,14 +243,14 @@
       "technical_report": {
         "sesgo": "Bullish",
         "soportes_resistencias": {
-          "soporte_1": 83.7045,
-          "soporte_2": 82.43625,
-          "resistencia_1": 85.3955,
-          "resistencia_2": 86.66375
+          "soporte_1": 84.5658,
+          "soporte_2": 83.2845,
+          "resistencia_1": 86.2742,
+          "resistencia_2": 87.5555
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 83.28175"
+        "invalidacion": "cierres por debajo de 84.1387"
       },
       "sentiment_report": {
         "catalizador": "flujo y momento intradía",
@@ -252,11 +262,11 @@
       "id": "dogecoin",
       "ticker": "DOGE",
       "name": "Dogecoin",
-      "price_usd": 0.0898,
-      "chg_24h_pct": -5.51,
-      "chg_7d_pct": -2.16,
+      "price_usd": 0.089823,
+      "chg_24h_pct": -5.97,
+      "chg_7d_pct": -1.97,
       "market_cap_rank": 10,
-      "total_volume": 1430178851,
+      "total_volume": 1463806423,
       "score": 48,
       "score_final": 48,
       "confidence_pct": 48,
@@ -268,26 +278,29 @@
         "liquidez_alta"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.0943,
+      "flow_ratio": 0.0964,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 48,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
       "spy_flow": 1,
       "spy_whale": 0,
-      "spy_chart": 0,
+      "spy_chart": -1,
       "spy_breakout": 0,
-      "spy_confluence": 2,
+      "spy_confluence": 1,
       "senior_report": {
         "setup": {
-          "entry": 0.0898,
-          "tp1": 0.090878,
-          "tp2": 0.091596,
-          "sl": 0.089171
+          "entry": 0.089823,
+          "tp1": 0.090901,
+          "tp2": 0.091619,
+          "sl": 0.089194
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -5.51%",
-          "EMA proxy tendencia 7d: -2.16%",
-          "Volumen/MCAP: 0.0943"
+          "RSI proxy momentum 24h: -5.97%",
+          "EMA proxy tendencia 7d: -1.97%",
+          "Volumen/MCAP: 0.0964"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -295,14 +308,14 @@
       "technical_report": {
         "sesgo": "Bearish",
         "soportes_resistencias": {
-          "soporte_1": 0.088902,
-          "soporte_2": 0.087555,
-          "resistencia_1": 0.090698,
-          "resistencia_2": 0.092045
+          "soporte_1": 0.088925,
+          "soporte_2": 0.087577,
+          "resistencia_1": 0.090721,
+          "resistencia_2": 0.092069
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 0.088453"
+        "invalidacion": "cierres por debajo de 0.088476"
       },
       "sentiment_report": {
         "catalizador": "flujo y momento intradía",
@@ -314,40 +327,44 @@
       "id": "cardano",
       "ticker": "ADA",
       "name": "Cardano",
-      "price_usd": 0.265564,
-      "chg_24h_pct": -5.23,
-      "chg_7d_pct": 1.84,
+      "price_usd": 0.267127,
+      "chg_24h_pct": -4.87,
+      "chg_7d_pct": 2.25,
       "market_cap_rank": 12,
-      "total_volume": 660373060,
-      "score": 38,
-      "score_final": 38,
-      "confidence_pct": 38,
+      "total_volume": 662124886,
+      "score": 48,
+      "score_final": 48,
+      "confidence_pct": 48,
       "state": "WATCH",
       "decision_final": "AVOID",
       "reasons": [
-        "momento_24h_debil"
+        "momento_24h_debil",
+        "tendencia_7d_positiva"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.0676,
+      "flow_ratio": 0.0673,
+      "mc_fdv_ratio": 0.8182,
+      "rug_block": false,
+      "gem_score": 48,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
       "spy_flow": 0,
       "spy_whale": 0,
-      "spy_chart": 0,
+      "spy_chart": -1,
       "spy_breakout": 0,
-      "spy_confluence": 1,
+      "spy_confluence": 0,
       "senior_report": {
         "setup": {
-          "entry": 0.265564,
-          "tp1": 0.268751,
-          "tp2": 0.270875,
-          "sl": 0.263705
+          "entry": 0.267127,
+          "tp1": 0.270333,
+          "tp2": 0.27247,
+          "sl": 0.265257
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -5.23%",
-          "EMA proxy tendencia 7d: 1.84%",
-          "Volumen/MCAP: 0.0676"
+          "RSI proxy momentum 24h: -4.87%",
+          "EMA proxy tendencia 7d: 2.25%",
+          "Volumen/MCAP: 0.0673"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -355,14 +372,14 @@
       "technical_report": {
         "sesgo": "Bearish",
         "soportes_resistencias": {
-          "soporte_1": 0.262908,
-          "soporte_2": 0.258925,
-          "resistencia_1": 0.26822,
-          "resistencia_2": 0.272203
+          "soporte_1": 0.264456,
+          "soporte_2": 0.260449,
+          "resistencia_1": 0.269798,
+          "resistencia_2": 0.273805
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 0.261581"
+        "invalidacion": "cierres por debajo de 0.26312"
       },
       "sentiment_report": {
         "catalizador": "catalizador débil",
@@ -374,22 +391,24 @@
       "id": "chainlink",
       "ticker": "LINK",
       "name": "Chainlink",
-      "price_usd": 8.76,
-      "chg_24h_pct": -3.48,
-      "chg_7d_pct": 6.77,
+      "price_usd": 8.85,
+      "chg_24h_pct": -1.92,
+      "chg_7d_pct": 7.44,
       "market_cap_rank": 18,
-      "total_volume": 363621832,
-      "score": 58,
-      "score_final": 58,
-      "confidence_pct": 58,
-      "state": "WATCH",
-      "decision_final": "AVOID",
+      "total_volume": 360620644,
+      "score": 70,
+      "score_final": 70,
+      "confidence_pct": 70,
+      "state": "READY",
+      "decision_final": "BUY",
       "reasons": [
-        "momento_24h_debil",
         "tendencia_7d_fuerte"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.0586,
+      "flow_ratio": 0.0575,
+      "mc_fdv_ratio": 0.7081,
+      "rug_block": false,
+      "gem_score": 70,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -400,76 +419,15 @@
       "spy_confluence": 1,
       "senior_report": {
         "setup": {
-          "entry": 8.76,
-          "tp1": 8.86512,
-          "tp2": 8.9352,
-          "sl": 8.69868
+          "entry": 8.85,
+          "tp1": 8.9562,
+          "tp2": 9.027,
+          "sl": 8.78805
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -3.48%",
-          "EMA proxy tendencia 7d: 6.77%",
-          "Volumen/MCAP: 0.0586"
-        ],
-        "rr": 1.71,
-        "sentimiento": "negativo"
-      },
-      "technical_report": {
-        "sesgo": "Bearish",
-        "soportes_resistencias": {
-          "soporte_1": 8.6724,
-          "soporte_2": 8.541,
-          "resistencia_1": 8.8476,
-          "resistencia_2": 8.979
-        },
-        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
-        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 8.6286"
-      },
-      "sentiment_report": {
-        "catalizador": "catalizador débil",
-        "riesgo": "Sin objeción crítica detectada",
-        "prediccion_corto": "posible trampa/retroceso"
-      }
-    },
-    {
-      "id": "litecoin",
-      "ticker": "LTC",
-      "name": "Litecoin",
-      "price_usd": 54.46,
-      "chg_24h_pct": -0.14,
-      "chg_7d_pct": 6.23,
-      "market_cap_rank": 26,
-      "total_volume": 399673060,
-      "score": 75,
-      "score_final": 75,
-      "confidence_pct": 75,
-      "state": "READY",
-      "decision_final": "BUY",
-      "reasons": [
-        "tendencia_7d_fuerte",
-        "flujo_ok"
-      ],
-      "bubble_level": "Bajo",
-      "flow_ratio": 0.0954,
-      "argumento_en_contra": "Sin objeción crítica detectada",
-      "spy_news": 0,
-      "spy_euphoria": 1,
-      "spy_flow": 1,
-      "spy_whale": 0,
-      "spy_chart": 0,
-      "spy_breakout": 0,
-      "spy_confluence": 2,
-      "senior_report": {
-        "setup": {
-          "entry": 54.46,
-          "tp1": 55.11352,
-          "tp2": 55.5492,
-          "sl": 54.07878
-        },
-        "confluencias": [
-          "RSI proxy momentum 24h: -0.14%",
-          "EMA proxy tendencia 7d: 6.23%",
-          "Volumen/MCAP: 0.0954"
+          "RSI proxy momentum 24h: -1.92%",
+          "EMA proxy tendencia 7d: 7.44%",
+          "Volumen/MCAP: 0.0575"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -477,14 +435,79 @@
       "technical_report": {
         "sesgo": "Bullish",
         "soportes_resistencias": {
-          "soporte_1": 53.9154,
-          "soporte_2": 53.0985,
-          "resistencia_1": 55.0046,
-          "resistencia_2": 55.8215
+          "soporte_1": 8.7615,
+          "soporte_2": 8.62875,
+          "resistencia_1": 8.9385,
+          "resistencia_2": 9.07125
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 53.6431"
+        "invalidacion": "cierres por debajo de 8.71725"
+      },
+      "sentiment_report": {
+        "catalizador": "catalizador débil",
+        "riesgo": "Sin objeción crítica detectada",
+        "prediccion_corto": "continuación"
+      }
+    },
+    {
+      "id": "litecoin",
+      "ticker": "LTC",
+      "name": "Litecoin",
+      "price_usd": 54.92,
+      "chg_24h_pct": 0.32,
+      "chg_7d_pct": 7.03,
+      "market_cap_rank": 25,
+      "total_volume": 399089819,
+      "score": 79,
+      "score_final": 79,
+      "confidence_pct": 79,
+      "state": "TRIGGERED",
+      "decision_final": "BUY",
+      "reasons": [
+        "momento_24h_positivo",
+        "tendencia_7d_fuerte",
+        "flujo_ok"
+      ],
+      "bubble_level": "Bajo",
+      "flow_ratio": 0.0944,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 79,
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "spy_news": 1,
+      "spy_euphoria": 1,
+      "spy_flow": 1,
+      "spy_whale": 0,
+      "spy_chart": 0,
+      "spy_breakout": 0,
+      "spy_confluence": 3,
+      "senior_report": {
+        "setup": {
+          "entry": 54.92,
+          "tp1": 55.57904,
+          "tp2": 56.0184,
+          "sl": 54.53556
+        },
+        "confluencias": [
+          "RSI proxy momentum 24h: 0.32%",
+          "EMA proxy tendencia 7d: 7.03%",
+          "Volumen/MCAP: 0.0944"
+        ],
+        "rr": 1.71,
+        "sentimiento": "positivo"
+      },
+      "technical_report": {
+        "sesgo": "Bullish",
+        "soportes_resistencias": {
+          "soporte_1": 54.3708,
+          "soporte_2": 53.547,
+          "resistencia_1": 55.4692,
+          "resistencia_2": 56.293
+        },
+        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
+        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
+        "invalidacion": "cierres por debajo de 54.0962"
       },
       "sentiment_report": {
         "catalizador": "flujo y momento intradía",
@@ -496,56 +519,60 @@
       "id": "avalanche-2",
       "ticker": "AVAX",
       "name": "Avalanche",
-      "price_usd": 9.17,
-      "chg_24h_pct": -0.85,
-      "chg_7d_pct": 9.66,
+      "price_usd": 9.26,
+      "chg_24h_pct": 0.11,
+      "chg_7d_pct": 10.5,
       "market_cap_rank": 28,
-      "total_volume": 336173772,
-      "score": 75,
-      "score_final": 75,
-      "confidence_pct": 75,
-      "state": "READY",
+      "total_volume": 334566905,
+      "score": 79,
+      "score_final": 79,
+      "confidence_pct": 79,
+      "state": "TRIGGERED",
       "decision_final": "BUY",
       "reasons": [
+        "momento_24h_positivo",
         "tendencia_7d_fuerte",
         "flujo_ok"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.0849,
+      "flow_ratio": 0.0836,
+      "mc_fdv_ratio": 0.9317,
+      "rug_block": false,
+      "gem_score": 79,
       "argumento_en_contra": "Sin objeción crítica detectada",
-      "spy_news": 0,
+      "spy_news": 1,
       "spy_euphoria": 1,
       "spy_flow": 1,
       "spy_whale": 0,
       "spy_chart": 0,
       "spy_breakout": 0,
-      "spy_confluence": 2,
+      "spy_confluence": 3,
       "senior_report": {
         "setup": {
-          "entry": 9.17,
-          "tp1": 9.28004,
-          "tp2": 9.3534,
-          "sl": 9.10581
+          "entry": 9.26,
+          "tp1": 9.37112,
+          "tp2": 9.4452,
+          "sl": 9.19518
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -0.85%",
-          "EMA proxy tendencia 7d: 9.66%",
-          "Volumen/MCAP: 0.0849"
+          "RSI proxy momentum 24h: 0.11%",
+          "EMA proxy tendencia 7d: 10.50%",
+          "Volumen/MCAP: 0.0836"
         ],
         "rr": 1.71,
-        "sentimiento": "negativo"
+        "sentimiento": "positivo"
       },
       "technical_report": {
         "sesgo": "Bullish",
         "soportes_resistencias": {
-          "soporte_1": 9.0783,
-          "soporte_2": 8.94075,
-          "resistencia_1": 9.2617,
-          "resistencia_2": 9.39925
+          "soporte_1": 9.1674,
+          "soporte_2": 9.0285,
+          "resistencia_1": 9.3526,
+          "resistencia_2": 9.4915
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 9.03245"
+        "invalidacion": "cierres por debajo de 9.1211"
       },
       "sentiment_report": {
         "catalizador": "flujo y momento intradía",
@@ -557,11 +584,11 @@
       "id": "polkadot",
       "ticker": "DOT",
       "name": "Polkadot",
-      "price_usd": 1.52,
-      "chg_24h_pct": -1.79,
-      "chg_7d_pct": 22.21,
+      "price_usd": 1.54,
+      "chg_24h_pct": -0.05,
+      "chg_7d_pct": 23.02,
       "market_cap_rank": 36,
-      "total_volume": 204247397,
+      "total_volume": 202949598,
       "score": 65,
       "score_final": 65,
       "confidence_pct": 65,
@@ -572,26 +599,29 @@
         "flujo_ok"
       ],
       "bubble_level": "Crítico",
-      "flow_ratio": 0.0803,
+      "flow_ratio": 0.0788,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 71,
       "argumento_en_contra": "Subida demasiado vertical: riesgo de barrida y retroceso",
       "spy_news": 0,
       "spy_euphoria": -1,
       "spy_flow": 1,
       "spy_whale": 0,
-      "spy_chart": 1,
+      "spy_chart": 0,
       "spy_breakout": 0,
-      "spy_confluence": 1,
+      "spy_confluence": 0,
       "senior_report": {
         "setup": {
-          "entry": 1.52,
-          "tp1": 1.53824,
-          "tp2": 1.5504,
-          "sl": 1.50936
+          "entry": 1.54,
+          "tp1": 1.55848,
+          "tp2": 1.5708,
+          "sl": 1.52922
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -1.79%",
-          "EMA proxy tendencia 7d: 22.21%",
-          "Volumen/MCAP: 0.0803"
+          "RSI proxy momentum 24h: -0.05%",
+          "EMA proxy tendencia 7d: 23.02%",
+          "Volumen/MCAP: 0.0788"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -599,14 +629,14 @@
       "technical_report": {
         "sesgo": "Bearish",
         "soportes_resistencias": {
-          "soporte_1": 1.5048,
-          "soporte_2": 1.482,
-          "resistencia_1": 1.5352,
-          "resistencia_2": 1.558
+          "soporte_1": 1.5246,
+          "soporte_2": 1.5015,
+          "resistencia_1": 1.5554,
+          "resistencia_2": 1.5785
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 1.4972"
+        "invalidacion": "cierres por debajo de 1.5169"
       },
       "sentiment_report": {
         "catalizador": "flujo y momento intradía",
@@ -634,6 +664,9 @@
       ],
       "bubble_level": "Bajo",
       "flow_ratio": 0,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 54,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -678,210 +711,29 @@
   ],
   "top_opportunities": [
     {
-      "id": "bitcoin",
-      "ticker": "BTC",
-      "name": "Bitcoin",
-      "price_usd": 68018.0,
-      "chg_24h_pct": -1.23,
-      "chg_7d_pct": 6.34,
-      "market_cap_rank": 1,
-      "total_volume": 54887758593,
-      "score": 75,
-      "score_final": 75,
-      "confidence_pct": 75,
-      "state": "READY",
-      "decision_final": "BUY",
-      "reasons": [
-        "tendencia_7d_fuerte",
-        "liquidez_alta"
-      ],
-      "bubble_level": "Bajo",
-      "flow_ratio": 0.0404,
-      "argumento_en_contra": "Sin objeción crítica detectada",
-      "spy_news": 0,
-      "spy_euphoria": 1,
-      "spy_flow": 0,
-      "spy_whale": 0,
-      "spy_chart": 0,
-      "spy_breakout": 0,
-      "spy_confluence": 1,
-      "senior_report": {
-        "setup": {
-          "entry": 68018.0,
-          "tp1": 68834.216,
-          "tp2": 69378.36,
-          "sl": 67541.874
-        },
-        "confluencias": [
-          "RSI proxy momentum 24h: -1.23%",
-          "EMA proxy tendencia 7d: 6.34%",
-          "Volumen/MCAP: 0.0404"
-        ],
-        "rr": 1.71,
-        "sentimiento": "negativo"
-      },
-      "technical_report": {
-        "sesgo": "Bullish",
-        "soportes_resistencias": {
-          "soporte_1": 67337.82,
-          "soporte_2": 66317.55,
-          "resistencia_1": 68698.18,
-          "resistencia_2": 69718.45
-        },
-        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
-        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 66997.73"
-      },
-      "sentiment_report": {
-        "catalizador": "catalizador débil",
-        "riesgo": "Sin objeción crítica detectada",
-        "prediccion_corto": "continuación"
-      }
-    },
-    {
-      "id": "litecoin",
-      "ticker": "LTC",
-      "name": "Litecoin",
-      "price_usd": 54.46,
-      "chg_24h_pct": -0.14,
-      "chg_7d_pct": 6.23,
-      "market_cap_rank": 26,
-      "total_volume": 399673060,
-      "score": 75,
-      "score_final": 75,
-      "confidence_pct": 75,
-      "state": "READY",
-      "decision_final": "BUY",
-      "reasons": [
-        "tendencia_7d_fuerte",
-        "flujo_ok"
-      ],
-      "bubble_level": "Bajo",
-      "flow_ratio": 0.0954,
-      "argumento_en_contra": "Sin objeción crítica detectada",
-      "spy_news": 0,
-      "spy_euphoria": 1,
-      "spy_flow": 1,
-      "spy_whale": 0,
-      "spy_chart": 0,
-      "spy_breakout": 0,
-      "spy_confluence": 2,
-      "senior_report": {
-        "setup": {
-          "entry": 54.46,
-          "tp1": 55.11352,
-          "tp2": 55.5492,
-          "sl": 54.07878
-        },
-        "confluencias": [
-          "RSI proxy momentum 24h: -0.14%",
-          "EMA proxy tendencia 7d: 6.23%",
-          "Volumen/MCAP: 0.0954"
-        ],
-        "rr": 1.71,
-        "sentimiento": "negativo"
-      },
-      "technical_report": {
-        "sesgo": "Bullish",
-        "soportes_resistencias": {
-          "soporte_1": 53.9154,
-          "soporte_2": 53.0985,
-          "resistencia_1": 55.0046,
-          "resistencia_2": 55.8215
-        },
-        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
-        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 53.6431"
-      },
-      "sentiment_report": {
-        "catalizador": "flujo y momento intradía",
-        "riesgo": "Sin objeción crítica detectada",
-        "prediccion_corto": "continuación"
-      }
-    },
-    {
-      "id": "avalanche-2",
-      "ticker": "AVAX",
-      "name": "Avalanche",
-      "price_usd": 9.17,
-      "chg_24h_pct": -0.85,
-      "chg_7d_pct": 9.66,
-      "market_cap_rank": 28,
-      "total_volume": 336173772,
-      "score": 75,
-      "score_final": 75,
-      "confidence_pct": 75,
-      "state": "READY",
-      "decision_final": "BUY",
-      "reasons": [
-        "tendencia_7d_fuerte",
-        "flujo_ok"
-      ],
-      "bubble_level": "Bajo",
-      "flow_ratio": 0.0849,
-      "argumento_en_contra": "Sin objeción crítica detectada",
-      "spy_news": 0,
-      "spy_euphoria": 1,
-      "spy_flow": 1,
-      "spy_whale": 0,
-      "spy_chart": 0,
-      "spy_breakout": 0,
-      "spy_confluence": 2,
-      "senior_report": {
-        "setup": {
-          "entry": 9.17,
-          "tp1": 9.28004,
-          "tp2": 9.3534,
-          "sl": 9.10581
-        },
-        "confluencias": [
-          "RSI proxy momentum 24h: -0.85%",
-          "EMA proxy tendencia 7d: 9.66%",
-          "Volumen/MCAP: 0.0849"
-        ],
-        "rr": 1.71,
-        "sentimiento": "negativo"
-      },
-      "technical_report": {
-        "sesgo": "Bullish",
-        "soportes_resistencias": {
-          "soporte_1": 9.0783,
-          "soporte_2": 8.94075,
-          "resistencia_1": 9.2617,
-          "resistencia_2": 9.39925
-        },
-        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
-        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 9.03245"
-      },
-      "sentiment_report": {
-        "catalizador": "flujo y momento intradía",
-        "riesgo": "Sin objeción crítica detectada",
-        "prediccion_corto": "continuación"
-      }
-    },
-    {
       "id": "ethereum",
       "ticker": "ETH",
       "name": "Ethereum",
-      "price_usd": 1969.89,
-      "chg_24h_pct": -3.06,
-      "chg_7d_pct": 6.66,
+      "price_usd": 1988.57,
+      "chg_24h_pct": -2.02,
+      "chg_7d_pct": 7.18,
       "market_cap_rank": 2,
-      "total_volume": 25671529316,
-      "score": 68,
-      "score_final": 68,
-      "confidence_pct": 68,
-      "state": "READY",
+      "total_volume": 24961373375,
+      "score": 80,
+      "score_final": 80,
+      "confidence_pct": 80,
+      "state": "TRIGGERED",
       "decision_final": "BUY",
       "reasons": [
-        "momento_24h_debil",
         "tendencia_7d_fuerte",
         "flujo_ok",
         "liquidez_alta"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.108,
+      "flow_ratio": 0.104,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 84,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -892,15 +744,15 @@
       "spy_confluence": 2,
       "senior_report": {
         "setup": {
-          "entry": 1969.89,
-          "tp1": 1993.52868,
-          "tp2": 2009.2878,
-          "sl": 1956.10077
+          "entry": 1988.57,
+          "tp1": 2012.43284,
+          "tp2": 2028.3414,
+          "sl": 1974.65001
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -3.06%",
-          "EMA proxy tendencia 7d: 6.66%",
-          "Volumen/MCAP: 0.1080"
+          "RSI proxy momentum 24h: -2.02%",
+          "EMA proxy tendencia 7d: 7.18%",
+          "Volumen/MCAP: 0.1040"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -908,14 +760,14 @@
       "technical_report": {
         "sesgo": "Bullish",
         "soportes_resistencias": {
-          "soporte_1": 1950.1911,
-          "soporte_2": 1920.64275,
-          "resistencia_1": 1989.5889,
-          "resistencia_2": 2019.13725
+          "soporte_1": 1968.6843,
+          "soporte_2": 1938.85575,
+          "resistencia_1": 2008.4557,
+          "resistencia_2": 2038.28425
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 1940.34165"
+        "invalidacion": "cierres por debajo de 1958.74145"
       },
       "sentiment_report": {
         "catalizador": "flujo y momento intradía",
@@ -927,24 +779,26 @@
       "id": "solana",
       "ticker": "SOL",
       "name": "Solana",
-      "price_usd": 84.55,
-      "chg_24h_pct": -3.05,
-      "chg_7d_pct": 9.51,
+      "price_usd": 85.42,
+      "chg_24h_pct": -2.2,
+      "chg_7d_pct": 9.57,
       "market_cap_rank": 7,
-      "total_volume": 5378718220,
-      "score": 68,
-      "score_final": 68,
-      "confidence_pct": 68,
-      "state": "READY",
+      "total_volume": 5275825523,
+      "score": 80,
+      "score_final": 80,
+      "confidence_pct": 80,
+      "state": "TRIGGERED",
       "decision_final": "BUY",
       "reasons": [
-        "momento_24h_debil",
         "tendencia_7d_fuerte",
         "flujo_ok",
         "liquidez_alta"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.1116,
+      "flow_ratio": 0.1084,
+      "mc_fdv_ratio": 0.9166,
+      "rug_block": false,
+      "gem_score": 84,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -955,15 +809,15 @@
       "spy_confluence": 2,
       "senior_report": {
         "setup": {
-          "entry": 84.55,
-          "tp1": 85.5646,
-          "tp2": 86.241,
-          "sl": 83.95815
+          "entry": 85.42,
+          "tp1": 86.44504,
+          "tp2": 87.1284,
+          "sl": 84.82206
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -3.05%",
-          "EMA proxy tendencia 7d: 9.51%",
-          "Volumen/MCAP: 0.1116"
+          "RSI proxy momentum 24h: -2.20%",
+          "EMA proxy tendencia 7d: 9.57%",
+          "Volumen/MCAP: 0.1084"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -971,14 +825,14 @@
       "technical_report": {
         "sesgo": "Bullish",
         "soportes_resistencias": {
-          "soporte_1": 83.7045,
-          "soporte_2": 82.43625,
-          "resistencia_1": 85.3955,
-          "resistencia_2": 86.66375
+          "soporte_1": 84.5658,
+          "soporte_2": 83.2845,
+          "resistencia_1": 86.2742,
+          "resistencia_2": 87.5555
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 83.28175"
+        "invalidacion": "cierres por debajo de 84.1387"
       },
       "sentiment_report": {
         "catalizador": "flujo y momento intradía",
@@ -987,14 +841,271 @@
       }
     },
     {
+      "id": "litecoin",
+      "ticker": "LTC",
+      "name": "Litecoin",
+      "price_usd": 54.92,
+      "chg_24h_pct": 0.32,
+      "chg_7d_pct": 7.03,
+      "market_cap_rank": 25,
+      "total_volume": 399089819,
+      "score": 79,
+      "score_final": 79,
+      "confidence_pct": 79,
+      "state": "TRIGGERED",
+      "decision_final": "BUY",
+      "reasons": [
+        "momento_24h_positivo",
+        "tendencia_7d_fuerte",
+        "flujo_ok"
+      ],
+      "bubble_level": "Bajo",
+      "flow_ratio": 0.0944,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 79,
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "spy_news": 1,
+      "spy_euphoria": 1,
+      "spy_flow": 1,
+      "spy_whale": 0,
+      "spy_chart": 0,
+      "spy_breakout": 0,
+      "spy_confluence": 3,
+      "senior_report": {
+        "setup": {
+          "entry": 54.92,
+          "tp1": 55.57904,
+          "tp2": 56.0184,
+          "sl": 54.53556
+        },
+        "confluencias": [
+          "RSI proxy momentum 24h: 0.32%",
+          "EMA proxy tendencia 7d: 7.03%",
+          "Volumen/MCAP: 0.0944"
+        ],
+        "rr": 1.71,
+        "sentimiento": "positivo"
+      },
+      "technical_report": {
+        "sesgo": "Bullish",
+        "soportes_resistencias": {
+          "soporte_1": 54.3708,
+          "soporte_2": 53.547,
+          "resistencia_1": 55.4692,
+          "resistencia_2": 56.293
+        },
+        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
+        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
+        "invalidacion": "cierres por debajo de 54.0962"
+      },
+      "sentiment_report": {
+        "catalizador": "flujo y momento intradía",
+        "riesgo": "Sin objeción crítica detectada",
+        "prediccion_corto": "continuación"
+      }
+    },
+    {
+      "id": "avalanche-2",
+      "ticker": "AVAX",
+      "name": "Avalanche",
+      "price_usd": 9.26,
+      "chg_24h_pct": 0.11,
+      "chg_7d_pct": 10.5,
+      "market_cap_rank": 28,
+      "total_volume": 334566905,
+      "score": 79,
+      "score_final": 79,
+      "confidence_pct": 79,
+      "state": "TRIGGERED",
+      "decision_final": "BUY",
+      "reasons": [
+        "momento_24h_positivo",
+        "tendencia_7d_fuerte",
+        "flujo_ok"
+      ],
+      "bubble_level": "Bajo",
+      "flow_ratio": 0.0836,
+      "mc_fdv_ratio": 0.9317,
+      "rug_block": false,
+      "gem_score": 79,
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "spy_news": 1,
+      "spy_euphoria": 1,
+      "spy_flow": 1,
+      "spy_whale": 0,
+      "spy_chart": 0,
+      "spy_breakout": 0,
+      "spy_confluence": 3,
+      "senior_report": {
+        "setup": {
+          "entry": 9.26,
+          "tp1": 9.37112,
+          "tp2": 9.4452,
+          "sl": 9.19518
+        },
+        "confluencias": [
+          "RSI proxy momentum 24h: 0.11%",
+          "EMA proxy tendencia 7d: 10.50%",
+          "Volumen/MCAP: 0.0836"
+        ],
+        "rr": 1.71,
+        "sentimiento": "positivo"
+      },
+      "technical_report": {
+        "sesgo": "Bullish",
+        "soportes_resistencias": {
+          "soporte_1": 9.1674,
+          "soporte_2": 9.0285,
+          "resistencia_1": 9.3526,
+          "resistencia_2": 9.4915
+        },
+        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
+        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
+        "invalidacion": "cierres por debajo de 9.1211"
+      },
+      "sentiment_report": {
+        "catalizador": "flujo y momento intradía",
+        "riesgo": "Sin objeción crítica detectada",
+        "prediccion_corto": "continuación"
+      }
+    },
+    {
+      "id": "bitcoin",
+      "ticker": "BTC",
+      "name": "Bitcoin",
+      "price_usd": 68641.0,
+      "chg_24h_pct": -0.39,
+      "chg_7d_pct": 6.89,
+      "market_cap_rank": 1,
+      "total_volume": 54452256723,
+      "score": 75,
+      "score_final": 75,
+      "confidence_pct": 75,
+      "state": "READY",
+      "decision_final": "BUY",
+      "reasons": [
+        "tendencia_7d_fuerte",
+        "liquidez_alta"
+      ],
+      "bubble_level": "Bajo",
+      "flow_ratio": 0.0397,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 75,
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "spy_news": 0,
+      "spy_euphoria": 1,
+      "spy_flow": 0,
+      "spy_whale": 0,
+      "spy_chart": 0,
+      "spy_breakout": 0,
+      "spy_confluence": 1,
+      "senior_report": {
+        "setup": {
+          "entry": 68641.0,
+          "tp1": 69464.692,
+          "tp2": 70013.82,
+          "sl": 68160.513
+        },
+        "confluencias": [
+          "RSI proxy momentum 24h: -0.39%",
+          "EMA proxy tendencia 7d: 6.89%",
+          "Volumen/MCAP: 0.0397"
+        ],
+        "rr": 1.71,
+        "sentimiento": "negativo"
+      },
+      "technical_report": {
+        "sesgo": "Bullish",
+        "soportes_resistencias": {
+          "soporte_1": 67954.59,
+          "soporte_2": 66924.975,
+          "resistencia_1": 69327.41,
+          "resistencia_2": 70357.025
+        },
+        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
+        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
+        "invalidacion": "cierres por debajo de 67611.385"
+      },
+      "sentiment_report": {
+        "catalizador": "catalizador débil",
+        "riesgo": "Sin objeción crítica detectada",
+        "prediccion_corto": "continuación"
+      }
+    },
+    {
+      "id": "chainlink",
+      "ticker": "LINK",
+      "name": "Chainlink",
+      "price_usd": 8.85,
+      "chg_24h_pct": -1.92,
+      "chg_7d_pct": 7.44,
+      "market_cap_rank": 18,
+      "total_volume": 360620644,
+      "score": 70,
+      "score_final": 70,
+      "confidence_pct": 70,
+      "state": "READY",
+      "decision_final": "BUY",
+      "reasons": [
+        "tendencia_7d_fuerte"
+      ],
+      "bubble_level": "Bajo",
+      "flow_ratio": 0.0575,
+      "mc_fdv_ratio": 0.7081,
+      "rug_block": false,
+      "gem_score": 70,
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "spy_news": 0,
+      "spy_euphoria": 1,
+      "spy_flow": 0,
+      "spy_whale": 0,
+      "spy_chart": 0,
+      "spy_breakout": 0,
+      "spy_confluence": 1,
+      "senior_report": {
+        "setup": {
+          "entry": 8.85,
+          "tp1": 8.9562,
+          "tp2": 9.027,
+          "sl": 8.78805
+        },
+        "confluencias": [
+          "RSI proxy momentum 24h: -1.92%",
+          "EMA proxy tendencia 7d: 7.44%",
+          "Volumen/MCAP: 0.0575"
+        ],
+        "rr": 1.71,
+        "sentimiento": "negativo"
+      },
+      "technical_report": {
+        "sesgo": "Bullish",
+        "soportes_resistencias": {
+          "soporte_1": 8.7615,
+          "soporte_2": 8.62875,
+          "resistencia_1": 8.9385,
+          "resistencia_2": 9.07125
+        },
+        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
+        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
+        "invalidacion": "cierres por debajo de 8.71725"
+      },
+      "sentiment_report": {
+        "catalizador": "catalizador débil",
+        "riesgo": "Sin objeción crítica detectada",
+        "prediccion_corto": "continuación"
+      }
+    },
+    {
       "id": "polkadot",
       "ticker": "DOT",
       "name": "Polkadot",
-      "price_usd": 1.52,
-      "chg_24h_pct": -1.79,
-      "chg_7d_pct": 22.21,
+      "price_usd": 1.54,
+      "chg_24h_pct": -0.05,
+      "chg_7d_pct": 23.02,
       "market_cap_rank": 36,
-      "total_volume": 204247397,
+      "total_volume": 202949598,
       "score": 65,
       "score_final": 65,
       "confidence_pct": 65,
@@ -1005,26 +1116,29 @@
         "flujo_ok"
       ],
       "bubble_level": "Crítico",
-      "flow_ratio": 0.0803,
+      "flow_ratio": 0.0788,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 71,
       "argumento_en_contra": "Subida demasiado vertical: riesgo de barrida y retroceso",
       "spy_news": 0,
       "spy_euphoria": -1,
       "spy_flow": 1,
       "spy_whale": 0,
-      "spy_chart": 1,
+      "spy_chart": 0,
       "spy_breakout": 0,
-      "spy_confluence": 1,
+      "spy_confluence": 0,
       "senior_report": {
         "setup": {
-          "entry": 1.52,
-          "tp1": 1.53824,
-          "tp2": 1.5504,
-          "sl": 1.50936
+          "entry": 1.54,
+          "tp1": 1.55848,
+          "tp2": 1.5708,
+          "sl": 1.52922
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -1.79%",
-          "EMA proxy tendencia 7d: 22.21%",
-          "Volumen/MCAP: 0.0803"
+          "RSI proxy momentum 24h: -0.05%",
+          "EMA proxy tendencia 7d: 23.02%",
+          "Volumen/MCAP: 0.0788"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -1032,14 +1146,14 @@
       "technical_report": {
         "sesgo": "Bearish",
         "soportes_resistencias": {
-          "soporte_1": 1.5048,
-          "soporte_2": 1.482,
-          "resistencia_1": 1.5352,
-          "resistencia_2": 1.558
+          "soporte_1": 1.5246,
+          "soporte_2": 1.5015,
+          "resistencia_1": 1.5554,
+          "resistencia_2": 1.5785
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 1.4972"
+        "invalidacion": "cierres por debajo de 1.5169"
       },
       "sentiment_report": {
         "catalizador": "flujo y momento intradía",
@@ -1048,75 +1162,14 @@
       }
     },
     {
-      "id": "chainlink",
-      "ticker": "LINK",
-      "name": "Chainlink",
-      "price_usd": 8.76,
-      "chg_24h_pct": -3.48,
-      "chg_7d_pct": 6.77,
-      "market_cap_rank": 18,
-      "total_volume": 363621832,
-      "score": 58,
-      "score_final": 58,
-      "confidence_pct": 58,
-      "state": "WATCH",
-      "decision_final": "AVOID",
-      "reasons": [
-        "momento_24h_debil",
-        "tendencia_7d_fuerte"
-      ],
-      "bubble_level": "Bajo",
-      "flow_ratio": 0.0586,
-      "argumento_en_contra": "Sin objeción crítica detectada",
-      "spy_news": 0,
-      "spy_euphoria": 1,
-      "spy_flow": 0,
-      "spy_whale": 0,
-      "spy_chart": 0,
-      "spy_breakout": 0,
-      "spy_confluence": 1,
-      "senior_report": {
-        "setup": {
-          "entry": 8.76,
-          "tp1": 8.86512,
-          "tp2": 8.9352,
-          "sl": 8.69868
-        },
-        "confluencias": [
-          "RSI proxy momentum 24h: -3.48%",
-          "EMA proxy tendencia 7d: 6.77%",
-          "Volumen/MCAP: 0.0586"
-        ],
-        "rr": 1.71,
-        "sentimiento": "negativo"
-      },
-      "technical_report": {
-        "sesgo": "Bearish",
-        "soportes_resistencias": {
-          "soporte_1": 8.6724,
-          "soporte_2": 8.541,
-          "resistencia_1": 8.8476,
-          "resistencia_2": 8.979
-        },
-        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
-        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 8.6286"
-      },
-      "sentiment_report": {
-        "catalizador": "catalizador débil",
-        "riesgo": "Sin objeción crítica detectada",
-        "prediccion_corto": "posible trampa/retroceso"
-      }
-    },
-    {
       "id": "ripple",
       "ticker": "XRP",
       "name": "XRP",
-      "price_usd": 1.36,
-      "chg_24h_pct": -2.38,
-      "chg_7d_pct": 0.4,
+      "price_usd": 1.37,
+      "chg_24h_pct": -2.36,
+      "chg_7d_pct": 0.59,
       "market_cap_rank": 5,
-      "total_volume": 2953873321,
+      "total_volume": 3236274580,
       "score": 55,
       "score_final": 55,
       "confidence_pct": 55,
@@ -1126,7 +1179,10 @@
         "liquidez_alta"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.0356,
+      "flow_ratio": 0.0387,
+      "mc_fdv_ratio": 0.611,
+      "rug_block": false,
+      "gem_score": 55,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -1137,15 +1193,15 @@
       "spy_confluence": 1,
       "senior_report": {
         "setup": {
-          "entry": 1.36,
-          "tp1": 1.37632,
-          "tp2": 1.3872,
-          "sl": 1.35048
+          "entry": 1.37,
+          "tp1": 1.38644,
+          "tp2": 1.3974,
+          "sl": 1.36041
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -2.38%",
-          "EMA proxy tendencia 7d: 0.40%",
-          "Volumen/MCAP: 0.0356"
+          "RSI proxy momentum 24h: -2.36%",
+          "EMA proxy tendencia 7d: 0.59%",
+          "Volumen/MCAP: 0.0387"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -1153,79 +1209,17 @@
       "technical_report": {
         "sesgo": "Bearish",
         "soportes_resistencias": {
-          "soporte_1": 1.3464,
-          "soporte_2": 1.326,
-          "resistencia_1": 1.3736,
-          "resistencia_2": 1.394
+          "soporte_1": 1.3563,
+          "soporte_2": 1.33575,
+          "resistencia_1": 1.3837,
+          "resistencia_2": 1.40425
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 1.3396"
+        "invalidacion": "cierres por debajo de 1.34945"
       },
       "sentiment_report": {
         "catalizador": "catalizador débil",
-        "riesgo": "Sin objeción crítica detectada",
-        "prediccion_corto": "posible trampa/retroceso"
-      }
-    },
-    {
-      "id": "dogecoin",
-      "ticker": "DOGE",
-      "name": "Dogecoin",
-      "price_usd": 0.0898,
-      "chg_24h_pct": -5.51,
-      "chg_7d_pct": -2.16,
-      "market_cap_rank": 10,
-      "total_volume": 1430178851,
-      "score": 48,
-      "score_final": 48,
-      "confidence_pct": 48,
-      "state": "WATCH",
-      "decision_final": "AVOID",
-      "reasons": [
-        "momento_24h_debil",
-        "flujo_ok",
-        "liquidez_alta"
-      ],
-      "bubble_level": "Bajo",
-      "flow_ratio": 0.0943,
-      "argumento_en_contra": "Sin objeción crítica detectada",
-      "spy_news": 0,
-      "spy_euphoria": 1,
-      "spy_flow": 1,
-      "spy_whale": 0,
-      "spy_chart": 0,
-      "spy_breakout": 0,
-      "spy_confluence": 2,
-      "senior_report": {
-        "setup": {
-          "entry": 0.0898,
-          "tp1": 0.090878,
-          "tp2": 0.091596,
-          "sl": 0.089171
-        },
-        "confluencias": [
-          "RSI proxy momentum 24h: -5.51%",
-          "EMA proxy tendencia 7d: -2.16%",
-          "Volumen/MCAP: 0.0943"
-        ],
-        "rr": 1.71,
-        "sentimiento": "negativo"
-      },
-      "technical_report": {
-        "sesgo": "Bearish",
-        "soportes_resistencias": {
-          "soporte_1": 0.088902,
-          "soporte_2": 0.087555,
-          "resistencia_1": 0.090698,
-          "resistencia_2": 0.092045
-        },
-        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
-        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 0.088453"
-      },
-      "sentiment_report": {
-        "catalizador": "flujo y momento intradía",
         "riesgo": "Sin objeción crítica detectada",
         "prediccion_corto": "posible trampa/retroceso"
       }
@@ -1250,6 +1244,9 @@
       ],
       "bubble_level": "Bajo",
       "flow_ratio": 0,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 54,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
@@ -1292,43 +1289,48 @@
       }
     },
     {
-      "id": "cardano",
-      "ticker": "ADA",
-      "name": "Cardano",
-      "price_usd": 0.265564,
-      "chg_24h_pct": -5.23,
-      "chg_7d_pct": 1.84,
-      "market_cap_rank": 12,
-      "total_volume": 660373060,
-      "score": 38,
-      "score_final": 38,
-      "confidence_pct": 38,
+      "id": "dogecoin",
+      "ticker": "DOGE",
+      "name": "Dogecoin",
+      "price_usd": 0.089823,
+      "chg_24h_pct": -5.97,
+      "chg_7d_pct": -1.97,
+      "market_cap_rank": 10,
+      "total_volume": 1463806423,
+      "score": 48,
+      "score_final": 48,
+      "confidence_pct": 48,
       "state": "WATCH",
       "decision_final": "AVOID",
       "reasons": [
-        "momento_24h_debil"
+        "momento_24h_debil",
+        "flujo_ok",
+        "liquidez_alta"
       ],
       "bubble_level": "Bajo",
-      "flow_ratio": 0.0676,
+      "flow_ratio": 0.0964,
+      "mc_fdv_ratio": 1.0,
+      "rug_block": false,
+      "gem_score": 48,
       "argumento_en_contra": "Sin objeción crítica detectada",
       "spy_news": 0,
       "spy_euphoria": 1,
-      "spy_flow": 0,
+      "spy_flow": 1,
       "spy_whale": 0,
-      "spy_chart": 0,
+      "spy_chart": -1,
       "spy_breakout": 0,
       "spy_confluence": 1,
       "senior_report": {
         "setup": {
-          "entry": 0.265564,
-          "tp1": 0.268751,
-          "tp2": 0.270875,
-          "sl": 0.263705
+          "entry": 0.089823,
+          "tp1": 0.090901,
+          "tp2": 0.091619,
+          "sl": 0.089194
         },
         "confluencias": [
-          "RSI proxy momentum 24h: -5.23%",
-          "EMA proxy tendencia 7d: 1.84%",
-          "Volumen/MCAP: 0.0676"
+          "RSI proxy momentum 24h: -5.97%",
+          "EMA proxy tendencia 7d: -1.97%",
+          "Volumen/MCAP: 0.0964"
         ],
         "rr": 1.71,
         "sentimiento": "negativo"
@@ -1336,14 +1338,78 @@
       "technical_report": {
         "sesgo": "Bearish",
         "soportes_resistencias": {
-          "soporte_1": 0.262908,
-          "soporte_2": 0.258925,
-          "resistencia_1": 0.26822,
-          "resistencia_2": 0.272203
+          "soporte_1": 0.088925,
+          "soporte_2": 0.087577,
+          "resistencia_1": 0.090721,
+          "resistencia_2": 0.092069
         },
         "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
         "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
-        "invalidacion": "cierres por debajo de 0.261581"
+        "invalidacion": "cierres por debajo de 0.088476"
+      },
+      "sentiment_report": {
+        "catalizador": "flujo y momento intradía",
+        "riesgo": "Sin objeción crítica detectada",
+        "prediccion_corto": "posible trampa/retroceso"
+      }
+    },
+    {
+      "id": "cardano",
+      "ticker": "ADA",
+      "name": "Cardano",
+      "price_usd": 0.267127,
+      "chg_24h_pct": -4.87,
+      "chg_7d_pct": 2.25,
+      "market_cap_rank": 12,
+      "total_volume": 662124886,
+      "score": 48,
+      "score_final": 48,
+      "confidence_pct": 48,
+      "state": "WATCH",
+      "decision_final": "AVOID",
+      "reasons": [
+        "momento_24h_debil",
+        "tendencia_7d_positiva"
+      ],
+      "bubble_level": "Bajo",
+      "flow_ratio": 0.0673,
+      "mc_fdv_ratio": 0.8182,
+      "rug_block": false,
+      "gem_score": 48,
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "spy_news": 0,
+      "spy_euphoria": 1,
+      "spy_flow": 0,
+      "spy_whale": 0,
+      "spy_chart": -1,
+      "spy_breakout": 0,
+      "spy_confluence": 0,
+      "senior_report": {
+        "setup": {
+          "entry": 0.267127,
+          "tp1": 0.270333,
+          "tp2": 0.27247,
+          "sl": 0.265257
+        },
+        "confluencias": [
+          "RSI proxy momentum 24h: -4.87%",
+          "EMA proxy tendencia 7d: 2.25%",
+          "Volumen/MCAP: 0.0673"
+        ],
+        "rr": 1.71,
+        "sentimiento": "negativo"
+      },
+      "technical_report": {
+        "sesgo": "Bearish",
+        "soportes_resistencias": {
+          "soporte_1": 0.264456,
+          "soporte_2": 0.260449,
+          "resistencia_1": 0.269798,
+          "resistencia_2": 0.273805
+        },
+        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
+        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
+        "invalidacion": "cierres por debajo de 0.26312"
       },
       "sentiment_report": {
         "catalizador": "catalizador débil",

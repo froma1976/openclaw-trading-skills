@@ -1,94 +1,5 @@
 {
-  "active": [
-    {
-      "id": "crp_ltc_1772557741",
-      "ticker": "LTC",
-      "opened_at": "2026-03-03T17:09:01Z",
-      "entry_price": 54.16,
-      "qty": 1.84638109,
-      "notional_usd": 100.0,
-      "target_price": 54.80992,
-      "stop_price": 53.78088,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "confidence": 75,
-      "score": 75,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 0,
-        "euphoria": 1,
-        "flow": 1,
-        "whale": 0
-      },
-      "current_price": 54.46
-    },
-    {
-      "id": "crp_avax_1772557862",
-      "ticker": "AVAX",
-      "opened_at": "2026-03-03T17:11:02Z",
-      "entry_price": 9.19,
-      "qty": 10.88139282,
-      "notional_usd": 100.0,
-      "target_price": 9.30028,
-      "stop_price": 9.12567,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "confidence": 75,
-      "score": 75,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 0,
-        "euphoria": 1,
-        "flow": 1,
-        "whale": 0
-      },
-      "current_price": 9.17
-    },
-    {
-      "id": "crp_eth_1772559481",
-      "ticker": "ETH",
-      "opened_at": "2026-03-03T17:38:01Z",
-      "entry_price": 1962.39,
-      "qty": 0.0382187,
-      "notional_usd": 75.0,
-      "target_price": 1985.93868,
-      "stop_price": 1948.65327,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "confidence": 68,
-      "score": 68,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 0,
-        "euphoria": 1,
-        "flow": 1,
-        "whale": 0
-      },
-      "current_price": 1969.89
-    },
-    {
-      "id": "crp_sol_1772559481",
-      "ticker": "SOL",
-      "opened_at": "2026-03-03T17:38:01Z",
-      "entry_price": 84.59,
-      "qty": 0.3098475,
-      "notional_usd": 26.21,
-      "target_price": 85.60508,
-      "stop_price": 83.99787,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "confidence": 68,
-      "score": 68,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 0,
-        "euphoria": 1,
-        "flow": 1,
-        "whale": 0
-      },
-      "current_price": 84.55
-    }
-  ],
+  "active": [],
   "completed": [
     {
       "id": "crp_sol_1772551484",
@@ -184,6 +95,110 @@
       "close_price": 9.19,
       "result": "ganada",
       "pnl_usd": 1.211454
+    },
+    {
+      "id": "crp_ltc_1772557741",
+      "ticker": "LTC",
+      "opened_at": "2026-03-03T17:09:01Z",
+      "entry_price": 54.16,
+      "qty": 1.84638109,
+      "notional_usd": 100.0,
+      "target_price": 54.80992,
+      "stop_price": 53.78088,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "confidence": 75,
+      "score": 75,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 54.92,
+      "closed_at": "2026-03-03T19:01:19Z",
+      "close_price": 54.92,
+      "result": "ganada",
+      "pnl_usd": 1.40325
+    },
+    {
+      "id": "crp_avax_1772557862",
+      "ticker": "AVAX",
+      "opened_at": "2026-03-03T17:11:02Z",
+      "entry_price": 9.19,
+      "qty": 10.88139282,
+      "notional_usd": 100.0,
+      "target_price": 9.30028,
+      "stop_price": 9.12567,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "confidence": 75,
+      "score": 75,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 9.26,
+      "closed_at": "2026-03-03T19:01:19Z",
+      "close_price": 9.26,
+      "result": "timeout",
+      "pnl_usd": 0.761697
+    },
+    {
+      "id": "crp_eth_1772559481",
+      "ticker": "ETH",
+      "opened_at": "2026-03-03T17:38:01Z",
+      "entry_price": 1962.39,
+      "qty": 0.0382187,
+      "notional_usd": 75.0,
+      "target_price": 1985.93868,
+      "stop_price": 1948.65327,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "confidence": 68,
+      "score": 68,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 1988.57,
+      "closed_at": "2026-03-03T19:01:19Z",
+      "close_price": 1988.57,
+      "result": "ganada",
+      "pnl_usd": 1.000566
+    },
+    {
+      "id": "crp_sol_1772559481",
+      "ticker": "SOL",
+      "opened_at": "2026-03-03T17:38:01Z",
+      "entry_price": 84.59,
+      "qty": 0.3098475,
+      "notional_usd": 26.21,
+      "target_price": 85.60508,
+      "stop_price": 83.99787,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "confidence": 68,
+      "score": 68,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 85.42,
+      "closed_at": "2026-03-03T19:01:19Z",
+      "close_price": 85.42,
+      "result": "timeout",
+      "pnl_usd": 0.257173
     }
   ],
   "daily": {
@@ -195,8 +210,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 0.0,
-    "market_value_usd": 301.82,
-    "equity_usd": 301.82
+    "cash_usd": 304.6326861168,
+    "market_value_usd": 0.0,
+    "equity_usd": 304.63
   }
 }

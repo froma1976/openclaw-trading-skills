@@ -76,6 +76,7 @@ def score_crypto(row: dict):
     ch7 = float(row.get("price_change_percentage_7d_in_currency") or 0)
     vol = float(row.get("total_volume") or 0)
     mcap = float(row.get("market_cap") or 0)
+    fdv = float(row.get("fully_diluted_valuation") or 0)
     rank = int(row.get("market_cap_rank") or 999)
 
     score = 50
@@ -121,6 +122,8 @@ def score_crypto(row: dict):
 
     bubble = "Bajo"
     argumento_en_contra = "Sin objeción crítica detectada"
+    mc_fdv_ratio = (mcap / fdv) if (mcap > 0 and fdv > 0) else 1.0
+    rug_block = False
     if ch24 > 8 or ch7 > 20:
         bubble = "Crítico"
         score -= 10
@@ -129,6 +132,15 @@ def score_crypto(row: dict):
         bubble = "Medio"
         score -= 4
         argumento_en_contra = "Euforia parcial: entrar con tamaño pequeño"
+
+    # Anti-rug básico por tokenómica
+    if fdv > 0 and mc_fdv_ratio < 0.10:
+        score -= 20
+        rug_block = True
+        argumento_en_contra = "Riesgo tokenómico alto (MC/FDV muy bajo)"
+    elif fdv > 0 and mc_fdv_ratio < 0.25:
+        score -= 10
+        argumento_en_contra = "Tokenómica exigente (MC/FDV bajo)"
 
     score = max(0, min(100, int(round(score))))
 
@@ -139,7 +151,16 @@ def score_crypto(row: dict):
         state = "TRIGGERED"
 
     # Decisión intradía agresiva: solo BUY / AVOID (sin HOLD)
-    decision = "BUY" if (score >= 68 and bubble != "Crítico") else "AVOID"
+    decision = "BUY" if (score >= 68 and bubble != "Crítico" and not rug_block) else "AVOID"
+
+    gem_score = score
+    if rank > 30:
+        gem_score += 6
+    if vol_ratio >= 0.10:
+        gem_score += 4
+    if rug_block:
+        gem_score -= 20
+    gem_score = max(0, min(100, int(round(gem_score))))
 
     # Señales de red de espías
     spy_news = 1 if ch24 > 0 else 0
@@ -159,6 +180,9 @@ def score_crypto(row: dict):
         "spy_euphoria": spy_euphoria,
         "spy_flow": spy_flow,
         "spy_whale": spy_whale,
+        "mc_fdv_ratio": round(mc_fdv_ratio, 4),
+        "rug_block": rug_block,
+        "gem_score": gem_score,
     }
 
 
@@ -247,6 +271,9 @@ def main():
             "reasons": sc["reasons"],
             "bubble_level": sc["bubble_level"],
             "flow_ratio": sc["flow_ratio"],
+            "mc_fdv_ratio": sc["mc_fdv_ratio"],
+            "rug_block": sc["rug_block"],
+            "gem_score": sc["gem_score"],
             "argumento_en_contra": sc["argumento_en_contra"],
             "spy_news": sc["spy_news"],
             "spy_euphoria": sc["spy_euphoria"],
@@ -260,7 +287,7 @@ def main():
             "sentiment_report": sentiment_report,
         })
 
-    top = sorted(assets, key=lambda x: x["score"], reverse=True)
+    top = sorted(assets, key=lambda x: (x.get("decision_final") == "BUY", x.get("gem_score", 0), x.get("score", 0)), reverse=True)
     out = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "assets": assets,
