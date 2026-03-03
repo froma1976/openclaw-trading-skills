@@ -152,9 +152,11 @@ def main():
         if c.get("state") not in {"READY", "TRIGGERED"}:
             continue
 
-        # Red de espías: exigimos confluencia mínima
+        # Red de espías: exigimos confluencia + ruptura temprana
         confluence = int(c.get("spy_confluence") or 0)
-        if confluence < 2:
+        if confluence < 3:
+            continue
+        if int(c.get("spy_breakout") or 0) <= 0:
             continue
 
         p = px.get(t)

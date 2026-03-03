@@ -20,7 +20,7 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 54.55
+      "current_price": 54.44
     },
     {
       "id": "crp_avax_1772557862",
@@ -42,7 +42,51 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 9.18
+      "current_price": 9.17
+    },
+    {
+      "id": "crp_eth_1772559481",
+      "ticker": "ETH",
+      "opened_at": "2026-03-03T17:38:01Z",
+      "entry_price": 1962.39,
+      "qty": 0.0382187,
+      "notional_usd": 75.0,
+      "target_price": 1985.93868,
+      "stop_price": 1948.65327,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "confidence": 68,
+      "score": 68,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 1967.7
+    },
+    {
+      "id": "crp_sol_1772559481",
+      "ticker": "SOL",
+      "opened_at": "2026-03-03T17:38:01Z",
+      "entry_price": 84.59,
+      "qty": 0.3098475,
+      "notional_usd": 26.21,
+      "target_price": 85.60508,
+      "stop_price": 83.99787,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "confidence": 68,
+      "score": 68,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 84.57
     }
   ],
   "completed": [
@@ -144,12 +188,12 @@
   ],
   "daily": {
     "date": "2026-03-03",
-    "trades": 6
+    "trades": 8
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 101.21,
-    "market_value_usd": 200.61,
-    "equity_usd": 301.82
+    "cash_usd": 0.0,
+    "market_value_usd": 301.71,
+    "equity_usd": 301.71
   }
 }

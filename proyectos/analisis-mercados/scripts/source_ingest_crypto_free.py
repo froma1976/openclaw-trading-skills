@@ -22,6 +22,30 @@ def get_json(url: str):
         return json.loads(r.read().decode("utf-8"))
 
 
+def fetch_breakout_spy(ticker: str) -> int:
+    # Detecta arranque de impulso (1m): +% en 5 velas + volumen fuerte
+    try:
+        sym = f"{ticker}USDT"
+        u = f"https://api.binance.com/api/v3/klines?symbol={sym}&interval=1m&limit=40"
+        k = get_json(u)
+        if not isinstance(k, list) or len(k) < 20:
+            return 0
+        close = [float(x[4]) for x in k if len(x) > 5]
+        vol = [float(x[5]) for x in k if len(x) > 5]
+        if len(close) < 10 or len(vol) < 10:
+            return 0
+        p5 = (close[-1] / close[-6] - 1.0) * 100
+        v_now = sum(vol[-5:]) / 5
+        v_ref = sum(vol[-20:-5]) / 15
+        if p5 >= 1.2 and v_now >= (v_ref * 1.5):
+            return 1
+        if p5 <= -1.0:
+            return -1
+        return 0
+    except Exception:
+        return 0
+
+
 def fetch_chart_spy(ticker: str) -> int:
     # Señal rápida de velas 1m/5m (Binance): 1 alcista, -1 bajista, 0 neutra/error
     try:
@@ -199,8 +223,10 @@ def main():
 
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
         spy_chart = fetch_chart_spy(ticker)
+        spy_breakout = fetch_breakout_spy(ticker)
         sc["spy_chart"] = spy_chart
-        sc["spy_confluence"] = int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"] + sc["spy_chart"])
+        sc["spy_breakout"] = spy_breakout
+        sc["spy_confluence"] = int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"] + sc["spy_chart"] + sc["spy_breakout"])
 
         senior_report, technical_report, sentiment_report = build_reports(ticker, p, r, sc)
 
@@ -227,6 +253,7 @@ def main():
             "spy_flow": sc["spy_flow"],
             "spy_whale": sc["spy_whale"],
             "spy_chart": sc["spy_chart"],
+            "spy_breakout": sc["spy_breakout"],
             "spy_confluence": sc["spy_confluence"],
             "senior_report": senior_report,
             "technical_report": technical_report,

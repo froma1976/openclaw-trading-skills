@@ -79,6 +79,12 @@
       "role": "analista de velas cripto",
       "model": "deterministic",
       "why": "lee velas 1m/5m para confirmar entrada rápida"
+    },
+    {
+      "id": "crypto-breakout-agent",
+      "role": "cazador de ruptura temprana",
+      "model": "deterministic",
+      "why": "detecta aceleración + volumen para entrar al inicio del impulso"
     }
   ],
   "fallback": {
