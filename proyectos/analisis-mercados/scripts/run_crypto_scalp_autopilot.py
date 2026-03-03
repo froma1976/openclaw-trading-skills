@@ -10,6 +10,8 @@ TARGET_PCT = 1.2
 STOP_PCT = 0.7
 TIMEOUT_MIN = 45
 MAX_TRADES_DAY = 30
+MAX_TRADES_HOUR = 8
+DAILY_LOSS_LIMIT_USD = 12.0
 CRYPTO_CAPITAL_INITIAL_USD = 300.0
 MAX_ACTIVE_POSITIONS = 2
 ALLOC_PER_TRADE_USD = 100.0
@@ -103,8 +105,42 @@ def main():
     opened_now = 0
     active_tickers = {o.get("ticker") for o in active}
 
+    now = datetime.now(UTC)
+    one_hour_ago = now - timedelta(hours=1)
+
+    def to_dt(v):
+        try:
+            return parse_iso(v)
+        except Exception:
+            return None
+
+    hour_trades = 0
+    for o in active:
+        d = to_dt(o.get("opened_at"))
+        if d and d >= one_hour_ago:
+            hour_trades += 1
+    for o in completed:
+        d = to_dt(o.get("closed_at"))
+        if d and d >= one_hour_ago:
+            hour_trades += 1
+
+    daily_pnl = 0.0
+    for o in completed:
+        d = to_dt(o.get("closed_at"))
+        if d and d.date().isoformat() == today:
+            try:
+                daily_pnl += float(o.get("pnl_usd") or 0)
+            except Exception:
+                pass
+
+    risk_blocked = daily_pnl <= (-DAILY_LOSS_LIMIT_USD)
+
     for c in top:
         if daily.get("trades", 0) >= MAX_TRADES_DAY:
+            break
+        if hour_trades >= MAX_TRADES_HOUR:
+            break
+        if risk_blocked:
             break
         if len(active) >= MAX_ACTIVE_POSITIONS:
             break
@@ -156,6 +192,7 @@ def main():
         portfolio["cash_usd"] = round(float(portfolio.get("cash_usd", 0)) - notional, 2)
         active_tickers.add(t)
         opened_now += 1
+        hour_trades += 1
         daily["trades"] = int(daily.get("trades", 0)) + 1
 
     active_value = 0.0
@@ -184,6 +221,11 @@ def main():
         "active_total": len(active),
         "daily_trades": daily.get("trades", 0),
         "max_trades_day": MAX_TRADES_DAY,
+        "hour_trades": hour_trades,
+        "max_trades_hour": MAX_TRADES_HOUR,
+        "daily_pnl_usd": round(daily_pnl, 4),
+        "daily_loss_limit_usd": DAILY_LOSS_LIMIT_USD,
+        "risk_blocked": risk_blocked,
         "cash_usd": portfolio.get("cash_usd", 0),
         "equity_usd": portfolio.get("equity_usd", 0),
     }, ensure_ascii=False))
