@@ -82,12 +82,8 @@ def score_crypto(row: dict):
     if score >= 78:
         state = "TRIGGERED"
 
-    # Decisión final conservadora
-    decision = "AVOID"
-    if score >= 80 and bubble != "Crítico":
-        decision = "BUY"
-    elif score >= 60:
-        decision = "HOLD"
+    # Decisión intradía agresiva: solo BUY / AVOID (sin HOLD)
+    decision = "BUY" if (score >= 68 and bubble != "Crítico") else "AVOID"
 
     return {
         "score": score,
