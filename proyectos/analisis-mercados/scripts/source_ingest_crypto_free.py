@@ -85,6 +85,12 @@ def score_crypto(row: dict):
     # Decisión intradía agresiva: solo BUY / AVOID (sin HOLD)
     decision = "BUY" if (score >= 68 and bubble != "Crítico") else "AVOID"
 
+    # Señales de red de espías
+    spy_news = 1 if ch24 > 0 else 0
+    spy_euphoria = -1 if bubble == "Crítico" else (0 if bubble == "Medio" else 1)
+    spy_flow = 1 if vol_ratio >= 0.07 else (-1 if vol_ratio < 0.03 else 0)
+    spy_whale = 1 if (vol_ratio >= 0.12 and ch24 > 1.5) else 0
+
     return {
         "score": score,
         "state": state,
@@ -93,6 +99,10 @@ def score_crypto(row: dict):
         "bubble_level": bubble,
         "argumento_en_contra": argumento_en_contra,
         "flow_ratio": round(vol_ratio, 4),
+        "spy_news": spy_news,
+        "spy_euphoria": spy_euphoria,
+        "spy_flow": spy_flow,
+        "spy_whale": spy_whale,
     }
 
 
@@ -129,6 +139,11 @@ def main():
             "bubble_level": sc["bubble_level"],
             "flow_ratio": sc["flow_ratio"],
             "argumento_en_contra": sc["argumento_en_contra"],
+            "spy_news": sc["spy_news"],
+            "spy_euphoria": sc["spy_euphoria"],
+            "spy_flow": sc["spy_flow"],
+            "spy_whale": sc["spy_whale"],
+            "spy_confluence": int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"]),
         })
 
     top = sorted(assets, key=lambda x: x["score"], reverse=True)

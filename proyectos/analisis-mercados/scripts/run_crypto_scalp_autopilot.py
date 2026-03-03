@@ -95,6 +95,12 @@ def main():
             continue
         if c.get("state") not in {"READY", "TRIGGERED"}:
             continue
+
+        # Red de espías: exigimos confluencia mínima
+        confluence = int(c.get("spy_confluence") or 0)
+        if confluence < 2:
+            continue
+
         p = px.get(t)
         if p is None:
             continue
@@ -110,6 +116,13 @@ def main():
             "mode": "scalp_intradia",
             "confidence": c.get("confidence_pct"),
             "score": c.get("score"),
+            "spy_confluence": confluence,
+            "spy_breakdown": {
+                "news": c.get("spy_news"),
+                "euphoria": c.get("spy_euphoria"),
+                "flow": c.get("spy_flow"),
+                "whale": c.get("spy_whale"),
+            },
         }
         active.append(order)
         active_tickers.add(t)
