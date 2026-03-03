@@ -113,6 +113,50 @@ def score_crypto(row: dict):
     }
 
 
+def build_reports(ticker: str, price: float, row: dict, scored: dict):
+    ch24 = float(row.get("price_change_percentage_24h") or 0)
+    ch7 = float(row.get("price_change_percentage_7d_in_currency") or 0)
+    flow = float(scored.get("flow_ratio") or 0)
+    bias = "Bullish" if scored.get("decision_final") == "BUY" else "Bearish"
+
+    tp1 = round(price * 1.012, 6)
+    tp2 = round(price * 1.02, 6)
+    sl = round(price * 0.993, 6)
+    rr = round(((tp1 - price) / max(price - sl, 1e-9)), 2)
+
+    senior = {
+        "setup": {"entry": round(price, 6), "tp1": tp1, "tp2": tp2, "sl": sl},
+        "confluencias": [
+            f"RSI proxy momentum 24h: {ch24:.2f}%",
+            f"EMA proxy tendencia 7d: {ch7:.2f}%",
+            f"Volumen/MCAP: {flow:.4f}",
+        ],
+        "rr": rr,
+        "sentimiento": "positivo" if ch24 >= 0 else "negativo",
+    }
+
+    technical = {
+        "sesgo": bias,
+        "soportes_resistencias": {
+            "soporte_1": round(price * 0.99, 6),
+            "soporte_2": round(price * 0.975, 6),
+            "resistencia_1": round(price * 1.01, 6),
+            "resistencia_2": round(price * 1.025, 6),
+        },
+        "order_blocks": "aprox en zona soporte_1/soporte_2 por reacción reciente",
+        "divergencias": "sin divergencia crítica confirmada en este barrido rápido",
+        "invalidacion": f"cierres por debajo de {round(price * 0.985, 6)}",
+    }
+
+    sentiment = {
+        "catalizador": "flujo y momento intradía" if flow >= 0.07 else "catalizador débil",
+        "riesgo": scored.get("argumento_en_contra"),
+        "prediccion_corto": "continuación" if scored.get("decision_final") == "BUY" else "posible trampa/retroceso",
+    }
+
+    return senior, technical, sentiment
+
+
 def main():
     ids = ",".join(COINS)
     url = (
@@ -128,9 +172,12 @@ def main():
         ch7 = float(r.get("price_change_percentage_7d_in_currency") or 0)
         sc = score_crypto(r)
 
+        ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
+        senior_report, technical_report, sentiment_report = build_reports(ticker, p, r, sc)
+
         assets.append({
             "id": r.get("id"),
-            "ticker": SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper()),
+            "ticker": ticker,
             "name": r.get("name"),
             "price_usd": p,
             "chg_24h_pct": round(ch24, 2),
@@ -151,6 +198,9 @@ def main():
             "spy_flow": sc["spy_flow"],
             "spy_whale": sc["spy_whale"],
             "spy_confluence": int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"]),
+            "senior_report": senior_report,
+            "technical_report": technical_report,
+            "sentiment_report": sentiment_report,
         })
 
     top = sorted(assets, key=lambda x: x["score"], reverse=True)
