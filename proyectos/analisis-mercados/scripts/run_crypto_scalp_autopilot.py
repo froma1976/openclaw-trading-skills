@@ -174,7 +174,9 @@ def main():
         chart = int(c.get("spy_chart") or 0)
         if confluence < 1:
             continue
-        if max(breakout, chart) <= 0:
+        # Entrada flexible: si no hay trigger instantáneo, dejamos pasar setups de score alto
+        score = int(c.get("score") or 0)
+        if max(breakout, chart) <= 0 and score < 78:
             continue
 
         p = px.get(t)
