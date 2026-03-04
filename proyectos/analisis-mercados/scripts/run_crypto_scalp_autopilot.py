@@ -76,6 +76,15 @@ def main():
             still_active.append(o)
             continue
         o["current_price"] = round(cur, 6)
+        try:
+            entry = float(o.get("entry_price") or 0)
+            qty_live = float(o.get("qty") or 0)
+            if entry > 0:
+                o["pct_move"] = round(((cur - entry) / entry) * 100, 3)
+            o["pnl_usd_est"] = round((cur - entry) * qty_live, 6)
+        except Exception:
+            o["pct_move"] = None
+            o["pnl_usd_est"] = None
         result = None
         if cur >= float(o.get("target_price", 0)):
             result = "ganada"
