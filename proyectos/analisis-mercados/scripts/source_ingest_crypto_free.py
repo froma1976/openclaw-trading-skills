@@ -6,16 +6,22 @@ from urllib import request
 
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 COINS = [
-    "bitcoin", "ethereum", "solana", "bnb", "ripple", "cardano", "dogecoin",
-    "chainlink", "avalanche-2", "polkadot", "matic-network", "litecoin",
-    "tron", "sui", "aptos", "near", "arbitrum", "optimism", "render-token", "injective-protocol"
+    "bitcoin", "ethereum", "tether", "binancecoin", "solana", "ripple", "usd-coin", "dogecoin", "cardano", "tron",
+    "chainlink", "avalanche-2", "stellar", "sui", "toncoin", "shiba-inu", "hedera-hashgraph", "polkadot", "litecoin", "bitcoin-cash",
+    "uniswap", "pepe", "near", "aptos", "internet-computer", "aave", "ethereum-classic", "render-token", "arbitrum", "mantle",
+    "filecoin", "cosmos", "vechain", "maker", "algorand", "the-graph", "sei-network", "optimism", "bonk", "worldcoin-wld",
+    "theta-token", "lido-dao", "injective-protocol", "fetch-ai", "the-sandbox", "decentraland", "eos", "tezos", "flow", "gala"
 ]
 SYMBOL = {
-    "bitcoin": "BTC", "ethereum": "ETH", "solana": "SOL", "bnb": "BNB", "ripple": "XRP",
-    "cardano": "ADA", "dogecoin": "DOGE", "chainlink": "LINK", "avalanche-2": "AVAX",
-    "polkadot": "DOT", "matic-network": "MATIC", "litecoin": "LTC", "tron": "TRX",
-    "sui": "SUI", "aptos": "APT", "near": "NEAR", "arbitrum": "ARB", "optimism": "OP",
-    "render-token": "RENDER", "injective-protocol": "INJ"
+    "bitcoin": "BTC", "ethereum": "ETH", "tether": "USDT", "binancecoin": "BNB", "solana": "SOL", "ripple": "XRP",
+    "usd-coin": "USDC", "dogecoin": "DOGE", "cardano": "ADA", "tron": "TRX", "chainlink": "LINK", "avalanche-2": "AVAX",
+    "stellar": "XLM", "sui": "SUI", "toncoin": "TON", "shiba-inu": "SHIB", "hedera-hashgraph": "HBAR", "polkadot": "DOT",
+    "litecoin": "LTC", "bitcoin-cash": "BCH", "uniswap": "UNI", "pepe": "PEPE", "near": "NEAR", "aptos": "APT",
+    "internet-computer": "ICP", "aave": "AAVE", "ethereum-classic": "ETC", "render-token": "RENDER", "arbitrum": "ARB", "mantle": "MNT",
+    "filecoin": "FIL", "cosmos": "ATOM", "vechain": "VET", "maker": "MKR", "algorand": "ALGO", "the-graph": "GRT",
+    "sei-network": "SEI", "optimism": "OP", "bonk": "BONK", "worldcoin-wld": "WLD", "theta-token": "THETA", "lido-dao": "LDO",
+    "injective-protocol": "INJ", "fetch-ai": "FET", "the-sandbox": "SAND", "decentraland": "MANA", "eos": "EOS", "tezos": "XTZ",
+    "flow": "FLOW", "gala": "GALA"
 }
 
 

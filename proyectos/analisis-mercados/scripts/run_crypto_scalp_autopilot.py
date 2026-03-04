@@ -6,15 +6,15 @@ from pathlib import Path
 SNAP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")
 
-TARGET_PCT = 1.0
-STOP_PCT = 0.8
-TIMEOUT_MIN = 35
-MAX_TRADES_DAY = 48
-MAX_TRADES_HOUR = 14
-DAILY_LOSS_LIMIT_USD = 16.0
+TARGET_PCT = 0.9
+STOP_PCT = 0.55
+TIMEOUT_MIN = 12
+MAX_TRADES_DAY = 120
+MAX_TRADES_HOUR = 30
+DAILY_LOSS_LIMIT_USD = 18.0
 CRYPTO_CAPITAL_INITIAL_USD = 300.0
-MAX_ACTIVE_POSITIONS = 6
-ALLOC_PER_TRADE_USD = 55.0
+MAX_ACTIVE_POSITIONS = 10
+ALLOC_PER_TRADE_USD = 30.0
 
 
 def now_iso():
@@ -172,7 +172,7 @@ def main():
         confluence = int(c.get("spy_confluence") or 0)
         breakout = int(c.get("spy_breakout") or 0)
         chart = int(c.get("spy_chart") or 0)
-        if confluence < 2:
+        if confluence < 1:
             continue
         if max(breakout, chart) <= 0:
             continue
