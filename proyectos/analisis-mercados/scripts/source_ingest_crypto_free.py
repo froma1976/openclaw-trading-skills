@@ -3,8 +3,11 @@ import json
 from datetime import datetime, UTC
 from pathlib import Path
 from urllib import request
+import os
 
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
+API_SAVING_MODE = os.getenv("API_SAVING_MODE", "1").strip() in {"1", "true", "TRUE", "yes"}
+MAX_SPY_ASSETS = int(os.getenv("MAX_SPY_ASSETS", "15"))
 COINS = [
     "bitcoin", "ethereum", "tether", "binancecoin", "solana", "ripple", "usd-coin", "dogecoin", "cardano", "tron",
     "chainlink", "avalanche-2", "stellar", "sui", "toncoin", "shiba-inu", "hedera-hashgraph", "polkadot", "litecoin", "bitcoin-cash",
@@ -253,6 +256,14 @@ def main():
     rows = get_json(url)
     assets = []
 
+    # Ahorro API: solo calcular espías de velas en los más líquidos del batch
+    spy_allowed = set()
+    if isinstance(rows, list) and rows:
+        ordered = sorted(rows, key=lambda x: float(x.get("total_volume") or 0), reverse=True)
+        top_rows = ordered[:MAX_SPY_ASSETS] if API_SAVING_MODE else ordered
+        for rr in top_rows:
+            spy_allowed.add(SYMBOL.get(rr.get("id"), str(rr.get("symbol", "")).upper()))
+
     for r in rows:
         p = float(r.get("current_price") or 0)
         ch24 = float(r.get("price_change_percentage_24h") or 0)
@@ -260,8 +271,12 @@ def main():
         sc = score_crypto(r)
 
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
-        spy_chart = fetch_chart_spy(ticker)
-        spy_breakout = fetch_breakout_spy(ticker)
+        if ticker in spy_allowed:
+            spy_chart = fetch_chart_spy(ticker)
+            spy_breakout = fetch_breakout_spy(ticker)
+        else:
+            spy_chart = 0
+            spy_breakout = 0
         sc["spy_chart"] = spy_chart
         sc["spy_breakout"] = spy_breakout
         sc["spy_confluence"] = int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"] + sc["spy_chart"] + sc["spy_breakout"])
@@ -307,7 +322,9 @@ def main():
         "assets": assets,
         "top_opportunities": top,
         "source": "coingecko-free",
-        "notes": "Scoring cripto con momentum+flujo+risk bubble en modo conservador",
+        "api_saving_mode": API_SAVING_MODE,
+        "spy_assets_limit": MAX_SPY_ASSETS,
+        "notes": "Scoring cripto con ahorro API activo (espías de velas en subset líquido)",
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
