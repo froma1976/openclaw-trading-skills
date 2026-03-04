@@ -7,12 +7,15 @@ from urllib import request
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 COINS = [
     "bitcoin", "ethereum", "solana", "bnb", "ripple", "cardano", "dogecoin",
-    "chainlink", "avalanche-2", "polkadot", "matic-network", "litecoin"
+    "chainlink", "avalanche-2", "polkadot", "matic-network", "litecoin",
+    "tron", "sui", "aptos", "near", "arbitrum", "optimism", "render-token", "injective-protocol"
 ]
 SYMBOL = {
     "bitcoin": "BTC", "ethereum": "ETH", "solana": "SOL", "bnb": "BNB", "ripple": "XRP",
     "cardano": "ADA", "dogecoin": "DOGE", "chainlink": "LINK", "avalanche-2": "AVAX",
-    "polkadot": "DOT", "matic-network": "MATIC", "litecoin": "LTC"
+    "polkadot": "DOT", "matic-network": "MATIC", "litecoin": "LTC", "tron": "TRX",
+    "sui": "SUI", "aptos": "APT", "near": "NEAR", "arbitrum": "ARB", "optimism": "OP",
+    "render-token": "RENDER", "injective-protocol": "INJ"
 }
 
 
@@ -47,24 +50,29 @@ def fetch_breakout_spy(ticker: str) -> int:
 
 
 def fetch_chart_spy(ticker: str) -> int:
-    # Señal rápida de velas 1m/5m (Binance): 1 alcista, -1 bajista, 0 neutra/error
+    # Señal rápida de velas 1m/5m/15m (Binance): 1 alcista, -1 bajista, 0 neutra/error
     try:
         sym = f"{ticker}USDT"
         u1 = f"https://api.binance.com/api/v3/klines?symbol={sym}&interval=1m&limit=30"
         u5 = f"https://api.binance.com/api/v3/klines?symbol={sym}&interval=5m&limit=20"
+        u15 = f"https://api.binance.com/api/v3/klines?symbol={sym}&interval=15m&limit=20"
         k1 = get_json(u1)
         k5 = get_json(u5)
-        if not isinstance(k1, list) or not isinstance(k5, list) or len(k1) < 10 or len(k5) < 10:
+        k15 = get_json(u15)
+        if not isinstance(k1, list) or not isinstance(k5, list) or not isinstance(k15, list) or len(k1) < 10 or len(k5) < 10 or len(k15) < 10:
             return 0
         c1 = [float(x[4]) for x in k1 if len(x) > 4]
         c5 = [float(x[4]) for x in k5 if len(x) > 4]
+        c15 = [float(x[4]) for x in k15 if len(x) > 4]
         m1s = sum(c1[-7:-1]) / 6
         m1l = sum(c1[-20:-1]) / 19
         m5s = sum(c5[-5:-1]) / 4
         m5l = sum(c5[-12:-1]) / 11
-        if c1[-1] > m1s > m1l and c5[-1] > m5s > m5l:
+        m15s = sum(c15[-5:-1]) / 4
+        m15l = sum(c15[-12:-1]) / 11
+        if c1[-1] > m1s > m1l and c5[-1] > m5s > m5l and c15[-1] > m15s > m15l:
             return 1
-        if c1[-1] < m1s < m1l and c5[-1] < m5s < m5l:
+        if c1[-1] < m1s < m1l and c5[-1] < m5s < m5l and c15[-1] < m15s < m15l:
             return -1
         return 0
     except Exception:
@@ -145,13 +153,13 @@ def score_crypto(row: dict):
     score = max(0, min(100, int(round(score))))
 
     state = "WATCH"
-    if score >= 66:
+    if score >= 60:
         state = "READY"
-    if score >= 78:
+    if score >= 72:
         state = "TRIGGERED"
 
-    # Decisión intradía agresiva: solo BUY / AVOID (sin HOLD)
-    decision = "BUY" if (score >= 68 and bubble != "Crítico" and not rug_block) else "AVOID"
+    # Decisión intradía activa: solo BUY / AVOID (sin HOLD)
+    decision = "BUY" if (score >= 60 and bubble != "Crítico" and not rug_block) else "AVOID"
 
     gem_score = score
     if rank > 30:

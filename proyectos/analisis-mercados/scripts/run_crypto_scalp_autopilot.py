@@ -6,15 +6,15 @@ from pathlib import Path
 SNAP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")
 
-TARGET_PCT = 1.2
-STOP_PCT = 0.7
-TIMEOUT_MIN = 45
-MAX_TRADES_DAY = 30
-MAX_TRADES_HOUR = 8
-DAILY_LOSS_LIMIT_USD = 12.0
+TARGET_PCT = 1.0
+STOP_PCT = 0.8
+TIMEOUT_MIN = 35
+MAX_TRADES_DAY = 48
+MAX_TRADES_HOUR = 14
+DAILY_LOSS_LIMIT_USD = 16.0
 CRYPTO_CAPITAL_INITIAL_USD = 300.0
-MAX_ACTIVE_POSITIONS = 4
-ALLOC_PER_TRADE_USD = 75.0
+MAX_ACTIVE_POSITIONS = 6
+ALLOC_PER_TRADE_USD = 55.0
 
 
 def now_iso():
@@ -168,11 +168,13 @@ def main():
         if c.get("state") not in {"READY", "TRIGGERED"}:
             continue
 
-        # Red de espías: exigimos confluencia + ruptura temprana
+        # Red de espías (modo más activo): confluencia mínima + confirmación chart/breakout
         confluence = int(c.get("spy_confluence") or 0)
-        if confluence < 3:
+        breakout = int(c.get("spy_breakout") or 0)
+        chart = int(c.get("spy_chart") or 0)
+        if confluence < 2:
             continue
-        if int(c.get("spy_breakout") or 0) <= 0:
+        if max(breakout, chart) <= 0:
             continue
 
         p = px.get(t)

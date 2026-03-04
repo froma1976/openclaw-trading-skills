@@ -201,6 +201,34 @@ def score_ticker_tech_base(ticker: str, chg5, chg20):
     return score, reasons
 
 
+def fetch_intraday_bias_yahoo(ticker: str):
+    # Bias intradía simple (15m): ayuda a no esperar al cierre diario
+    try:
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(ticker)}?range=5d&interval=15m"
+        data = get_json(url)
+        res = data.get("chart", {}).get("result", [])
+        if not res:
+            return {"bias": 0, "label": "N/D"}
+        quote = res[0].get("indicators", {}).get("quote", [{}])[0]
+        closes = [float(v) for v in (quote.get("close", []) or []) if v is not None]
+        if len(closes) < 40:
+            return {"bias": 0, "label": "N/D"}
+
+        ema9 = ema(closes, 9)
+        ema21 = ema(closes, 21)
+        last = closes[-1]
+        if ema9 is None or ema21 is None:
+            return {"bias": 0, "label": "N/D"}
+
+        if last > ema9 > ema21:
+            return {"bias": 1, "label": "alcista"}
+        if last < ema9 < ema21:
+            return {"bias": -1, "label": "bajista"}
+        return {"bias": 0, "label": "neutro"}
+    except Exception:
+        return {"bias": 0, "label": "N/D"}
+
+
 def fetch_yahoo_ticker(ticker: str):
     # 1 año para poder medir sobreextensión vs SMA200
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(ticker)}?range=1y&interval=1d"
@@ -290,6 +318,14 @@ def fetch_yahoo_ticker(ticker: str):
         score_tech += 4
         reasons.append("breakout_20_sin_confirmacion")
 
+    intraday = fetch_intraday_bias_yahoo(ticker)
+    if intraday.get("bias") == 1:
+        score_tech += 5
+        reasons.append("intraday_15m_alcista")
+    elif intraday.get("bias") == -1:
+        score_tech -= 5
+        reasons.append("intraday_15m_bajista")
+
     score_tech = max(0, min(100, int(round(score_tech))))
 
     overextension_pct = None
@@ -318,6 +354,7 @@ def fetch_yahoo_ticker(ticker: str):
         "bb_lower": round(bb_lower, 3) if bb_lower is not None else None,
         "rel_volume": round(rel_volume, 2) if rel_volume is not None else None,
         "breakout_20": breakout_20,
+        "intraday_15m_bias": intraday.get("label"),
         "score_tech": score_tech,
         "score": score_tech,
         "reasons": list(dict.fromkeys(reasons)),
