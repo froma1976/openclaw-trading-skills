@@ -13,10 +13,16 @@ CFG = BASE / "sources_config_free.json"
 OUT_DIR = BASE / "data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT = OUT_DIR / "latest_snapshot_free.json"
-FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "").strip()
-FMP_API_KEY = os.getenv("FMP_API_KEY", "").strip()
-FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY", "").strip()
-FIRECRAWL_BASE_URL = os.getenv("FIRECRAWL_BASE_URL", "https://api.firecrawl.dev").strip()
+def _clean_env_value(v: str) -> str:
+    s = (v or "").strip().replace('`', '')
+    if s.endswith('rn') and len(s) > 8:
+        s = s[:-2]
+    return s
+
+FINNHUB_API_KEY = _clean_env_value(os.getenv("FINNHUB_API_KEY", ""))
+FMP_API_KEY = _clean_env_value(os.getenv("FMP_API_KEY", ""))
+FIRECRAWL_API_KEY = _clean_env_value(os.getenv("FIRECRAWL_API_KEY", ""))
+FIRECRAWL_BASE_URL = _clean_env_value(os.getenv("FIRECRAWL_BASE_URL", "https://api.firecrawl.dev"))
 FIRECRAWL_TIMEOUT_SEC = int(os.getenv("FIRECRAWL_TIMEOUT_SEC", "12") or "12")
 FIRECRAWL_ENABLED = os.getenv("FIRECRAWL_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
 
@@ -33,7 +39,7 @@ def load_env_fallback():
             if not line or line.strip().startswith('#') or '=' not in line:
                 continue
             k, v = line.split('=', 1)
-            k = k.strip(); v = v.strip()
+            k = k.strip(); v = _clean_env_value(v)
             if k == 'FINNHUB_API_KEY' and not FINNHUB_API_KEY:
                 FINNHUB_API_KEY = v
             elif k == 'FMP_API_KEY' and not FMP_API_KEY:
@@ -426,19 +432,25 @@ def fetch_earnings_fmp(symbol: str):
     if not FMP_API_KEY:
         return None
     try:
-        url = f"https://financialmodelingprep.com/api/v3/historical/earning_calendar/{urllib.parse.quote(symbol)}?limit=1&apikey={urllib.parse.quote(FMP_API_KEY)}"
+        # Endpoint estable (no legacy)
+        url = f"https://financialmodelingprep.com/stable/earnings-calendar?symbol={urllib.parse.quote(symbol)}&apikey={urllib.parse.quote(FMP_API_KEY)}"
         data = get_json(url)
         if not isinstance(data, list) or not data:
             return None
-        e = data[0]
+
+        # El endpoint puede devolver varios símbolos; filtramos el solicitado
+        target = str(symbol).upper()
+        rows = [x for x in data if isinstance(x, dict) and str(x.get("symbol", "")).upper() == target]
+        e = rows[0] if rows else data[0]
+
         return {
             "symbol": symbol,
             "source": "fmp",
             "date": e.get("date"),
             "eps_estimate": e.get("epsEstimated"),
-            "eps_actual": e.get("eps"),
+            "eps_actual": e.get("epsActual"),
             "revenue_estimate": e.get("revenueEstimated"),
-            "revenue_actual": e.get("revenue"),
+            "revenue_actual": e.get("revenueActual"),
         }
     except Exception:
         return None
