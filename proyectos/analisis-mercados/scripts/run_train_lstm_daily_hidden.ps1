@@ -9,6 +9,12 @@ $ts = Get-Date -Format s
 
 $py = 'C:\Windows\py.exe'
 try {
+  # 0) Ingesta pública OHLCV (CryptoDataDownload, diario)
+  $outp = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\ingest_public_ohlcv.py" 2>&1
+  $exitp = $LASTEXITCODE
+  if ($outp) { $outp | Add-Content $log }
+  "[$(Get-Date -Format s)] PUBLIC_OHLCV_EXITCODE=$exitp" | Add-Content $log
+
   # 1) Actualizar histórico incremental (15m) para BTC y SOL
   $out0 = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\download_binance_history.py" --symbols BTCUSDT,SOLUSDT --interval 15m --years 1 --incremental 2>&1
   $exit0 = $LASTEXITCODE
