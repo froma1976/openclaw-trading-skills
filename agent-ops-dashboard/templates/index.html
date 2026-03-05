@@ -581,15 +581,32 @@
       <div class="card col-12">
         <h2>Modelos y dataset</h2>
         <table>
-          <tr><th>Modelo</th><th>Meta</th><th>Histórico</th><th>Velas históricas</th><th>Último entreno</th><th>val_mse</th><th>Puntos usados</th><th>Fuente</th></tr>
+          <tr><th>Modelo</th><th>Semáforo</th><th>Meta</th><th>Histórico</th><th>Velas históricas</th><th>Último entreno</th><th>val_mse</th><th>Cambio vs ayer</th><th>Puntos usados</th><th>Fuente</th></tr>
           {% for m in lstm_monitor.models %}
             <tr>
               <td>{{ m.symbol }}</td>
+              <td>
+                {% if m.status_color == 'VERDE' %}
+                  <span class="badge ok">VERDE</span>
+                {% elif m.status_color == 'ROJO' %}
+                  <span class="badge no">ROJO</span>
+                {% else %}
+                  <span class="badge warn">AMARILLO</span>
+                {% endif %}
+                <div class="muted" style="font-size:11px">{{ m.status_reason }}</div>
+              </td>
               <td><span class="badge {{ 'ok' if m.meta_exists else 'no' }}">{{ 'OK' if m.meta_exists else 'FALTA' }}</span></td>
               <td><span class="badge {{ 'ok' if m.history_exists else 'no' }}">{{ 'OK' if m.history_exists else 'FALTA' }}</span></td>
               <td>{{ m.history_rows if m.history_rows is not none else '-' }}</td>
               <td>{{ m.trained_at or '-' }}</td>
               <td>{{ m.val_mse if m.val_mse is not none else '-' }}</td>
+              <td>
+                {% if m.delta_pct is not none %}
+                  {{ m.delta_pct }}%
+                {% else %}
+                  -
+                {% endif %}
+              </td>
               <td>{{ m.dataset_points if m.dataset_points is not none else '-' }}</td>
               <td>{{ m.source or '-' }}</td>
             </tr>

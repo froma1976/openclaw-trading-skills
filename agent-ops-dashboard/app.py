@@ -33,6 +33,7 @@ GPT53_BUDGET_PATH = Path(os.getenv("GPT53_BUDGET_PATH", "C:/Users/Fernando/.open
 GPT53_MODE = os.getenv("GPT53_MODE", "normal").strip().lower()
 HISTORY_DIR = Path(os.getenv("HISTORY_DIR", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/history"))
 MODELS_DIR = Path(os.getenv("MODELS_DIR", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/models"))
+LSTM_REGISTRY_PATH = Path(os.getenv("LSTM_REGISTRY_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/models/registry.json"))
 LSTM_TRAIN_LOG_PATH = Path(os.getenv("LSTM_TRAIN_LOG_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/logs/train_lstm_daily.log"))
 
 app = FastAPI(title="Agent Ops Dashboard")
@@ -450,6 +451,14 @@ def detect_lstm_training_running():
 def load_lstm_monitor():
     symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
     models = []
+
+    reg = {}
+    try:
+        if LSTM_REGISTRY_PATH.exists():
+            reg = json.loads(LSTM_REGISTRY_PATH.read_text(encoding="utf-8")).get("symbols", {})
+    except Exception:
+        reg = {}
+
     for s in symbols:
         meta_path = MODELS_DIR / f"lstm_{s}_meta.json"
         hist_15m = HISTORY_DIR / f"{s}_15m.csv"
@@ -469,6 +478,9 @@ def load_lstm_monitor():
             "val_mse": None,
             "dataset_points": None,
             "source": src_name,
+            "delta_pct": None,
+            "status_color": "AMARILLO",
+            "status_reason": "Sin histórico suficiente",
         }
         if meta_path.exists():
             try:
@@ -479,6 +491,27 @@ def load_lstm_monitor():
                 row["source"] = meta.get("source") or row["source"]
             except Exception:
                 pass
+
+        hist = (reg.get(s, {}) or {}).get("history", [])
+        if len(hist) >= 2:
+            try:
+                cur = float(hist[-1].get("val_mse"))
+                prev = float(hist[-2].get("val_mse"))
+                if prev > 0:
+                    delta_pct = ((cur - prev) / prev) * 100.0
+                    row["delta_pct"] = round(delta_pct, 2)
+                    if delta_pct <= -10:
+                        row["status_color"] = "VERDE"
+                        row["status_reason"] = "Mejora clara vs ayer"
+                    elif delta_pct >= 10:
+                        row["status_color"] = "ROJO"
+                        row["status_reason"] = "Empeora vs ayer"
+                    else:
+                        row["status_color"] = "AMARILLO"
+                        row["status_reason"] = "Estable (sin cambios fuertes)"
+            except Exception:
+                pass
+
         models.append(row)
 
     run = detect_lstm_training_running()
