@@ -67,7 +67,12 @@ def main():
     OUTDIR.mkdir(parents=True, exist_ok=True)
     report = {"ok": True, "market": "um_futures", "symbols": {}}
 
-    for sym in ["BTCUSDT", "SOLUSDT"]:
+    for sym in [
+        "BTCUSDT","SOLUSDT","ETHUSDT","BNBUSDT","XRPUSDT","ADAUSDT",
+        "DOGEUSDT","AVAXUSDT","LINKUSDT","DOTUSDT","LTCUSDT","BCHUSDT",
+        "MATICUSDT","UNIUSDT","APTUSDT","ARBUSDT","OPUSDT","INJUSDT",
+        "SUIUSDT","FILUSDT"
+    ]:
         try:
             rows = fetch_user_trades(sym, days=180, key=key, secret=secret)
         except Exception as e:

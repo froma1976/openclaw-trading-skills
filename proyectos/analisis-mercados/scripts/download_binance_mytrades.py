@@ -96,7 +96,12 @@ def main():
         return
 
     OUTDIR.mkdir(parents=True, exist_ok=True)
-    symbols = ["BTCUSDT", "SOLUSDT"]
+    symbols = [
+        "BTCUSDT","SOLUSDT","ETHUSDT","BNBUSDT","XRPUSDT","ADAUSDT",
+        "DOGEUSDT","AVAXUSDT","LINKUSDT","DOTUSDT","LTCUSDT","BCHUSDT",
+        "MATICUSDT","UNIUSDT","APTUSDT","ARBUSDT","OPUSDT","INJUSDT",
+        "SUIUSDT","FILUSDT"
+    ]
     report = {"ok": True, "symbols": {}}
 
     for sym in symbols:
