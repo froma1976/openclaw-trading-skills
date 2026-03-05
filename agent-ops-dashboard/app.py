@@ -31,6 +31,9 @@ CRYPTO_STREAM_STATUS_PATH = Path(os.getenv("CRYPTO_STREAM_STATUS_PATH", "C:/User
 LEARNING_STATUS_PATH = Path(os.getenv("LEARNING_STATUS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status.json"))
 GPT53_BUDGET_PATH = Path(os.getenv("GPT53_BUDGET_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/gpt53_budget.json"))
 GPT53_MODE = os.getenv("GPT53_MODE", "normal").strip().lower()
+HISTORY_DIR = Path(os.getenv("HISTORY_DIR", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/history"))
+MODELS_DIR = Path(os.getenv("MODELS_DIR", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/models"))
+LSTM_TRAIN_LOG_PATH = Path(os.getenv("LSTM_TRAIN_LOG_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/logs/history_update_and_train.log"))
 
 app = FastAPI(title="Agent Ops Dashboard")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
@@ -406,6 +409,80 @@ def load_gpt53_budget():
     except Exception:
         pass
     return data
+
+
+def tail_lines(path: Path, limit: int = 8):
+    if not path.exists():
+        return []
+    try:
+        lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        return lines[-limit:]
+    except Exception:
+        return []
+
+
+def file_rows_estimate(path: Path):
+    if not path.exists():
+        return None
+    try:
+        with path.open("r", encoding="utf-8", errors="ignore") as f:
+            n = sum(1 for _ in f)
+        return max(0, n - 1)
+    except Exception:
+        return None
+
+
+def detect_lstm_training_running():
+    try:
+        cmd = [
+            "powershell",
+            "-NoProfile",
+            "-Command",
+            "Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'train_lstm_from_history.py|train_lstm.py|run_history_update_and_train_hidden.ps1' } | Select-Object -ExpandProperty ProcessId",
+        ]
+        out = subprocess.check_output(cmd, text=True, timeout=6)
+        pids = [x.strip() for x in out.splitlines() if x.strip()]
+        return {"running": len(pids) > 0, "pids": pids}
+    except Exception:
+        return {"running": False, "pids": []}
+
+
+def load_lstm_monitor():
+    symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+    models = []
+    for s in symbols:
+        meta_path = MODELS_DIR / f"lstm_{s}_meta.json"
+        hist_path = HISTORY_DIR / f"{s}_5m.csv"
+        row = {
+            "symbol": s,
+            "meta_exists": meta_path.exists(),
+            "history_exists": hist_path.exists(),
+            "history_rows": file_rows_estimate(hist_path),
+            "history_updated_at": datetime.fromtimestamp(hist_path.stat().st_mtime, tz=UTC).isoformat(timespec="seconds").replace("+00:00", "Z") if hist_path.exists() else None,
+            "trained_at": None,
+            "val_mse": None,
+            "dataset_points": None,
+            "source": None,
+        }
+        if meta_path.exists():
+            try:
+                meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                row["trained_at"] = meta.get("trained_at")
+                row["val_mse"] = meta.get("val_mse")
+                row["dataset_points"] = meta.get("dataset_points")
+                row["source"] = meta.get("source")
+            except Exception:
+                pass
+        models.append(row)
+
+    run = detect_lstm_training_running()
+    return {
+        "models": models,
+        "running": run.get("running", False),
+        "pids": run.get("pids", []),
+        "train_log_tail": tail_lines(LSTM_TRAIN_LOG_PATH, 10),
+        "train_log_path": str(LSTM_TRAIN_LOG_PATH),
+    }
 
 
 def save_gpt53_budget(data: dict):
@@ -1002,6 +1079,7 @@ def home(request: Request):
     crypto_signals = load_crypto_snapshot()
     crypto_stream = load_crypto_stream_status()
     learning_status = load_learning_status()
+    lstm_monitor = load_lstm_monitor()
     crypto_orders = load_crypto_orders()
     commits = latest_commits()
     autopilot_log = load_autopilot_log()
@@ -1226,6 +1304,7 @@ def home(request: Request):
             "crypto_signals": crypto_signals,
             "crypto_stream": crypto_stream,
             "learning_status": learning_status,
+            "lstm_monitor": lstm_monitor,
             "crypto_orders_active": crypto_active,
             "crypto_orders_completed": crypto_completed,
             "crypto_daily": crypto_orders.get("daily", {}),

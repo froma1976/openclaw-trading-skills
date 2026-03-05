@@ -134,6 +134,7 @@
       <button class="tab-btn" data-tab-btn="oportunidades">Oportunidades</button>
       <button class="tab-btn" data-tab-btn="cartera">Cartera</button>
       <button class="tab-btn" data-tab-btn="crypto">Cripto</button>
+      <button class="tab-btn" data-tab-btn="lstm">LSTM real</button>
       <button class="tab-btn" data-tab-btn="oficina">Oficina</button>
       <button class="tab-btn expert-only" data-tab-btn="agentes">Agentes</button>
       <button class="tab-btn expert-only" data-tab-btn="fuentes">Fuentes</button>
@@ -515,7 +516,7 @@
           <tr><th>Ticker</th><th>Entrada</th><th>Precio actual</th><th>%</th><th>PnL USD est.</th><th>Gastado (USD)</th><th>Target</th><th>Stop</th><th>Abierta</th></tr>
           {% for o in crypto_orders_active %}
             <tr>
-              <td>{{ o.ticker }}</td>
+              <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}-USD')">{{ o.ticker }}</button></td>
               <td>{{ o.entry_price }}</td>
               <td>{{ o.current_price if o.current_price is not none else '-' }}</td>
               <td>{% if o.pct_move is not none %}<span class="badge {{ 'ok' if o.pct_move >= 0 else 'no' }}">{{ o.pct_move }}%</span>{% else %}-{% endif %}</td>
@@ -561,6 +562,49 @@
             <tr><td colspan="12">Sin datos cripto todavía (ejecuta ingest cripto).</td></tr>
           {% endif %}
         </table>
+      </div>
+    </div>
+
+    <div class="grid tab-section" data-tab="lstm">
+      <div class="card col-12">
+        <h2>Monitor de entrenamiento LSTM (datos reales)</h2>
+        <p class="muted">Esta pestaña lee archivos reales del sistema. Si algo no existe o falla, se muestra tal cual.</p>
+        <p>
+          Estado ahora: 
+          <span class="badge {{ 'warn' if lstm_monitor.running else 'ok' }}">{{ 'ENTRENANDO' if lstm_monitor.running else 'EN ESPERA' }}</span>
+          {% if lstm_monitor.pids and lstm_monitor.pids|length > 0 %}
+            <span class="muted"> · PID(s): {{ lstm_monitor.pids|join(', ') }}</span>
+          {% endif %}
+        </p>
+      </div>
+
+      <div class="card col-12">
+        <h2>Modelos y dataset</h2>
+        <table>
+          <tr><th>Modelo</th><th>Meta</th><th>Histórico</th><th>Velas históricas</th><th>Último entreno</th><th>val_mse</th><th>Puntos usados</th><th>Fuente</th></tr>
+          {% for m in lstm_monitor.models %}
+            <tr>
+              <td>{{ m.symbol }}</td>
+              <td><span class="badge {{ 'ok' if m.meta_exists else 'no' }}">{{ 'OK' if m.meta_exists else 'FALTA' }}</span></td>
+              <td><span class="badge {{ 'ok' if m.history_exists else 'no' }}">{{ 'OK' if m.history_exists else 'FALTA' }}</span></td>
+              <td>{{ m.history_rows if m.history_rows is not none else '-' }}</td>
+              <td>{{ m.trained_at or '-' }}</td>
+              <td>{{ m.val_mse if m.val_mse is not none else '-' }}</td>
+              <td>{{ m.dataset_points if m.dataset_points is not none else '-' }}</td>
+              <td>{{ m.source or '-' }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div class="card col-12">
+        <h2>Últimas líneas del log de entrenamiento</h2>
+        <div class="muted" style="margin-bottom:6px">Archivo: {{ lstm_monitor.train_log_path }}</div>
+        <div style="font-family:Consolas,monospace;font-size:12px;border:1px solid #2a3a5b;border-radius:10px;padding:10px;background:#0b1222;max-height:280px;overflow:auto;white-space:pre-wrap">
+{% for line in lstm_monitor.train_log_tail %}{{ line }}
+{% endfor %}
+{% if lstm_monitor.train_log_tail|length == 0 %}Sin líneas de log todavía.{% endif %}
+        </div>
       </div>
     </div>
 
