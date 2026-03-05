@@ -1161,7 +1161,15 @@ def home(request: Request):
     crypto_completed = crypto_orders.get("completed", []) or []
     crypto_portfolio = crypto_orders.get("portfolio", {"capital_initial_usd": 300, "cash_usd": 300, "market_value_usd": 0, "equity_usd": 300})
     active_crypto_tickers = {str(o.get("ticker")) for o in crypto_active if o.get("ticker")}
-    crypto_map = {str(a.get("ticker")): float(a.get("price_usd")) for a in (crypto_signals.get("assets", []) or []) if a.get("ticker") and a.get("price_usd")}
+
+    # Precio live por ticker. Importante: NO usar fallback a entry_price,
+    # porque falsea el PnL a 0.0 cuando falta feed.
+    crypto_map = {
+        str(a.get("ticker") or "").upper(): float(a.get("price_usd"))
+        for a in (crypto_signals.get("assets", []) or [])
+        if a.get("ticker") and a.get("price_usd") is not None
+    }
+
     crypto_unrealized = 0.0
     crypto_realized = 0.0
     for c in crypto_completed:
@@ -1172,15 +1180,32 @@ def home(request: Request):
 
     for o in crypto_active:
         try:
+            ticker = str(o.get("ticker") or "").upper()
             ep = float(o.get("entry_price"))
-            cp = float(crypto_map.get(o.get("ticker"), ep))
+            cp = crypto_map.get(ticker)
+            if cp is None:
+                o["current_price"] = None
+                o["pct_move"] = None
+                o["pnl_usd_est"] = None
+                o["price_stale"] = True
+                continue
+
+            qty = o.get("qty")
+            if qty in (None, "", 0):
+                notional = float(o.get("notional_usd") or 0)
+                qty = (notional / ep) if ep > 0 else 0
+            qty = float(qty)
+
             o["current_price"] = round(cp, 6)
-            o["pct_move"] = round(((cp - ep) / ep) * 100, 2)
-            o["pnl_usd_est"] = round(cp - ep, 6)
-            crypto_unrealized += (cp - ep)
+            o["pct_move"] = round(((cp - ep) / ep) * 100, 2) if ep > 0 else None
+            o["pnl_usd_est"] = round((cp - ep) * qty, 6)
+            o["price_stale"] = False
+            crypto_unrealized += (cp - ep) * qty
         except Exception:
+            o["current_price"] = None
             o["pct_move"] = None
             o["pnl_usd_est"] = None
+            o["price_stale"] = True
 
     return templates.TemplateResponse(
         "index.html",
