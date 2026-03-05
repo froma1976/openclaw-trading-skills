@@ -226,15 +226,27 @@ def main():
         hour_trades += 1
         daily["trades"] = int(daily.get("trades", 0)) + 1
 
+    # Asegurar métricas en vivo para TODAS las activas (incluidas las recién abiertas)
     active_value = 0.0
     for o in active:
         t = o.get("ticker")
         cp = px.get(t)
-        if cp is not None:
-            try:
-                active_value += float(o.get("qty", 0)) * float(cp)
-            except Exception:
-                pass
+        if cp is None:
+            continue
+        o["current_price"] = round(float(cp), 6)
+        try:
+            entry = float(o.get("entry_price") or 0)
+            qty_live = float(o.get("qty") or 0)
+            if entry > 0:
+                o["pct_move"] = round(((float(cp) - entry) / entry) * 100, 3)
+                o["pnl_usd_est"] = round((float(cp) - entry) * qty_live, 6)
+            else:
+                o["pct_move"] = None
+                o["pnl_usd_est"] = None
+            active_value += qty_live * float(cp)
+        except Exception:
+            o["pct_move"] = None
+            o["pnl_usd_est"] = None
 
     portfolio["market_value_usd"] = round(active_value, 2)
     portfolio["equity_usd"] = round(float(portfolio.get("cash_usd", 0)) + active_value, 2)
