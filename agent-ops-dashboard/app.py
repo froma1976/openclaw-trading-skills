@@ -33,7 +33,7 @@ GPT53_BUDGET_PATH = Path(os.getenv("GPT53_BUDGET_PATH", "C:/Users/Fernando/.open
 GPT53_MODE = os.getenv("GPT53_MODE", "normal").strip().lower()
 HISTORY_DIR = Path(os.getenv("HISTORY_DIR", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/history"))
 MODELS_DIR = Path(os.getenv("MODELS_DIR", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/models"))
-LSTM_TRAIN_LOG_PATH = Path(os.getenv("LSTM_TRAIN_LOG_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/logs/history_update_and_train.log"))
+LSTM_TRAIN_LOG_PATH = Path(os.getenv("LSTM_TRAIN_LOG_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/logs/train_lstm_daily.log"))
 
 app = FastAPI(title="Agent Ops Dashboard")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
@@ -452,7 +452,13 @@ def load_lstm_monitor():
     models = []
     for s in symbols:
         meta_path = MODELS_DIR / f"lstm_{s}_meta.json"
-        hist_path = HISTORY_DIR / f"{s}_5m.csv"
+        hist_15m = HISTORY_DIR / f"{s}_15m.csv"
+        hist_5m = HISTORY_DIR / f"{s}_5m.csv"
+        hist_public_d = HISTORY_DIR / "public_ohlcv" / f"{s}_d.csv"
+
+        hist_path = hist_15m if hist_15m.exists() else (hist_5m if hist_5m.exists() else hist_public_d)
+        src_name = "15m_local" if hist_path == hist_15m else ("5m_local" if hist_path == hist_5m else "public_daily")
+
         row = {
             "symbol": s,
             "meta_exists": meta_path.exists(),
@@ -462,7 +468,7 @@ def load_lstm_monitor():
             "trained_at": None,
             "val_mse": None,
             "dataset_points": None,
-            "source": None,
+            "source": src_name,
         }
         if meta_path.exists():
             try:
@@ -470,7 +476,7 @@ def load_lstm_monitor():
                 row["trained_at"] = meta.get("trained_at")
                 row["val_mse"] = meta.get("val_mse")
                 row["dataset_points"] = meta.get("dataset_points")
-                row["source"] = meta.get("source")
+                row["source"] = meta.get("source") or row["source"]
             except Exception:
                 pass
         models.append(row)
