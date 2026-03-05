@@ -16,6 +16,7 @@ from datetime import datetime, UTC
 
 import numpy as np
 from urllib import request
+import csv
 
 try:
     import torch
@@ -34,7 +35,36 @@ def get_json(url: str):
         return json.loads(r.read().decode("utf-8"))
 
 
+def _load_close_from_csv(path: Path):
+    if not path.exists():
+        return None
+    closes = []
+    with path.open(encoding="utf-8") as f:
+        r = csv.DictReader(f)
+        for row in r:
+            try:
+                closes.append(float(row.get("close")))
+            except Exception:
+                continue
+    if not closes:
+        return None
+    return np.array(closes, dtype=np.float32)
+
+
 def load_close_series(symbol: str, interval: str = "5m", limit: int = 600):
+    # 1) Preferir histórico local incremental (más estable y reproducible)
+    local_hist = BASE / "data" / "history" / f"{symbol}_{interval}.csv"
+    arr = _load_close_from_csv(local_hist)
+    if arr is not None and len(arr) >= 100:
+        return arr
+
+    # 2) Fallback público (CryptoDataDownload diario)
+    public_hist = BASE / "data" / "history" / "public_ohlcv" / f"{symbol}_d.csv"
+    arr = _load_close_from_csv(public_hist)
+    if arr is not None and len(arr) >= 100:
+        return arr
+
+    # 3) Último fallback: API Binance live
     url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}&limit={limit}"
     data = get_json(url)
     closes = [float(k[4]) for k in data if len(k) > 5]
