@@ -1,23 +1,25 @@
 ---
 name: binance-hunter-safe
-description: "Análisis Binance en modo solo lectura (sin ejecución de órdenes)."
+description: "Análisis Cuantitativo Matemático de Binance en modo solo lectura (sin ejecución de órdenes)."
 metadata:
   openclaw:
     emoji: "🛡️"
     always: false
     requires:
-      bins: ["curl", "jq", "python3"]
+      bins: ["node"]
 ---
 
-# 🛡️ Binance Hunter SAFE (solo lectura)
+# 🛡️ Binance Hunter SAFE (Quant Edition)
 
-Versión endurecida para análisis. **No ejecuta compras/ventas**, no cambia leverage y no usa endpoints de trading.
+Versión mejorada y rigurosa para análisis matemático institucional. **No ejecuta compras/ventas**, no cambia leverage y no usa endpoints de trading. 
+A diferencia de un LLM que intuye gráficas, esta Skill calcula al milímetro indicadores clásicos usando datos reales.
 
-## Qué hace
-- Consulta precio actual
-- Consulta velas (klines)
-- Consulta volumen y cambios
-- Genera lectura rápida de momentum
+## Qué hace y cómo calcula
+- Consulta Klines (Velas) históricas de `15m`, `1h`, `4h`, y `1d`.
+- **SMA y EMA:** Math preciso para Medias Móviles Exponenciales (9, 21, 50, 200).
+- **RSI (Relative Strength Index):** Suavizado de 14 periodos estilo TradingView.
+- **Bollinger Bands:** 20 SMA + 2 Standard Deviations.
+- **MACD:** Fast 12, Slow 26, Signal 9, calculado con EMA y diferencias de Histograma para momentum real.
 
 ## Qué NO hace
 - ❌ Crear órdenes spot/futuros
@@ -25,14 +27,14 @@ Versión endurecida para análisis. **No ejecuta compras/ventas**, no cambia lev
 - ❌ Cambiar apalancamiento
 - ❌ Cancelar órdenes
 
-## Uso
+## Uso (Cómo invocar la herramienta)
+El Asistente (OpenClaw) debe invocar el script (usando comillas en la ruta del binario de Node si está en Windows) pasando el activo y el timeframe:
 
 ```bash
-python3 scripts/analyze.py BTCUSDT
-python3 scripts/analyze.py ETHUSDT
+# Analizar marco de corto y largo
+& "C:\Program Files\nodejs\node.exe" scripts\quant_analyzer.mjs BTCUSDT 15m
+& "C:\Program Files\nodejs\node.exe" scripts\quant_analyzer.mjs ETHUSDT 1d
 ```
 
-## Seguridad
-- No requiere API key para análisis público.
-- Si alguna vez se añade clave, mantenerla en `.env` y nunca en texto plano.
-- Esta skill está diseñada para no tocar dinero real.
+## Formato del JSON de Salida
+El script devolverá un JSON estricto con `asset`, `timeframe`, `trend_analysis` (cruce de EMAs), `momentum_oscillators` (RSI, MACD) y un `summary` pre-generado por el algoritmo matemático libre de alucinaciones LLM. Pasa estos datos al usuario.
