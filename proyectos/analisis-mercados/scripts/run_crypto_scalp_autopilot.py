@@ -59,6 +59,9 @@ def load_risk_config():
         "defensive_after_consecutive_losses": 2,
         "pause_after_consecutive_losses": 3,
         "pause_hours": 24,
+        "resume_after_pause_min": 180,
+        "resume_in_defensive": True,
+        "resume_min_core_candidates": 1,
         "target_pct": TARGET_PCT,
         "stop_pct": STOP_PCT,
         "timeout_min": TIMEOUT_MIN,
@@ -161,6 +164,79 @@ def compute_mode(daily: dict, daily_pnl: float, cfg: dict, capital_base_usd: flo
     }
 
 
+def count_resume_candidates(top: list, px: dict, cfg: dict, mode: str, allowed_symbols: set, excluded_symbols: set, universe_core: set, universe_excluded: set) -> int:
+    defensive_min_score = int(cfg.get("defensive_min_score", 82) or 82)
+    defensive_min_confluence = int(cfg.get("defensive_min_confluence", 2) or 2)
+    count = 0
+    for candidate in top:
+        ticker = candidate.get("ticker")
+        ticker_upper = str(ticker or "").upper()
+        if not ticker_upper:
+            continue
+        if ticker_upper in excluded_symbols or ticker_upper in universe_excluded:
+            continue
+        if allowed_symbols and ticker_upper not in allowed_symbols:
+            continue
+        if universe_core and ticker_upper not in universe_core:
+            continue
+        if candidate.get("decision_final") != "BUY":
+            continue
+        if candidate.get("state") not in {"READY", "TRIGGERED"}:
+            continue
+        if px.get(ticker) is None:
+            continue
+        confluence = int(candidate.get("spy_confluence") or 0)
+        min_confluence = defensive_min_confluence if mode == "defensive" else 1
+        if confluence < min_confluence:
+            continue
+        score = int(candidate.get("score") or 0)
+        if mode == "defensive" and score < defensive_min_score:
+            continue
+        if max(int(candidate.get("spy_breakout") or 0), int(candidate.get("spy_chart") or 0)) <= 0 and score < 78:
+            continue
+        count += 1
+    return count
+
+
+def maybe_resume_from_pause(daily: dict, mode_state: dict, cfg: dict, now: datetime, resume_candidates: int):
+    if not mode_state.get("paused"):
+        return mode_state
+    if mode_state.get("risk_blocked"):
+        return mode_state
+
+    paused_at_raw = daily.get("paused_at")
+    if not paused_at_raw:
+        return mode_state
+
+    try:
+        paused_at = parse_iso(paused_at_raw)
+    except Exception:
+        return mode_state
+
+    resume_after_pause_min = int(cfg.get("resume_after_pause_min", 180) or 180)
+    resume_min_core_candidates = int(cfg.get("resume_min_core_candidates", 1) or 1)
+    resume_in_defensive = bool(cfg.get("resume_in_defensive", True))
+    age_min = int((now - paused_at).total_seconds() // 60)
+
+    if age_min < resume_after_pause_min:
+        mode_state["mode_reason"] = f"pausa activa ({age_min}/{resume_after_pause_min} min)"
+        mode_state["pause_reason"] = mode_state["mode_reason"]
+        return mode_state
+    if resume_candidates < resume_min_core_candidates:
+        mode_state["mode_reason"] = f"pausa activa por falta de setups core ({resume_candidates}/{resume_min_core_candidates})"
+        mode_state["pause_reason"] = mode_state["mode_reason"]
+        return mode_state
+
+    daily["paused"] = False
+    daily["pause_reason"] = ""
+    daily["paused_at"] = ""
+    mode_state["paused"] = False
+    mode_state["pause_reason"] = ""
+    mode_state["mode"] = "defensive" if resume_in_defensive else "normal"
+    mode_state["mode_reason"] = f"reanuda automaticamente con {resume_candidates} setups core"
+    return mode_state
+
+
 def main():
     cfg = load_risk_config()
     snap = load_json(SNAP, {})
@@ -201,6 +277,7 @@ def main():
     daily.setdefault("loss_streak", 0)
     daily.setdefault("paused", False)
     daily.setdefault("pause_reason", "")
+    daily.setdefault("paused_at", "")
     daily.setdefault("mode", "normal")
     daily.setdefault("mode_reason", "operativa normal")
 
@@ -308,12 +385,19 @@ def main():
             except Exception:
                 pass
 
-    mode_state = compute_mode(daily, daily_pnl, cfg, capital_base_usd)
+    pre_mode_state = compute_mode(daily, daily_pnl, cfg, capital_base_usd)
+    predicted_mode = "defensive" if pre_mode_state.get("paused") and bool(cfg.get("resume_in_defensive", True)) else pre_mode_state.get("mode", "normal")
+    resume_candidates = count_resume_candidates(top, px, cfg, predicted_mode, allowed_symbols, excluded_symbols, universe_core, universe_excluded)
+    mode_state = maybe_resume_from_pause(daily, pre_mode_state, cfg, now, resume_candidates)
     daily["mode"] = mode_state["mode"]
     daily["mode_reason"] = mode_state["mode_reason"]
     daily["paused"] = mode_state["paused"]
     daily["pause_reason"] = mode_state["pause_reason"]
     risk_blocked = mode_state["risk_blocked"]
+    if daily.get("paused") and not daily.get("paused_at"):
+        daily["paused_at"] = now_iso()
+    if not daily.get("paused"):
+        daily["paused_at"] = ""
 
     mode = daily.get("mode", "normal")
     entry_scale = defensive_scale if mode == "defensive" else 1.0
@@ -448,6 +532,8 @@ def main():
                 "mode_reason": daily.get("mode_reason", "operativa normal"),
                 "paused": bool(daily.get("paused")),
                 "pause_reason": daily.get("pause_reason", ""),
+                "paused_at": daily.get("paused_at", ""),
+                "resume_candidates": resume_candidates,
                 "loss_streak": int(daily.get("loss_streak", 0)),
                 "cash_usd": portfolio.get("cash_usd", 0),
                 "equity_usd": portfolio.get("equity_usd", 0),
