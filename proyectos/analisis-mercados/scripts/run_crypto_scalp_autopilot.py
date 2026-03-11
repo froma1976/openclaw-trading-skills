@@ -189,7 +189,7 @@ def count_resume_candidates(top: list, px: dict, cfg: dict, mode: str, allowed_s
         min_confluence = defensive_min_confluence if mode == "defensive" else 1
         if confluence < min_confluence:
             continue
-        score = int(candidate.get("score") or 0)
+        score = int(candidate.get("score_final") or candidate.get("score") or 0)
         if mode == "defensive" and score < defensive_min_score:
             continue
         if max(int(candidate.get("spy_breakout") or 0), int(candidate.get("spy_chart") or 0)) <= 0 and score < 78:
@@ -439,7 +439,7 @@ def main():
         if confluence < min_confluence:
             continue
 
-        score = int(candidate.get("score") or 0)
+        score = int(candidate.get("score_final") or candidate.get("score") or 0)
         if mode == "defensive" and score < defensive_min_score:
             continue
         if max(breakout, chart) <= 0 and score < 78:
@@ -468,7 +468,9 @@ def main():
             "mode": "scalp_intradia",
             "risk_mode": mode,
             "confidence": candidate.get("confidence_pct"),
-            "score": candidate.get("score"),
+            "score": candidate.get("score_final") or candidate.get("score"),
+            "research_sentiment": candidate.get("research_sentiment"),
+            "research_catalyst_score": candidate.get("research_catalyst_score"),
             "spy_confluence": confluence,
             "spy_breakdown": {
                 "news": candidate.get("spy_news"),

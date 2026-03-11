@@ -15279,11 +15279,12 @@
   "daily": {
     "date": "2026-03-11",
     "trades": 32,
-    "loss_streak": 4,
-    "paused": true,
-    "pause_reason": "3 perdidas seguidas",
-    "mode": "paused",
-    "mode_reason": "3 perdidas seguidas"
+    "loss_streak": 0,
+    "paused": false,
+    "pause_reason": "",
+    "mode": "defensive",
+    "mode_reason": "racha negativa o pnl diario en deterioro",
+    "paused_at": ""
   },
   "portfolio": {
     "capital_initial_usd": 300.0,

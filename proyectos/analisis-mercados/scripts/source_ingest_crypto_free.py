@@ -7,6 +7,7 @@ import os
 
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 UNIVERSE_STATUS = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/universe_status.json")
+CORE_RESEARCH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/core_market_research.json")
 API_SAVING_MODE = os.getenv("API_SAVING_MODE", "1").strip() in {"1", "true", "TRUE", "yes"}
 MAX_SPY_ASSETS = int(os.getenv("MAX_SPY_ASSETS", "15"))
 STABLECOIN_IDS = {"tether", "usd-coin"}
@@ -50,6 +51,21 @@ def load_universe_status():
         }
     except Exception:
         return {"core": set(), "watch": set(), "excluded": set()}
+
+
+def load_core_research():
+    if not CORE_RESEARCH.exists():
+        return {}
+    try:
+        data = json.loads(CORE_RESEARCH.read_text(encoding="utf-8"))
+        out = {}
+        for asset in (data.get("assets") or []):
+            ticker = str(asset.get("ticker") or "").upper()
+            if ticker:
+                out[ticker] = asset
+        return out
+    except Exception:
+        return {}
 
 
 def fetch_breakout_spy(ticker: str) -> int:
@@ -305,8 +321,49 @@ def build_reports(ticker: str, price: float, row: dict, scored: dict):
     return senior, technical, sentiment
 
 
+def apply_research_overlay(ticker: str, scored: dict, research_map: dict):
+    research = research_map.get(str(ticker).upper())
+    if not research:
+        scored["research_sentiment"] = "unknown"
+        scored["research_catalyst_score"] = 0
+        scored["research_score_delta"] = 0
+        return scored
+
+    signal = research.get("signal") or {}
+    sentiment = str(signal.get("sentiment") or "mixed").lower()
+    catalyst_score = int(signal.get("catalyst_score") or 0)
+    delta = 0
+    if sentiment == "positive" and catalyst_score >= 1:
+        delta = min(6, 2 + catalyst_score)
+    elif sentiment == "negative" and catalyst_score <= -1:
+        delta = max(-10, -3 + catalyst_score)
+    elif sentiment == "mixed" and catalyst_score <= -2:
+        delta = -3
+
+    scored["research_sentiment"] = sentiment
+    scored["research_catalyst_score"] = catalyst_score
+    scored["research_score_delta"] = delta
+    score_final = max(0, min(100, int(round(scored.get("score", 0) + delta))))
+    scored["score_final"] = score_final
+    scored["confidence_pct"] = score_final
+    if delta > 0:
+        scored.setdefault("reasons", []).append("research_catalyst_positive")
+    elif delta < 0:
+        scored.setdefault("reasons", []).append("research_catalyst_negative")
+
+    state = "WATCH"
+    if score_final >= 60:
+        state = "READY"
+    if score_final >= 72:
+        state = "TRIGGERED"
+    scored["state"] = state
+    scored["decision_final"] = "BUY" if (score_final >= 60 and scored.get("bubble_level") != "Crítico" and not scored.get("rug_block")) else "AVOID"
+    return scored
+
+
 def main():
     universe = load_universe_status()
+    research_map = load_core_research()
     dynamic_excluded = universe.get("excluded") or set()
     ids = ",".join(COINS)
     url = (
@@ -344,6 +401,7 @@ def main():
         sc = score_crypto(r)
 
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
+        sc = apply_research_overlay(ticker, sc, research_map)
         if ticker in STABLECOIN_TICKERS or ticker in EXCLUDED_TICKERS:
             spy_chart = 0
             spy_breakout = 0
@@ -369,8 +427,8 @@ def main():
             "market_cap_rank": r.get("market_cap_rank"),
             "total_volume": r.get("total_volume"),
             "score": sc["score"],
-            "score_final": sc["score"],
-            "confidence_pct": sc["score"],
+            "score_final": sc.get("score_final", sc["score"]),
+            "confidence_pct": sc.get("confidence_pct", sc["score"]),
             "state": sc["state"],
             "decision_final": sc["decision_final"],
             "reasons": sc["reasons"],
@@ -387,12 +445,15 @@ def main():
             "spy_chart": sc["spy_chart"],
             "spy_breakout": sc["spy_breakout"],
             "spy_confluence": sc["spy_confluence"],
+            "research_sentiment": sc.get("research_sentiment"),
+            "research_catalyst_score": sc.get("research_catalyst_score", 0),
+            "research_score_delta": sc.get("research_score_delta", 0),
             "senior_report": senior_report,
             "technical_report": technical_report,
             "sentiment_report": sentiment_report,
         })
 
-    top = [a for a in sorted(assets, key=lambda x: (x.get("decision_final") == "BUY", x.get("gem_score", 0), x.get("score", 0)), reverse=True) if a.get("ticker") not in STABLECOIN_TICKERS and a.get("ticker") not in EXCLUDED_TICKERS and a.get("ticker") not in dynamic_excluded]
+    top = [a for a in sorted(assets, key=lambda x: (x.get("decision_final") == "BUY", x.get("gem_score", 0), x.get("score_final", x.get("score", 0))), reverse=True) if a.get("ticker") not in STABLECOIN_TICKERS and a.get("ticker") not in EXCLUDED_TICKERS and a.get("ticker") not in dynamic_excluded]
     out = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "assets": assets,
