@@ -9,6 +9,9 @@ LOG = BASE / "logs" / "universe_maintenance.log"
 OUT = BASE / "logs" / "crypto_watchdog.log"
 MAX_AGE_MIN = 330
 TASK = "\\OpenClaw-Universe-Maintenance-4h"
+PRICE_WAREHOUSE = Path("C:/Users/Fernando/.openclaw/workspace/memory/price_warehouse.csv")
+COLLECTOR_MAX_AGE_MIN = 25
+COLLECTOR_TASK = "\\OpenClaw_Crypto_Collector"
 
 
 def now_utc():
@@ -29,9 +32,9 @@ def age_minutes(path: Path):
     return int((now_utc() - modified).total_seconds() // 60)
 
 
-def run_task():
+def run_task(task_name: str):
     proc = subprocess.run(
-        ["schtasks", "/Run", "/TN", TASK],
+        ["schtasks", "/Run", "/TN", task_name],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -58,16 +61,36 @@ def main():
 
     if age is None:
         append("universe_maintenance.log missing -> relanzando tarea")
-        res = run_task()
+        res = run_task(TASK)
         status["restarted"] = True
         status["task_run"] = res
     elif age > MAX_AGE_MIN:
         append(f"universe_maintenance stale ({age} min) -> relanzando tarea")
-        res = run_task()
+        res = run_task(TASK)
         status["restarted"] = True
         status["task_run"] = res
     else:
         append(f"ok universe_maintenance fresh ({age} min)")
+
+    collector_age = age_minutes(PRICE_WAREHOUSE)
+    status["collector"] = {
+        "warehouse_exists": PRICE_WAREHOUSE.exists(),
+        "warehouse_age_min": collector_age,
+        "threshold_min": COLLECTOR_MAX_AGE_MIN,
+        "restarted": False,
+    }
+    if collector_age is None:
+        append("price_warehouse.csv missing -> relanzando collector")
+        res = run_task(COLLECTOR_TASK)
+        status["collector"]["restarted"] = True
+        status["collector"]["task_run"] = res
+    elif collector_age > COLLECTOR_MAX_AGE_MIN:
+        append(f"collector stale ({collector_age} min) -> relanzando collector")
+        res = run_task(COLLECTOR_TASK)
+        status["collector"]["restarted"] = True
+        status["collector"]["task_run"] = res
+    else:
+        append(f"ok collector fresh ({collector_age} min)")
 
     print(json.dumps(status, ensure_ascii=False))
 
