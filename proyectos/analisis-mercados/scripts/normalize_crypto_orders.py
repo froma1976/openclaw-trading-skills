@@ -40,6 +40,16 @@ def main():
         if order.get("side") in (None, ""):
             order["side"] = "BUY"
             changes["side_defaulted"] += 1
+        if order.get("qty") in (None, ""):
+            try:
+                entry = float(order.get("entry_price") or 0)
+                notional = float(order.get("notional_usd") or 0)
+                if entry > 0 and notional > 0:
+                    order["qty"] = round(notional / entry, 8)
+                else:
+                    order["qty"] = 0.0
+            except Exception:
+                order["qty"] = 0.0
 
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
     backup_path = BACKUP_DIR / f"crypto_orders_sim_{now_stamp()}.json"

@@ -6,6 +6,7 @@ from pathlib import Path
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status.json")
 REP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/reports")
+STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE"}
 
 
 def parse_iso(ts: str):
@@ -52,9 +53,11 @@ def main():
     by_ticker = {}
 
     for o in rows:
+        t = str(o.get("ticker") or "?")
+        if t.upper() in STABLECOIN_TICKERS:
+            continue
         p = float(o.get("pnl_usd") or 0)
         pnl.append(p)
-        t = str(o.get("ticker") or "?")
         by_ticker.setdefault(t, {"count": 0, "pnl": 0.0})
         by_ticker[t]["count"] += 1
         by_ticker[t]["pnl"] += p

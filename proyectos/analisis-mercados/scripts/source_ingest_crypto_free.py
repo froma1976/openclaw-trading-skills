@@ -8,6 +8,8 @@ import os
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 API_SAVING_MODE = os.getenv("API_SAVING_MODE", "1").strip() in {"1", "true", "TRUE", "yes"}
 MAX_SPY_ASSETS = int(os.getenv("MAX_SPY_ASSETS", "15"))
+STABLECOIN_IDS = {"tether", "usd-coin"}
+STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE"}
 COINS = [
     "bitcoin", "ethereum", "tether", "binancecoin", "solana", "ripple", "usd-coin", "dogecoin", "cardano", "tron",
     "chainlink", "avalanche-2", "stellar", "sui", "toncoin", "shiba-inu", "hedera-hashgraph", "polkadot", "litecoin", "bitcoin-cash",
@@ -89,6 +91,9 @@ def fetch_chart_spy(ticker: str) -> int:
 
 
 def score_crypto(row: dict):
+    coin_id = str(row.get("id") or "")
+    ticker = SYMBOL.get(coin_id, str(row.get("symbol", "")).upper())
+    is_stablecoin = coin_id in STABLECOIN_IDS or ticker in STABLECOIN_TICKERS
     ch24 = float(row.get("price_change_percentage_24h") or 0)
     ch7 = float(row.get("price_change_percentage_7d_in_currency") or 0)
     vol = float(row.get("total_volume") or 0)
@@ -98,6 +103,24 @@ def score_crypto(row: dict):
 
     score = 50
     reasons = []
+
+    if is_stablecoin:
+        return {
+            "score": 0,
+            "state": "INVALIDATED",
+            "decision_final": "AVOID",
+            "reasons": ["stablecoin_bloqueada"],
+            "bubble_level": "Bajo",
+            "argumento_en_contra": "Stablecoin excluida del universo operativo",
+            "flow_ratio": 0.0,
+            "spy_news": 0,
+            "spy_euphoria": 0,
+            "spy_flow": 0,
+            "spy_whale": 0,
+            "mc_fdv_ratio": 1.0,
+            "rug_block": True,
+            "gem_score": 0,
+        }
 
     # Momento
     if ch24 >= 2:
@@ -253,7 +276,20 @@ def main():
         "https://api.coingecko.com/api/v3/coins/markets"
         f"?vs_currency=usd&ids={ids}&order=market_cap_desc&sparkline=false&price_change_percentage=24h,7d"
     )
-    rows = get_json(url)
+    source_label = "coingecko-free"
+    notes = "Scoring cripto con ahorro API activo (espías de velas en subset líquido)"
+    try:
+        rows = get_json(url)
+    except Exception:
+        previous = {"assets": []}
+        if OUT.exists():
+            try:
+                previous = json.loads(OUT.read_text(encoding="utf-8"))
+            except Exception:
+                previous = {"assets": []}
+        rows = previous.get("assets", []) or []
+        source_label = "snapshot-cache"
+        notes = "Fallback a ultimo snapshot local por rate limit/error externo"
     assets = []
 
     # Ahorro API: solo calcular espías de velas en los más líquidos del batch
@@ -271,7 +307,10 @@ def main():
         sc = score_crypto(r)
 
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
-        if ticker in spy_allowed:
+        if ticker in STABLECOIN_TICKERS:
+            spy_chart = 0
+            spy_breakout = 0
+        elif ticker in spy_allowed:
             spy_chart = fetch_chart_spy(ticker)
             spy_breakout = fetch_breakout_spy(ticker)
         else:
@@ -316,15 +355,15 @@ def main():
             "sentiment_report": sentiment_report,
         })
 
-    top = sorted(assets, key=lambda x: (x.get("decision_final") == "BUY", x.get("gem_score", 0), x.get("score", 0)), reverse=True)
+    top = [a for a in sorted(assets, key=lambda x: (x.get("decision_final") == "BUY", x.get("gem_score", 0), x.get("score", 0)), reverse=True) if a.get("ticker") not in STABLECOIN_TICKERS]
     out = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "assets": assets,
         "top_opportunities": top,
-        "source": "coingecko-free",
+        "source": source_label,
         "api_saving_mode": API_SAVING_MODE,
         "spy_assets_limit": MAX_SPY_ASSETS,
-        "notes": "Scoring cripto con ahorro API activo (espías de velas en subset líquido)",
+        "notes": notes,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")

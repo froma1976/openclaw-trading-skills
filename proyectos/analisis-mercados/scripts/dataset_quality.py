@@ -8,6 +8,7 @@ SRC = BASE / "data" / "crypto_orders_sim.json"
 HIST = BASE / "data" / "history"
 OUT = BASE / "data" / "trades_clean.csv"
 REP = BASE / "data" / "data_quality_report.json"
+STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE"}
 
 
 def main():
@@ -93,8 +94,9 @@ def main():
                 anomalies["completed_state_active"] += 1
             if qty in (None, ""):
                 anomalies["missing_qty"] += 1
-            if sym.startswith(("USDC", "USDT", "BUSD", "FDUSD", "TUSD")):
+            if sym in STABLECOIN_TICKERS:
                 anomalies["stablecoin_symbol"] += 1
+                continue
             try:
                 float(entry); float(exitp)
             except Exception:
