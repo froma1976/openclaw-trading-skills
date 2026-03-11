@@ -21,3 +21,9 @@ El objetivo es evitar que el bot pase de rentable a bloqueado sin una capa inter
 - Solo intenta salir de pausa tras `resume_after_pause_min`.
 - La reanudacion exige que no siga bloqueado por perdida diaria y que exista al menos un setup valido del universo `core`.
 - La salida de pausa vuelve primero en `defensive`, no en `normal`, salvo mejora posterior natural.
+
+## Overlay de research
+
+- `research_negative_block_threshold`: bloquea entradas cuando el research detecta un catalizador claramente negativo.
+- `research_negative_size_scale`: si el research es flojo/mixto negativo pero no bloqueante, reduce tamano.
+- `research_positive_size_scale`: si el research es claramente positivo, permite un ligero aumento de tamano.

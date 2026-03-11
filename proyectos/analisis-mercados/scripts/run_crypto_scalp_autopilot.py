@@ -73,6 +73,9 @@ def load_risk_config():
         "defensive_scale": 0.5,
         "defensive_min_score": 82,
         "defensive_min_confluence": 2,
+        "research_negative_block_threshold": -2,
+        "research_negative_size_scale": 0.6,
+        "research_positive_size_scale": 1.15,
         "allowed_symbols": [],
         "excluded_symbols": [],
         "allowed_hours_utc": {"start": "00:00", "end": "23:59"},
@@ -292,6 +295,9 @@ def main():
     defensive_scale = float(cfg.get("defensive_scale", 0.5) or 0.5)
     defensive_min_score = int(cfg.get("defensive_min_score", 82) or 82)
     defensive_min_confluence = int(cfg.get("defensive_min_confluence", 2) or 2)
+    research_negative_block_threshold = int(cfg.get("research_negative_block_threshold", -2) or -2)
+    research_negative_size_scale = float(cfg.get("research_negative_size_scale", 0.6) or 0.6)
+    research_positive_size_scale = float(cfg.get("research_positive_size_scale", 1.15) or 1.15)
     allowed_symbols = {str(s).upper() for s in (cfg.get("allowed_symbols") or []) if str(s).strip()}
     excluded_symbols = {str(s).upper() for s in (cfg.get("excluded_symbols") or []) if str(s).strip()}
     universe = load_universe_status()
@@ -440,9 +446,13 @@ def main():
             continue
 
         score = int(candidate.get("score_final") or candidate.get("score") or 0)
+        research_sentiment = str(candidate.get("research_sentiment") or "unknown").lower()
+        research_catalyst_score = int(candidate.get("research_catalyst_score") or 0)
         if mode == "defensive" and score < defensive_min_score:
             continue
         if max(breakout, chart) <= 0 and score < 78:
+            continue
+        if research_catalyst_score <= research_negative_block_threshold and research_sentiment in {"negative", "mixed"}:
             continue
 
         price = px.get(ticker)
@@ -450,7 +460,12 @@ def main():
             continue
 
         cash = float(portfolio.get("cash_usd", 0))
-        notional = min(alloc_per_trade_usd * entry_scale, cash)
+        research_scale = 1.0
+        if research_sentiment == "positive" and research_catalyst_score >= 2:
+            research_scale = research_positive_size_scale
+        elif research_sentiment in {"negative", "mixed"} and research_catalyst_score < 0:
+            research_scale = research_negative_size_scale
+        notional = min(alloc_per_trade_usd * entry_scale * research_scale, cash)
         if notional < min_notional_usd:
             continue
         qty = notional / price
@@ -471,6 +486,7 @@ def main():
             "score": candidate.get("score_final") or candidate.get("score"),
             "research_sentiment": candidate.get("research_sentiment"),
             "research_catalyst_score": candidate.get("research_catalyst_score"),
+            "research_size_scale": round(research_scale, 3),
             "spy_confluence": confluence,
             "spy_breakdown": {
                 "news": candidate.get("spy_news"),

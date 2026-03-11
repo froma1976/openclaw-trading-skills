@@ -21,6 +21,9 @@ min_notional_usd: 20.0
 defensive_scale: 0.5
 defensive_min_score: 82
 defensive_min_confluence: 2
+research_negative_block_threshold: -2
+research_negative_size_scale: 0.6
+research_positive_size_scale: 1.15
 allowed_symbols:
   - BTCUSDT
   - SOLUSDT
