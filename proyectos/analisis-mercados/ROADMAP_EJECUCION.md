@@ -114,4 +114,5 @@ La clasificacion se recalcula con `scripts/classify_universe.py` y se persiste e
 - `OpenClaw-Crypto-Ingest-2m`: refresca snapshot operativo.
 - `OpenClaw-Crypto-Scalp-1m`: ejecuta el runtime sobre el universo `core`.
 - `OpenClaw-Universe-Maintenance-4h`: recalcula calidad, edge, aprendizaje y clasificacion de universo.
+- `OpenClaw-Crypto-Watchdog-10m`: vigila la frescura de `universe_maintenance.log` y relanza mantenimiento si se queda stale.
 - `OpenClaw-Train-LSTM-Daily`: reentrena y vuelve a recalcular el universo al cierre diario.
