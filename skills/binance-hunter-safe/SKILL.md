@@ -36,5 +36,23 @@ El Asistente (OpenClaw) debe invocar el script (usando comillas en la ruta del b
 & "C:\Program Files\nodejs\node.exe" scripts\quant_analyzer.mjs ETHUSDT 1d
 ```
 
+## Ejecucion segura en Windows PowerShell
+Si la ruta de Node contiene espacios, usa siempre comillas en ambas rutas. Para el colector de precios:
+
+```powershell
+& "C:\Program Files\nodejs\node.exe" "C:\Users\Fernando\.openclaw\workspace\skills\binance-hunter-safe\scripts\price_collector.mjs"
+```
+
+O usa el wrapper listo para PowerShell:
+
+```powershell
+& "C:\Users\Fernando\.openclaw\workspace\skills\binance-hunter-safe\scripts\run_price_collector.ps1"
+```
+
+En tareas programadas, usa este formato para evitar errores de sintaxis:
+
+- `Program/script`: `powershell.exe`
+- `Add arguments`: `-ExecutionPolicy Bypass -File "C:\Users\Fernando\.openclaw\workspace\skills\binance-hunter-safe\scripts\run_price_collector.ps1"`
+
 ## Formato del JSON de Salida
 El script devolverá un JSON estricto con `asset`, `timeframe`, `trend_analysis` (cruce de EMAs), `momentum_oscillators` (RSI, MACD) y un `summary` pre-generado por el algoritmo matemático libre de alucinaciones LLM. Pasa estos datos al usuario.
