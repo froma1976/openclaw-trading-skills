@@ -16,6 +16,12 @@ def main():
     nulls = 0
     rows_raw = 0
     source_used = ""
+    anomalies = {
+        "missing_exit_price": 0,
+        "completed_state_active": 0,
+        "missing_qty": 0,
+        "stablecoin_symbol": 0,
+    }
 
     # 1) Prioridad: Binance futures userTrades
     fut_files = [
@@ -75,11 +81,20 @@ def main():
 
             entry = r.get("entry_price")
             exitp = r.get("exit_price")
+            if exitp in (None, ""):
+                exitp = r.get("close_price")
+                anomalies["missing_exit_price"] += 1
             qty = r.get("qty")
             fee = r.get("fee_usd", 0)
             side = str(r.get("side") or "BUY").upper()
             t_in = r.get("opened_at") or r.get("opened") or ""
             t_out = r.get("closed_at") or ""
+            if str(r.get("state") or "").upper() == "ACTIVE":
+                anomalies["completed_state_active"] += 1
+            if qty in (None, ""):
+                anomalies["missing_qty"] += 1
+            if sym.startswith(("USDC", "USDT", "BUSD", "FDUSD", "TUSD")):
+                anomalies["stablecoin_symbol"] += 1
             try:
                 float(entry); float(exitp)
             except Exception:
@@ -114,6 +129,7 @@ def main():
         "rows_clean": len(clean),
         "duplicates_removed": max(rows_raw - len(seen), 0),
         "rows_dropped_nulls": nulls,
+        "anomalies": anomalies,
         "output": str(OUT)
     }
     REP.write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")

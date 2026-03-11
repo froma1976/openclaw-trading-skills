@@ -87,3 +87,16 @@ Pasar el sistema desde una simulacion prometedora pero rigida a un motor mas lim
 
 - Fase activa: Fase 1.
 - Accion en curso: introducir modo defensivo y centralizar parametros de riesgo.
+
+## Calendario de implantacion propuesto
+
+- 2026-03-11 19:30 -> Fase 1 completada: modo defensivo + riesgo por configuracion.
+- 2026-03-11 21:00 -> Auditoria de schema y calidad de ordenes.
+- 2026-03-11 22:00 -> Primer breakdown de edge por ticker / hora / modo.
+- 2026-03-12 08:30 -> Revisar anomalias detectadas y preparar normalizacion de ordenes.
+- 2026-03-12 21:30 -> Regenerar `trades_clean.csv` y `data_quality_report.json` con criterios corregidos.
+- 2026-03-13 21:30 -> Corregir metricas de aprendizaje sobre base limpia.
+- 2026-03-14 10:00 -> Afinar exclusiones y filtros de activos / ventanas horarias.
+- 2026-03-15 10:00 -> Reforzar watchdogs y consistencia operativa.
+- 2026-03-16 21:30 -> Revalidacion walk-forward y decision sobre peso del LSTM.
+- 2026-03-17 21:30 -> Consolidacion comercial: estado, metricas defendibles y narrativa para comprador.
