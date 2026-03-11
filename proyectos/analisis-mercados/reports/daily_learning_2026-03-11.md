@@ -1,7 +1,7 @@
 # Aprendizaje Diario (2026-03-11)
-- Semáforo: **VERDE** (Edge consistente en ventana reciente)
-- Trades 7d: 459 (win-rate 55.12%)
-- Expectancy: 0.6082 USD/trade
-- Profit factor: 20.276
-- PnL 7d: 279.1804 USD
-- Max drawdown: 1.6529 USD
+- Semáforo: **AMARILLO** (Edge preliminar, seguir validando)
+- Trades 7d: 357 (win-rate 42.3%)
+- Expectancy: 0.0101 USD/trade
+- Profit factor: 1.248
+- PnL 7d: 3.5963 USD
+- Max drawdown: 3.4552 USD

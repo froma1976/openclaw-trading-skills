@@ -10,6 +10,7 @@ API_SAVING_MODE = os.getenv("API_SAVING_MODE", "1").strip() in {"1", "true", "TR
 MAX_SPY_ASSETS = int(os.getenv("MAX_SPY_ASSETS", "15"))
 STABLECOIN_IDS = {"tether", "usd-coin"}
 STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE"}
+EXCLUDED_TICKERS = {"PEPE"}
 COINS = [
     "bitcoin", "ethereum", "tether", "binancecoin", "solana", "ripple", "usd-coin", "dogecoin", "cardano", "tron",
     "chainlink", "avalanche-2", "stellar", "sui", "toncoin", "shiba-inu", "hedera-hashgraph", "polkadot", "litecoin", "bitcoin-cash",
@@ -94,6 +95,7 @@ def score_crypto(row: dict):
     coin_id = str(row.get("id") or "")
     ticker = SYMBOL.get(coin_id, str(row.get("symbol", "")).upper())
     is_stablecoin = coin_id in STABLECOIN_IDS or ticker in STABLECOIN_TICKERS
+    is_excluded = ticker in EXCLUDED_TICKERS
     ch24 = float(row.get("price_change_percentage_24h") or 0)
     ch7 = float(row.get("price_change_percentage_7d_in_currency") or 0)
     vol = float(row.get("total_volume") or 0)
@@ -112,6 +114,24 @@ def score_crypto(row: dict):
             "reasons": ["stablecoin_bloqueada"],
             "bubble_level": "Bajo",
             "argumento_en_contra": "Stablecoin excluida del universo operativo",
+            "flow_ratio": 0.0,
+            "spy_news": 0,
+            "spy_euphoria": 0,
+            "spy_flow": 0,
+            "spy_whale": 0,
+            "mc_fdv_ratio": 1.0,
+            "rug_block": True,
+            "gem_score": 0,
+        }
+
+    if is_excluded:
+        return {
+            "score": 0,
+            "state": "INVALIDATED",
+            "decision_final": "AVOID",
+            "reasons": ["asset_excluido_runtime"],
+            "bubble_level": "Bajo",
+            "argumento_en_contra": "Activo excluido por distorsionar el edge defendible",
             "flow_ratio": 0.0,
             "spy_news": 0,
             "spy_euphoria": 0,
@@ -307,7 +327,7 @@ def main():
         sc = score_crypto(r)
 
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
-        if ticker in STABLECOIN_TICKERS:
+        if ticker in STABLECOIN_TICKERS or ticker in EXCLUDED_TICKERS:
             spy_chart = 0
             spy_breakout = 0
         elif ticker in spy_allowed:
@@ -355,7 +375,7 @@ def main():
             "sentiment_report": sentiment_report,
         })
 
-    top = [a for a in sorted(assets, key=lambda x: (x.get("decision_final") == "BUY", x.get("gem_score", 0), x.get("score", 0)), reverse=True) if a.get("ticker") not in STABLECOIN_TICKERS]
+    top = [a for a in sorted(assets, key=lambda x: (x.get("decision_final") == "BUY", x.get("gem_score", 0), x.get("score", 0)), reverse=True) if a.get("ticker") not in STABLECOIN_TICKERS and a.get("ticker") not in EXCLUDED_TICKERS]
     out = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "assets": assets,

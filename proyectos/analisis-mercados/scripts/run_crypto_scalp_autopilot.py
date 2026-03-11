@@ -70,6 +70,7 @@ def load_risk_config():
         "defensive_min_score": 82,
         "defensive_min_confluence": 2,
         "allowed_symbols": [],
+        "excluded_symbols": [],
         "allowed_hours_utc": {"start": "00:00", "end": "23:59"},
         "execution_mode": "sim_only",
     }
@@ -82,8 +83,8 @@ def load_risk_config():
             continue
         indent = len(line) - len(line.lstrip(" "))
         stripped = line.strip()
-        if stripped.startswith("- ") and section == "allowed_symbols":
-            cfg["allowed_symbols"].append(str(parse_scalar(stripped[2:])).upper())
+        if stripped.startswith("- ") and section in {"allowed_symbols", "excluded_symbols"}:
+            cfg[section].append(str(parse_scalar(stripped[2:])).upper())
             continue
         if ":" not in stripped:
             continue
@@ -92,8 +93,8 @@ def load_risk_config():
         raw_value = raw_value.strip()
         if indent == 0:
             section = key if not raw_value else None
-            if key == "allowed_symbols":
-                cfg["allowed_symbols"] = []
+            if key in {"allowed_symbols", "excluded_symbols"}:
+                cfg[key] = []
                 continue
             if key == "allowed_hours_utc":
                 section = key
@@ -205,6 +206,7 @@ def main():
     defensive_min_score = int(cfg.get("defensive_min_score", 82) or 82)
     defensive_min_confluence = int(cfg.get("defensive_min_confluence", 2) or 2)
     allowed_symbols = {str(s).upper() for s in (cfg.get("allowed_symbols") or []) if str(s).strip()}
+    excluded_symbols = {str(s).upper() for s in (cfg.get("excluded_symbols") or []) if str(s).strip()}
 
     closed_now = 0
     still_active = []
@@ -320,6 +322,8 @@ def main():
 
         ticker = candidate.get("ticker")
         ticker_upper = str(ticker or "").upper()
+        if ticker_upper in excluded_symbols:
+            continue
         if allowed_symbols and ticker_upper not in allowed_symbols:
             continue
         if ticker in active_tickers:

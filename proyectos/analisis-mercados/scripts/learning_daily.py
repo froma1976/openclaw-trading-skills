@@ -7,6 +7,7 @@ ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/da
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status.json")
 REP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/reports")
 STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE"}
+EXCLUDED_TICKERS = {"PEPE"}
 
 
 def parse_iso(ts: str):
@@ -54,7 +55,7 @@ def main():
 
     for o in rows:
         t = str(o.get("ticker") or "?")
-        if t.upper() in STABLECOIN_TICKERS:
+        if t.upper() in STABLECOIN_TICKERS or t.upper() in EXCLUDED_TICKERS:
             continue
         p = float(o.get("pnl_usd") or 0)
         pnl.append(p)

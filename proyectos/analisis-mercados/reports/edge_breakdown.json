@@ -1,17 +1,8 @@
 {
-  "as_of": "2026-03-11T18:22:48Z",
+  "as_of": "2026-03-11T18:26:49Z",
   "window": "7d",
-  "orders_used": 459,
+  "orders_used": 357,
   "by_ticker": [
-    {
-      "key": "PEPE",
-      "count": 102,
-      "wins": 102,
-      "losses": 0,
-      "win_rate": 100.0,
-      "expectancy_usd": 2.7018,
-      "pnl_usd": 275.584
-    },
     {
       "key": "NEAR",
       "count": 49,
@@ -205,21 +196,12 @@
   "by_result": [
     {
       "key": "timeout",
-      "count": 300,
-      "wins": 131,
+      "count": 298,
+      "wins": 129,
       "losses": 102,
-      "win_rate": 43.67,
-      "expectancy_usd": 0.0446,
-      "pnl_usd": 13.3882
-    },
-    {
-      "key": "ganada",
-      "count": 122,
-      "wins": 122,
-      "losses": 0,
-      "win_rate": 100.0,
-      "expectancy_usd": 2.2575,
-      "pnl_usd": 275.4194
+      "win_rate": 43.29,
+      "expectancy_usd": 0.0171,
+      "pnl_usd": 5.0885
     },
     {
       "key": "perdida",
@@ -229,46 +211,55 @@
       "win_rate": 0.0,
       "expectancy_usd": -0.2602,
       "pnl_usd": -9.6272
+    },
+    {
+      "key": "ganada",
+      "count": 22,
+      "wins": 22,
+      "losses": 0,
+      "win_rate": 100.0,
+      "expectancy_usd": 0.3698,
+      "pnl_usd": 8.1351
     }
   ],
   "by_hour_bucket_utc": [
     {
-      "key": "00-07",
-      "count": 178,
-      "wins": 107,
-      "losses": 55,
-      "win_rate": 60.11,
-      "expectancy_usd": 0.9097,
-      "pnl_usd": 161.922
+      "key": "16-23",
+      "count": 123,
+      "wins": 53,
+      "losses": 41,
+      "win_rate": 43.09,
+      "expectancy_usd": 0.0175,
+      "pnl_usd": 2.1469
     },
     {
       "key": "08-15",
-      "count": 153,
-      "wins": 88,
+      "count": 122,
+      "wins": 57,
       "losses": 43,
-      "win_rate": 57.52,
-      "expectancy_usd": 0.6324,
-      "pnl_usd": 96.7575
+      "win_rate": 46.72,
+      "expectancy_usd": 0.0191,
+      "pnl_usd": 2.331
     },
     {
-      "key": "16-23",
-      "count": 128,
-      "wins": 58,
-      "losses": 41,
-      "win_rate": 45.31,
-      "expectancy_usd": 0.1602,
-      "pnl_usd": 20.5009
+      "key": "00-07",
+      "count": 112,
+      "wins": 41,
+      "losses": 55,
+      "win_rate": 36.61,
+      "expectancy_usd": -0.0079,
+      "pnl_usd": -0.8816
     }
   ],
   "by_risk_mode": [
     {
       "key": "scalp_intradia",
-      "count": 459,
-      "wins": 253,
+      "count": 357,
+      "wins": 151,
       "losses": 139,
-      "win_rate": 55.12,
-      "expectancy_usd": 0.6082,
-      "pnl_usd": 279.1804
+      "win_rate": 42.3,
+      "expectancy_usd": 0.0101,
+      "pnl_usd": 3.5963
     }
   ]
 }

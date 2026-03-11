@@ -8,6 +8,7 @@ ORD = BASE / "data" / "crypto_orders_sim.json"
 JSON_OUT = BASE / "reports" / "edge_breakdown.json"
 MD_OUT = BASE / "reports" / "edge_breakdown.md"
 STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE"}
+EXCLUDED_TICKERS = {"PEPE"}
 
 
 def parse_iso(ts: str):
@@ -78,7 +79,7 @@ def main():
             continue
         pnl = float(order.get("pnl_usd") or 0)
         ticker = str(order.get("ticker") or "?").upper()
-        if ticker in STABLECOIN_TICKERS:
+        if ticker in STABLECOIN_TICKERS or ticker in EXCLUDED_TICKERS:
             continue
         result = str(order.get("result") or "unknown").lower()
         risk_mode = str(order.get("risk_mode") or order.get("mode") or "unknown").lower()
