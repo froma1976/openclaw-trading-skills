@@ -1,0 +1,22 @@
+$ErrorActionPreference = 'Continue'
+$base = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados'
+$logDir = Join-Path $base 'logs'
+New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+$log = Join-Path $logDir 'core_market_research.log'
+
+$ts = Get-Date -Format s
+"[$ts] START core_market_research" | Add-Content $log
+
+$py = 'C:\Windows\py.exe'
+$script = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\run_core_market_research.py'
+
+try {
+  $out = & $py -3 $script 2>&1
+  $exitCode = $LASTEXITCODE
+  if ($out) { $out | Add-Content $log }
+  "[$(Get-Date -Format s)] CORE_MARKET_RESEARCH_EXITCODE=$exitCode" | Add-Content $log
+  exit $exitCode
+} catch {
+  "[$(Get-Date -Format s)] ERROR $_" | Add-Content $log
+  exit 1
+}

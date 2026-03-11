@@ -116,4 +116,5 @@ La clasificacion se recalcula con `scripts/classify_universe.py` y se persiste e
 - `OpenClaw-Universe-Maintenance-4h`: recalcula calidad, edge, aprendizaje y clasificacion de universo.
 - `OpenClaw-Crypto-Watchdog-10m`: vigila la frescura de `universe_maintenance.log` y relanza mantenimiento si se queda stale.
 - `OpenClaw-Crypto-Watchdog-10m`: tambien vigila `memory/price_warehouse.csv` y relanza `OpenClaw_Crypto_Collector` si el colector se queda stale.
+- `OpenClaw-Core-Research-4h`: consulta Brave + Tavily para resumir noticias y catalizadores del universo `core`.
 - `OpenClaw-Train-LSTM-Daily`: reentrena y vuelve a recalcular el universo al cierre diario.
