@@ -108,3 +108,10 @@ Pasar el sistema desde una simulacion prometedora pero rigida a un motor mas lim
 - `excluded`: activos bloqueados temporalmente por distorsion o deterioro.
 
 La clasificacion se recalcula con `scripts/classify_universe.py` y se persiste en `data/universe_status.json`.
+
+## Automatizacion activa
+
+- `OpenClaw-Crypto-Ingest-2m`: refresca snapshot operativo.
+- `OpenClaw-Crypto-Scalp-1m`: ejecuta el runtime sobre el universo `core`.
+- `OpenClaw-Universe-Maintenance-4h`: recalcula calidad, edge, aprendizaje y clasificacion de universo.
+- `OpenClaw-Train-LSTM-Daily`: reentrena y vuelve a recalcular el universo al cierre diario.

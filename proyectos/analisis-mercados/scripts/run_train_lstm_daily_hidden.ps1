@@ -57,7 +57,25 @@ try {
   if ($out6) { $out6 | Add-Content $log }
   "[$(Get-Date -Format s)] LEARNING_EXITCODE=$exit6" | Add-Content $log
 
-  if ($exit0 -ne 0 -or $exit1 -ne 0 -or $exit2 -ne 0 -or $exit3 -ne 0 -or $exit4 -ne 0 -or $exit5 -ne 0 -or $exit6 -ne 0) {
+  # 8) Breakdown de edge
+  $out7 = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\edge_breakdown.py" 2>&1
+  $exit7 = $LASTEXITCODE
+  if ($out7) { $out7 | Add-Content $log }
+  "[$(Get-Date -Format s)] EDGE_BREAKDOWN_EXITCODE=$exit7" | Add-Content $log
+
+  # 9) Reclasificacion de universo
+  $out8 = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\classify_universe.py" 2>&1
+  $exit8 = $LASTEXITCODE
+  if ($out8) { $out8 | Add-Content $log }
+  "[$(Get-Date -Format s)] UNIVERSE_EXITCODE=$exit8" | Add-Content $log
+
+  # 10) Snapshot actualizado con nuevo universo
+  $out9 = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\source_ingest_crypto_free.py" 2>&1
+  $exit9 = $LASTEXITCODE
+  if ($out9) { $out9 | Add-Content $log }
+  "[$(Get-Date -Format s)] SNAPSHOT_EXITCODE=$exit9" | Add-Content $log
+
+  if ($exit0 -ne 0 -or $exit1 -ne 0 -or $exit2 -ne 0 -or $exit3 -ne 0 -or $exit4 -ne 0 -or $exit5 -ne 0 -or $exit6 -ne 0 -or $exit7 -ne 0 -or $exit8 -ne 0 -or $exit9 -ne 0) {
     exit 1
   }
   exit 0
