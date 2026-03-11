@@ -41,6 +41,7 @@ def main():
     msg = (
         f"🪙 Crypto bot resumen ({now_iso()})\n"
         f"Estado: {'PAUSADO' if daily.get('paused') else 'ACTIVO'}\n"
+        f"Modo: {daily.get('mode','normal')} | Motivo: {daily.get('mode_reason') or daily.get('pause_reason') or '-'}\n"
         f"Activas: {len(active)} | Cerradas: {len(completed)}\n"
         f"Trades hoy: {daily.get('trades',0)} | Racha pérdidas: {daily.get('loss_streak',0)}\n"
         f"Cash: {p.get('cash_usd',0)} | Equity: {p.get('equity_usd',0)}"

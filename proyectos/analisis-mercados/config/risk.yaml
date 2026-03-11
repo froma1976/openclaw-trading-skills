@@ -2,10 +2,22 @@ version: 1
 capital_base_usd: 300.0
 risk_per_trade_pct: 1.0
 max_daily_loss_pct: 5.0
+defensive_after_consecutive_losses: 2
 pause_after_consecutive_losses: 3
 pause_hours: 24
 slippage_bps: 5
 fee_bps: 10
+target_pct: 0.9
+stop_pct: 0.55
+timeout_min: 12
+max_trades_day: 120
+max_trades_hour: 30
+max_active_positions: 10
+alloc_per_trade_usd: 30.0
+min_notional_usd: 20.0
+defensive_scale: 0.5
+defensive_min_score: 82
+defensive_min_confluence: 2
 allowed_symbols:
   - BTCUSDT
   - SOLUSDT
