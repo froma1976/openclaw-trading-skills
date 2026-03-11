@@ -6,6 +6,7 @@ from urllib import request
 import os
 
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
+UNIVERSE_STATUS = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/universe_status.json")
 API_SAVING_MODE = os.getenv("API_SAVING_MODE", "1").strip() in {"1", "true", "TRUE", "yes"}
 MAX_SPY_ASSETS = int(os.getenv("MAX_SPY_ASSETS", "15"))
 STABLECOIN_IDS = {"tether", "usd-coin"}
@@ -35,6 +36,20 @@ def get_json(url: str):
     req = request.Request(url, headers={"User-Agent": "crypto-scout/1.0"})
     with request.urlopen(req, timeout=20) as r:
         return json.loads(r.read().decode("utf-8"))
+
+
+def load_universe_status():
+    if not UNIVERSE_STATUS.exists():
+        return {"core": set(), "watch": set(), "excluded": set()}
+    try:
+        data = json.loads(UNIVERSE_STATUS.read_text(encoding="utf-8"))
+        return {
+            "core": {str(x).upper() for x in (data.get("core") or [])},
+            "watch": {str(x).upper() for x in (data.get("watch") or [])},
+            "excluded": {str(x).upper() for x in (data.get("excluded") or [])},
+        }
+    except Exception:
+        return {"core": set(), "watch": set(), "excluded": set()}
 
 
 def fetch_breakout_spy(ticker: str) -> int:
@@ -291,6 +306,8 @@ def build_reports(ticker: str, price: float, row: dict, scored: dict):
 
 
 def main():
+    universe = load_universe_status()
+    dynamic_excluded = universe.get("excluded") or set()
     ids = ",".join(COINS)
     url = (
         "https://api.coingecko.com/api/v3/coins/markets"
@@ -375,7 +392,7 @@ def main():
             "sentiment_report": sentiment_report,
         })
 
-    top = [a for a in sorted(assets, key=lambda x: (x.get("decision_final") == "BUY", x.get("gem_score", 0), x.get("score", 0)), reverse=True) if a.get("ticker") not in STABLECOIN_TICKERS and a.get("ticker") not in EXCLUDED_TICKERS]
+    top = [a for a in sorted(assets, key=lambda x: (x.get("decision_final") == "BUY", x.get("gem_score", 0), x.get("score", 0)), reverse=True) if a.get("ticker") not in STABLECOIN_TICKERS and a.get("ticker") not in EXCLUDED_TICKERS and a.get("ticker") not in dynamic_excluded]
     out = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "assets": assets,
@@ -384,6 +401,9 @@ def main():
         "api_saving_mode": API_SAVING_MODE,
         "spy_assets_limit": MAX_SPY_ASSETS,
         "notes": notes,
+        "universe_core": sorted(universe.get("core") or []),
+        "universe_watch": sorted(universe.get("watch") or []),
+        "universe_excluded": sorted(dynamic_excluded),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -6,6 +6,7 @@ from pathlib import Path
 SNAP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")
 RISK_CFG = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/config/risk.yaml")
+UNIVERSE_STATUS = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/universe_status.json")
 
 TARGET_PCT = 0.9
 STOP_PCT = 0.55
@@ -104,6 +105,15 @@ def load_risk_config():
         elif section == "allowed_hours_utc" and key in {"start", "end"}:
             cfg["allowed_hours_utc"][key] = str(parse_scalar(raw_value))
     return cfg
+
+
+def load_universe_status():
+    data = load_json(UNIVERSE_STATUS, {})
+    return {
+        "core": {str(x).upper() for x in (data.get("core") or [])},
+        "watch": {str(x).upper() for x in (data.get("watch") or [])},
+        "excluded": {str(x).upper() for x in (data.get("excluded") or [])},
+    }
 
 
 def allowed_now(cfg: dict, now: datetime) -> bool:
@@ -207,6 +217,9 @@ def main():
     defensive_min_confluence = int(cfg.get("defensive_min_confluence", 2) or 2)
     allowed_symbols = {str(s).upper() for s in (cfg.get("allowed_symbols") or []) if str(s).strip()}
     excluded_symbols = {str(s).upper() for s in (cfg.get("excluded_symbols") or []) if str(s).strip()}
+    universe = load_universe_status()
+    universe_core = universe.get("core") or set()
+    universe_excluded = universe.get("excluded") or set()
 
     closed_now = 0
     still_active = []
@@ -322,9 +335,11 @@ def main():
 
         ticker = candidate.get("ticker")
         ticker_upper = str(ticker or "").upper()
-        if ticker_upper in excluded_symbols:
+        if ticker_upper in excluded_symbols or ticker_upper in universe_excluded:
             continue
         if allowed_symbols and ticker_upper not in allowed_symbols:
+            continue
+        if universe_core and ticker_upper not in universe_core:
             continue
         if ticker in active_tickers:
             continue

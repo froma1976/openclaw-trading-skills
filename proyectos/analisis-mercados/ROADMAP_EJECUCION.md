@@ -100,3 +100,11 @@ Pasar el sistema desde una simulacion prometedora pero rigida a un motor mas lim
 - 2026-03-15 10:00 -> Reforzar watchdogs y consistencia operativa.
 - 2026-03-16 21:30 -> Revalidacion walk-forward y decision sobre peso del LSTM.
 - 2026-03-17 21:30 -> Consolidacion comercial: estado, metricas defendibles y narrativa para comprador.
+
+## Politica de universo actual
+
+- `core`: solo activos con edge defendible y muestra suficiente.
+- `watch`: activos monitorizados para futura promocion.
+- `excluded`: activos bloqueados temporalmente por distorsion o deterioro.
+
+La clasificacion se recalcula con `scripts/classify_universe.py` y se persiste en `data/universe_status.json`.

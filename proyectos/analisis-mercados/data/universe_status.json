@@ -1,0 +1,234 @@
+{
+  "as_of": "2026-03-11T18:35:29Z",
+  "policy": {
+    "core": "count>=15, expectancy>0.015, win_rate>=52, pnl>0",
+    "watch": "muestra insuficiente o edge mixed",
+    "excluded": "manual/stablecoin o count>=10 con expectancy<0 o win_rate<35"
+  },
+  "core": [
+    "DOGE",
+    "AAVE",
+    "SUI",
+    "SOL"
+  ],
+  "watch": [
+    "FLOW",
+    "ETH",
+    "ICP",
+    "XRP",
+    "AVAX",
+    "TRX",
+    "LTC",
+    "FET",
+    "ADA",
+    "WLD",
+    "ARB"
+  ],
+  "excluded": [
+    "BNB",
+    "BTC",
+    "BUSD",
+    "DAI",
+    "FDUSD",
+    "LINK",
+    "NEAR",
+    "OP",
+    "PEPE",
+    "RENDER",
+    "TUSD",
+    "USDC",
+    "USDE",
+    "USDT"
+  ],
+  "details": [
+    {
+      "ticker": "NEAR",
+      "bucket": "excluded",
+      "reason": "deterioro claro en ventana reciente",
+      "count": 49,
+      "win_rate": 14.29,
+      "expectancy_usd": -0.0095,
+      "pnl_usd": -0.4648
+    },
+    {
+      "ticker": "FLOW",
+      "bucket": "watch",
+      "reason": "seguir observando antes de promover o expulsar",
+      "count": 43,
+      "win_rate": 44.19,
+      "expectancy_usd": 0.023,
+      "pnl_usd": 0.9876
+    },
+    {
+      "ticker": "ETH",
+      "bucket": "watch",
+      "reason": "seguir observando antes de promover o expulsar",
+      "count": 40,
+      "win_rate": 50.0,
+      "expectancy_usd": 0.0216,
+      "pnl_usd": 0.8637
+    },
+    {
+      "ticker": "DOGE",
+      "bucket": "core",
+      "reason": "edge suficiente en ventana reciente",
+      "count": 30,
+      "win_rate": 56.67,
+      "expectancy_usd": 0.02,
+      "pnl_usd": 0.5995
+    },
+    {
+      "ticker": "AAVE",
+      "bucket": "core",
+      "reason": "edge suficiente en ventana reciente",
+      "count": 28,
+      "win_rate": 57.14,
+      "expectancy_usd": 0.0255,
+      "pnl_usd": 0.7149
+    },
+    {
+      "ticker": "SUI",
+      "bucket": "core",
+      "reason": "edge suficiente en ventana reciente",
+      "count": 26,
+      "win_rate": 61.54,
+      "expectancy_usd": 0.0353,
+      "pnl_usd": 0.9173
+    },
+    {
+      "ticker": "BTC",
+      "bucket": "excluded",
+      "reason": "deterioro claro en ventana reciente",
+      "count": 26,
+      "win_rate": 50.0,
+      "expectancy_usd": -0.0275,
+      "pnl_usd": -0.7153
+    },
+    {
+      "ticker": "SOL",
+      "bucket": "core",
+      "reason": "edge suficiente en ventana reciente",
+      "count": 21,
+      "win_rate": 66.67,
+      "expectancy_usd": 0.0241,
+      "pnl_usd": 0.5055
+    },
+    {
+      "ticker": "RENDER",
+      "bucket": "excluded",
+      "reason": "deterioro claro en ventana reciente",
+      "count": 20,
+      "win_rate": 15.0,
+      "expectancy_usd": 0.0201,
+      "pnl_usd": 0.4027
+    },
+    {
+      "ticker": "LINK",
+      "bucket": "excluded",
+      "reason": "deterioro claro en ventana reciente",
+      "count": 12,
+      "win_rate": 25.0,
+      "expectancy_usd": 0.0028,
+      "pnl_usd": 0.0332
+    },
+    {
+      "ticker": "BNB",
+      "bucket": "excluded",
+      "reason": "deterioro claro en ventana reciente",
+      "count": 11,
+      "win_rate": 45.45,
+      "expectancy_usd": -0.0061,
+      "pnl_usd": -0.0672
+    },
+    {
+      "ticker": "OP",
+      "bucket": "excluded",
+      "reason": "deterioro claro en ventana reciente",
+      "count": 10,
+      "win_rate": 30.0,
+      "expectancy_usd": -0.0513,
+      "pnl_usd": -0.5128
+    },
+    {
+      "ticker": "ICP",
+      "bucket": "watch",
+      "reason": "seguir observando antes de promover o expulsar",
+      "count": 9,
+      "win_rate": 22.22,
+      "expectancy_usd": -0.0126,
+      "pnl_usd": -0.1136
+    },
+    {
+      "ticker": "XRP",
+      "bucket": "watch",
+      "reason": "seguir observando antes de promover o expulsar",
+      "count": 8,
+      "win_rate": 0.0,
+      "expectancy_usd": -0.0262,
+      "pnl_usd": -0.2098
+    },
+    {
+      "ticker": "AVAX",
+      "bucket": "watch",
+      "reason": "seguir observando antes de promover o expulsar",
+      "count": 7,
+      "win_rate": 71.43,
+      "expectancy_usd": 0.0696,
+      "pnl_usd": 0.4871
+    },
+    {
+      "ticker": "TRX",
+      "bucket": "watch",
+      "reason": "seguir observando antes de promover o expulsar",
+      "count": 5,
+      "win_rate": 60.0,
+      "expectancy_usd": 0.0157,
+      "pnl_usd": 0.0784
+    },
+    {
+      "ticker": "LTC",
+      "bucket": "watch",
+      "reason": "seguir observando antes de promover o expulsar",
+      "count": 5,
+      "win_rate": 60.0,
+      "expectancy_usd": 0.0034,
+      "pnl_usd": 0.0168
+    },
+    {
+      "ticker": "FET",
+      "bucket": "watch",
+      "reason": "muestra insuficiente",
+      "count": 3,
+      "win_rate": 33.33,
+      "expectancy_usd": -0.0049,
+      "pnl_usd": -0.0147
+    },
+    {
+      "ticker": "ADA",
+      "bucket": "watch",
+      "reason": "muestra insuficiente",
+      "count": 2,
+      "win_rate": 50.0,
+      "expectancy_usd": 0.0876,
+      "pnl_usd": 0.1752
+    },
+    {
+      "ticker": "WLD",
+      "bucket": "watch",
+      "reason": "muestra insuficiente",
+      "count": 1,
+      "win_rate": 0.0,
+      "expectancy_usd": -0.0195,
+      "pnl_usd": -0.0195
+    },
+    {
+      "ticker": "ARB",
+      "bucket": "watch",
+      "reason": "muestra insuficiente",
+      "count": 1,
+      "win_rate": 0.0,
+      "expectancy_usd": -0.0677,
+      "pnl_usd": -0.0677
+    }
+  ]
+}
