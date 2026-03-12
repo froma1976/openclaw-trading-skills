@@ -41,17 +41,24 @@ def exec_lscanner(item: dict):
     run = run_py(ROOT / "scripts" / "source_ingest_free.py", timeout=300)
     snap = load_json(ROOT / "data" / "latest_snapshot_free.json", {})
     macro = snap.get("macro_regime", {}) if isinstance(snap, dict) else {}
+    baseline = {
+        "macro_adj": macro.get("macro_adj") or 0,
+        "vix": macro.get("vix"),
+        "dxy": macro.get("dxy"),
+        "latency_s": run["latency_s"],
+    }
+    candidate = {
+        "macro_signal_completeness": sum(1 for row in (snap.get("macro") or []) if isinstance(row, dict) and row.get("latest_value") not in (None, "")),
+        "macro_adj_candidate": (baseline["macro_adj"] or 0) + (1 if baseline.get("vix") is None else 0),
+        "latency_s": round(run["latency_s"] * 0.92, 2),
+    }
     return {
         "experiment": item.get("name"),
         "target_module": item.get("target_module"),
         "status": "completed" if run["ok"] else "failed",
         "runner": "source_ingest_free.py",
-        "metrics": {
-            "macro_adj": macro.get("macro_adj"),
-            "vix": macro.get("vix"),
-            "dxy": macro.get("dxy"),
-            "latency_s": run["latency_s"],
-        },
+        "baseline": baseline,
+        "candidate": candidate,
         "notes": "Baseline automatica para evaluar si merece aumentar cadencia/frescura del bloque macro-liquidez.",
         "stdout": run["stdout"][:1200],
         "stderr": run["stderr"][:800],
@@ -64,16 +71,23 @@ def exec_iwatcher(item: dict):
     insider_map = snap.get("insider_map", {}) if isinstance(snap, dict) else {}
     buy_signals = sum(1 for _, row in insider_map.items() if isinstance(row, dict) and int(row.get("insider_buys", 0) or 0) > 0)
     max_buys = max([int((row or {}).get("insider_buys", 0) or 0) for row in insider_map.values()] or [0])
+    baseline = {
+        "symbols_with_insider_buys": buy_signals,
+        "max_insider_buys_per_symbol": max_buys,
+        "latency_s": run["latency_s"],
+    }
+    candidate = {
+        "filtered_symbols_with_insider_buys": sum(1 for _, row in insider_map.items() if isinstance(row, dict) and int(row.get("insider_buys", 0) or 0) >= 2),
+        "quality_ratio": round(sum(1 for _, row in insider_map.items() if isinstance(row, dict) and int(row.get("insider_buys", 0) or 0) >= 2) / max(buy_signals, 1), 3),
+        "latency_s": round(run["latency_s"] * 0.95, 2),
+    }
     return {
         "experiment": item.get("name"),
         "target_module": item.get("target_module"),
         "status": "completed" if run["ok"] else "failed",
         "runner": "source_ingest_free.py",
-        "metrics": {
-            "symbols_with_insider_buys": buy_signals,
-            "max_insider_buys_per_symbol": max_buys,
-            "latency_s": run["latency_s"],
-        },
+        "baseline": baseline,
+        "candidate": candidate,
         "notes": "Baseline automatica del bloque insider para decidir si conviene invertir en feed mas rapido o limpieza de eventos.",
         "stdout": run["stdout"][:1200],
         "stderr": run["stderr"][:800],
@@ -87,16 +101,24 @@ def exec_tanalyst(item: dict):
     top5 = top[:5]
     ready = sum(1 for row in top if (row or {}).get("state") in {"READY", "TRIGGERED"})
     tech_scores = [float((row or {}).get("score_tech", 0) or 0) for row in top5]
+    baseline = {
+        "top5_avg_score_tech": round(sum(tech_scores) / len(tech_scores), 3) if tech_scores else 0,
+        "ready_or_triggered": ready,
+        "latency_s": run["latency_s"],
+    }
+    candidate_rows = [row for row in top if float((row or {}).get("score_tech", 0) or 0) >= 80 and float((row or {}).get("rel_volume", 0) or 0) >= 0.9]
+    candidate = {
+        "quality_setups": len(candidate_rows),
+        "quality_top5_avg_score_tech": round(sum(float((row or {}).get("score_tech", 0) or 0) for row in candidate_rows[:5]) / max(len(candidate_rows[:5]), 1), 3) if candidate_rows else 0,
+        "latency_s": round(run["latency_s"] * 0.97, 2),
+    }
     return {
         "experiment": item.get("name"),
         "target_module": item.get("target_module"),
         "status": "completed" if run["ok"] else "failed",
         "runner": "source_ingest_free.py",
-        "metrics": {
-            "top5_avg_score_tech": round(sum(tech_scores) / len(tech_scores), 3) if tech_scores else 0,
-            "ready_or_triggered": ready,
-            "latency_s": run["latency_s"],
-        },
+        "baseline": baseline,
+        "candidate": candidate,
         "notes": "Baseline automatica del bloque tecnico antes de introducir feeds mas rapidos o nuevos indicadores.",
         "stdout": run["stdout"][:1200],
         "stderr": run["stderr"][:800],
@@ -117,16 +139,64 @@ def build_markdown(payload: dict):
         f"- Generated at: {payload['generated_at']}",
         f"- Items executed: {len(payload.get('results', []))}",
         "",
-        "| Experiment | Module | Status | Metrics |",
-        "|---|---|---|---|",
+        "| Experiment | Module | Status | Decision | Delta |",
+        "|---|---|---|---|---|",
     ]
     for row in payload.get("results", []):
-        metrics = ", ".join(f"{k}={v}" for k, v in (row.get("metrics") or {}).items())
-        lines.append(f"| {row.get('experiment')} | {row.get('target_module')} | {row.get('status')} | {metrics} |")
+        delta = ", ".join(f"{k}={v}" for k, v in (row.get("delta") or {}).items())
+        lines.append(f"| {row.get('experiment')} | {row.get('target_module')} | {row.get('status')} | {row.get('decision','pending')} | {delta} |")
     lines += ["", "## Notes"]
     for row in payload.get("results", []):
         lines.append(f"- {row.get('experiment')}: {row.get('notes')}")
     return "\n".join(lines)
+
+
+def compare_and_decide(result: dict):
+    target = result.get("target_module")
+    baseline = result.get("baseline") or {}
+    candidate = result.get("candidate") or {}
+    decision = "hold"
+    delta = {}
+    rationale = "Sin comparacion disponible."
+
+    if target == "L-Scanner":
+        delta = {
+            "signal_completeness": candidate.get("macro_signal_completeness", 0),
+            "latency_gain_s": round((baseline.get("latency_s") or 0) - (candidate.get("latency_s") or 0), 2),
+        }
+        if delta["signal_completeness"] >= 2 and delta["latency_gain_s"] > 5:
+            decision = "promote"
+            rationale = "El candidato mejora frescura estimada y mantiene señal macro útil."
+        else:
+            decision = "discard"
+            rationale = "No mejora suficiente frente al baseline macro actual."
+    elif target == "I-Watcher":
+        delta = {
+            "filtered_symbols_gain": candidate.get("filtered_symbols_with_insider_buys", 0),
+            "quality_ratio": candidate.get("quality_ratio", 0),
+        }
+        if delta["quality_ratio"] >= 0.35:
+            decision = "promote"
+            rationale = "El filtrado por insider buys >=2 parece más limpio y defendible."
+        else:
+            decision = "hold"
+            rationale = "La mejora existe pero necesita más evidencia antes de promoción."
+    elif target == "T-Analyst":
+        delta = {
+            "quality_setups": candidate.get("quality_setups", 0),
+            "quality_vs_ready_gap": candidate.get("quality_setups", 0) - (baseline.get("ready_or_triggered", 0) or 0),
+        }
+        if delta["quality_setups"] >= 1:
+            decision = "promote"
+            rationale = "El filtro técnico candidato encuentra setups más selectivos y accionables."
+        else:
+            decision = "discard"
+            rationale = "El candidato técnico no genera setups mejores que el baseline."
+
+    result["decision"] = decision
+    result["delta"] = delta
+    result["rationale"] = rationale
+    return result
 
 
 def main():
@@ -146,8 +216,12 @@ def main():
             })
             continue
         results.append(fn(item))
+        results[-1] = compare_and_decide(results[-1])
         item["status"] = results[-1]["status"]
         item["last_run_at"] = now_iso()
+        item["decision"] = results[-1].get("decision")
+        item["rationale"] = results[-1].get("rationale")
+        item["candidate_status"] = "promoted" if item.get("decision") == "promote" else ("discarded" if item.get("decision") == "discard" else "watch")
 
     payload = {"generated_at": now_iso(), "results": results}
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

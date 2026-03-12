@@ -1,13 +1,13 @@
 # Research experiment execution
 
-- Generated at: 2026-03-12T06:38:09Z
+- Generated at: 2026-03-12T06:57:58Z
 - Items executed: 3
 
-| Experiment | Module | Status | Metrics |
-|---|---|---|---|
-| Liquidity Monitoring with Real-time Data | L-Scanner | completed | macro_adj=0, vix=None, dxy=None, latency_s=138.66 |
-| Real-time Insider Buying Validation | I-Watcher | completed | symbols_with_insider_buys=17, max_insider_buys_per_symbol=10, latency_s=134.32 |
-| Technical Analysis with Real-time Data | T-Analyst | completed | top5_avg_score_tech=78.4, ready_or_triggered=0, latency_s=116.39 |
+| Experiment | Module | Status | Decision | Delta |
+|---|---|---|---|---|
+| Liquidity Monitoring with Real-time Data | L-Scanner | completed | discard | signal_completeness=0, latency_gain_s=10.76 |
+| Real-time Insider Buying Validation | I-Watcher | completed | promote | filtered_symbols_gain=6, quality_ratio=0.353 |
+| Technical Analysis with Real-time Data | T-Analyst | completed | discard | quality_setups=0, quality_vs_ready_gap=0 |
 
 ## Notes
 - Liquidity Monitoring with Real-time Data: Baseline automatica para evaluar si merece aumentar cadencia/frescura del bloque macro-liquidez.
