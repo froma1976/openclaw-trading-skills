@@ -122,6 +122,27 @@ def load_universe_status():
     }
 
 
+def pick_runtime_universe(allowed_symbols: set, universe_core: set, universe_watch: set, universe_excluded: set) -> tuple[set, str]:
+    if allowed_symbols:
+        core_allowed = {s for s in allowed_symbols if s in universe_core and s not in universe_excluded}
+        if core_allowed:
+            return core_allowed, "core∩allowed"
+        watch_allowed = {s for s in allowed_symbols if s in universe_watch and s not in universe_excluded}
+        if watch_allowed:
+            return watch_allowed, "watch∩allowed"
+        fallback_allowed = {s for s in allowed_symbols if s not in universe_excluded}
+        if fallback_allowed:
+            return fallback_allowed, "allowed_fallback"
+
+    core_only = {s for s in universe_core if s not in universe_excluded}
+    if core_only:
+        return core_only, "core"
+    watch_only = {s for s in universe_watch if s not in universe_excluded}
+    if watch_only:
+        return watch_only, "watch"
+    return set(), "none"
+
+
 def allowed_now(cfg: dict, now: datetime) -> bool:
     hours = cfg.get("allowed_hours_utc") or {}
     start = str(hours.get("start") or "00:00")
@@ -302,7 +323,9 @@ def main():
     excluded_symbols = {str(s).upper() for s in (cfg.get("excluded_symbols") or []) if str(s).strip()}
     universe = load_universe_status()
     universe_core = universe.get("core") or set()
+    universe_watch = universe.get("watch") or set()
     universe_excluded = universe.get("excluded") or set()
+    runtime_universe, runtime_universe_source = pick_runtime_universe(allowed_symbols, universe_core, universe_watch, universe_excluded)
 
     closed_now = 0
     still_active = []
@@ -393,7 +416,7 @@ def main():
 
     pre_mode_state = compute_mode(daily, daily_pnl, cfg, capital_base_usd)
     predicted_mode = "defensive" if pre_mode_state.get("paused") and bool(cfg.get("resume_in_defensive", True)) else pre_mode_state.get("mode", "normal")
-    resume_candidates = count_resume_candidates(top, px, cfg, predicted_mode, allowed_symbols, excluded_symbols, universe_core, universe_excluded)
+    resume_candidates = count_resume_candidates(top, px, cfg, predicted_mode, runtime_universe, excluded_symbols, runtime_universe, universe_excluded)
     mode_state = maybe_resume_from_pause(daily, pre_mode_state, cfg, now, resume_candidates)
     daily["mode"] = mode_state["mode"]
     daily["mode_reason"] = mode_state["mode_reason"]
@@ -427,9 +450,7 @@ def main():
         ticker_upper = str(ticker or "").upper()
         if ticker_upper in excluded_symbols or ticker_upper in universe_excluded:
             continue
-        if allowed_symbols and ticker_upper not in allowed_symbols:
-            continue
-        if universe_core and ticker_upper not in universe_core:
+        if runtime_universe and ticker_upper not in runtime_universe:
             continue
         if ticker in active_tickers:
             continue
@@ -552,6 +573,8 @@ def main():
                 "pause_reason": daily.get("pause_reason", ""),
                 "paused_at": daily.get("paused_at", ""),
                 "resume_candidates": resume_candidates,
+                "runtime_universe": sorted(runtime_universe),
+                "runtime_universe_source": runtime_universe_source,
                 "loss_streak": int(daily.get("loss_streak", 0)),
                 "cash_usd": portfolio.get("cash_usd", 0),
                 "equity_usd": portfolio.get("equity_usd", 0),
