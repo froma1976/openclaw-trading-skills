@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-12T06:27:50Z",
+  "generated_at": "2026-03-12T15:00:12Z",
   "models": {
     "auditor": "phi4-mini:latest",
     "designer": "phi4-mini:latest",
@@ -7,179 +7,171 @@
   },
   "audit": {
     "system_summary": [
-      "OpenClaw is a multi-agent system designed for detecting pre-boom signals in the cryptocurrency market and managing capital asymmetrically.",
-      "The system uses a combination of liquidity monitoring, insider buying validation, and technical analysis to identify trading opportunities.",
-      "The architecture includes L-Scanner for liquidity monitoring, I-Watcher for insider buying, and T-Analyst for technical analysis.",
-      "The system operates in two phases: a simulated phase with KPIs for alpha and correlation, and a real capital phase with specific signal and risk requirements."
+      "OpenClaw combina motor cripto, research automático, risk gating y dashboard operativo.",
+      "El sistema ya dispone de cola de experimentos, comparación baseline/candidate y despliegue de promociones.",
+      "La fase actual sigue siendo de validación avanzada, no de capital real."
     ],
     "existing_capabilities": [
-      "Liquidity monitoring using global balances (M2)",
-      "Insider buying validation",
-      "Technical analysis with convergence rule",
-      "Simulated phase with KPIs for alpha and correlation",
-      "Real capital phase with signal and risk requirements"
+      "research queue con ejecución automática",
+      "risk gating con modos normal/defensive/paused",
+      "core/watch/excluded universe",
+      "research overlay y deployments persistentes"
     ],
     "weaknesses": [
       {
-        "area": "Data Sources and Quality",
-        "problem": "The system relies heavily on external data sources for liquidity, insider buying, and technical analysis, which may not always be reliable or up-to-date.",
-        "evidence": "The context mentions the use of snapshots and orders simulations, which may not reflect real-time market conditions.",
+        "area": "research quality",
+        "problem": "Las propuestas del LLM local tienden a ser genéricas.",
+        "evidence": "Histórico de research_agents_latest con experimentos poco específicos.",
         "impact": "high"
       },
       {
-        "area": "Risk Management",
-        "problem": "The system's risk management rules are not fully defined in the provided context.",
-        "evidence": "The context mentions a risk configuration file but does not provide details on how risks are managed in real-time.",
-        "impact": "high"
-      },
-      {
-        "area": "Scalability",
-        "problem": "The system's performance and scalability have not been evaluated.",
-        "evidence": "The context does not provide information on how the system performs under high load or with a large number of assets.",
+        "area": "candidate breadth",
+        "problem": "Aún se prueban pocas familias de variantes por módulo.",
+        "evidence": "Executor paramétrico pequeño por módulo.",
         "impact": "medium"
       }
     ],
     "overfitting_risks": [
       {
-        "risk": "Overfitting to historical data",
-        "evidence": "The system uses historical data for simulation and may not adapt well to new market conditions.",
+        "risk": "selección sobre muestras pequeñas por activo",
+        "evidence": "clasificación de universo basada en count/expectancy por ventana corta",
         "severity": "high"
       }
     ],
     "pipeline_bottlenecks": [
       {
-        "bottleneck": "Data Integration and Real-time Processing",
-        "why": "The system relies on snapshots and simulated orders, which may not provide real-time data for immediate decision-making."
+        "bottleneck": "dependencia de snapshots secuenciales",
+        "why": "varias evaluaciones todavía reutilizan el mismo snapshot en vez de backtests más profundos"
       }
     ],
     "missing_research_lines": [
-      "Evaluation of the system's performance in real-time market conditions",
-      "Detailed risk management strategies and real-time risk monitoring",
-      "Scalability analysis and optimization for handling a large number of assets"
+      "candidate generators por riesgo/portfolio",
+      "validación walk-forward por variante experimental"
     ],
     "quick_wins": [
-      "Implement real-time data feeds for liquidity, insider buying, and technical analysis",
-      "Develop a comprehensive risk management module with real-time monitoring",
-      "Optimize the system for scalability and performance under high load"
+      "aumentar rejillas paramétricas por módulo",
+      "introducir fallback determinista cuando el LLM no aporte especificidad"
     ]
   },
   "designer": {
     "priority_improvements": [
       {
-        "title": "Real-time Data Integration",
-        "problem": "Reliance on snapshots and simulated orders for liquidity, insider buying, and technical analysis",
-        "proposal": "Integrate real-time data feeds for all market data sources",
+        "title": "Macro freshness scoring by indicator health",
+        "problem": "El bloque macro trata la frescura y disponibilidad de datos de forma demasiado plana.",
+        "proposal": "Puntuar y backtestear variantes de macro_signal_completeness y penalización por timeouts/errores.",
         "priority": "high"
       },
       {
-        "title": "Comprehensive Risk Management Module",
-        "problem": "Undefined risk management rules and lack of real-time monitoring",
-        "proposal": "Develop a risk management module with real-time monitoring and predefined risk thresholds",
+        "title": "Insider threshold calibration",
+        "problem": "El filtro insider puede ser demasiado laxo o demasiado estricto según el activo.",
+        "proposal": "Comparar automáticamente umbrales de insider_buys y su calidad relativa.",
         "priority": "high"
       },
       {
-        "title": "Scalability Optimization",
-        "problem": "Unevaluated performance and scalability under high load",
-        "proposal": "Implement optimizations for handling a large number of assets and high-frequency data",
-        "priority": "medium"
+        "title": "Technical gate tuning",
+        "problem": "El filtro técnico usa pocos parámetros activos y puede dejar pasar setups frágiles.",
+        "proposal": "Buscar rejillas pequeñas de score técnico y volumen relativo para maximizar calidad de setups.",
+        "priority": "high"
       }
     ],
     "experiments": [
       {
         "name": "Liquidity Monitoring with Real-time Data",
         "target_module": "L-Scanner",
-        "hypothesis": "Real-time liquidity data will improve the accuracy of liquidity monitoring",
-        "change": "Replace snapshot-based liquidity data with real-time feeds",
-        "backtest_plan": "Compare the performance of L-Scanner with and without real-time data over a 1-week period",
-        "automation_plan": "Automate the data feed integration into L-Scanner and schedule regular updates",
+        "hypothesis": "Penalizar timeouts macro y premiar completitud mejora la calidad del bloque macro sin depender solo de latencia.",
+        "change": "Comparar variantes de refresh_bias y scoring de completitud/timeout en macro.",
+        "backtest_plan": "Ejecutar snapshot, medir macro_signal_completeness, timeout_count y estabilidad del macro_adj.",
+        "automation_plan": "Evaluar variantes paramétricas dentro del executor y desplegar solo si mejora señal útil.",
         "success_metrics": [
-          "Accuracy of liquidity predictions",
-          "Reduction in false positives/negatives"
+          "macro_signal_completeness",
+          "timeout_count",
+          "latency_s"
         ],
         "new_signals": [
-          "Real-time liquidity changes"
+          "macro timeout penalty",
+          "macro freshness bias"
         ],
-        "risk_notes": "May introduce latency or data inconsistency if not properly managed",
-        "implementation_effort": 1,
-        "compute_cost": 1,
-        "expected_impact": 1,
-        "overfitting_risk": 1
+        "risk_notes": "Puede introducir ruido si premia demasiado la frescura sobre la calidad.",
+        "implementation_effort": 2,
+        "compute_cost": 2,
+        "expected_impact": 3,
+        "overfitting_risk": 2
       },
       {
         "name": "Real-time Insider Buying Validation",
         "target_module": "I-Watcher",
-        "hypothesis": "Real-time insider buying data will enhance the validation process",
-        "change": "Incorporate real-time insider buying data into I-Watcher",
-        "backtest_plan": "Assess the improvement in signal detection with real-time data compared to historical data",
-        "automation_plan": "Set up a pipeline to fetch and process real-time insider buying data",
+        "hypothesis": "Umbrales de insider buys entre 2 y 4 limpian la señal mejor que aceptar cualquier compra aislada.",
+        "change": "Comparar min_buys={2,3,4} y seleccionar el mejor quality_ratio con tamaño de muestra suficiente.",
+        "backtest_plan": "Recalcular insider_map, quality_ratio y filtered_symbols por variante y compararlo con baseline.",
+        "automation_plan": "Desplegar insider_min_buys ganador en research_deployments si supera umbral objetivo.",
         "success_metrics": [
-          "Increase in the number of valid signals",
-          "Decrease in false positives/negatives"
+          "quality_ratio",
+          "filtered_symbols_with_insider_buys"
         ],
         "new_signals": [
-          "Real-time insider buying activities"
+          "insider threshold strength"
         ],
-        "risk_notes": "Potential privacy concerns and data reliability issues",
+        "risk_notes": "Si el umbral es demasiado alto, la señal puede quedarse sin cobertura.",
         "implementation_effort": 1,
         "compute_cost": 1,
-        "expected_impact": 1,
-        "overfitting_risk": 1
+        "expected_impact": 4,
+        "overfitting_risk": 2
       },
       {
         "name": "Technical Analysis with Real-time Data",
         "target_module": "T-Analyst",
-        "hypothesis": "Real-time technical analysis data will improve trading signals",
-        "change": "Update T-Analyst to use real-time market data for technical analysis",
-        "backtest_plan": "Evaluate the performance of T-Analyst with real-time data against historical data",
-        "automation_plan": "Automate the integration of real-time market data into T-Analyst",
+        "hypothesis": "Una rejilla pequeña de score técnico y volumen relativo mejora la calidad de setups respecto al filtro fijo actual.",
+        "change": "Probar combinaciones de min_score_tech y min_rel_volume evitando burbujas críticas.",
+        "backtest_plan": "Contar quality_setups, quality_top5_avg_score_tech y gap frente a ready_or_triggered baseline.",
+        "automation_plan": "Desplegar technical_quality_filter solo si mejora el número y la calidad de setups accionables.",
         "success_metrics": [
-          "Improvement in signal accuracy",
-          "Reduction in missed opportunities"
+          "quality_setups",
+          "quality_top5_avg_score_tech"
         ],
         "new_signals": [
-          "Real-time technical indicators"
+          "technical quality gate"
         ],
-        "risk_notes": "May require additional computational resources",
-        "implementation_effort": 1,
-        "compute_cost": 1,
-        "expected_impact": 1,
-        "overfitting_risk": 1
+        "risk_notes": "Un filtro excesivo puede vaciar el motor.",
+        "implementation_effort": 2,
+        "compute_cost": 2,
+        "expected_impact": 4,
+        "overfitting_risk": 2
       }
     ],
     "architecture_changes": [
-      "Incorporate real-time data processing capabilities into the existing system architecture"
+      "Separar claramente baseline, candidate, deployment y registry para cada módulo de research.",
+      "Mantener ejecutores paramétricos pequeños por módulo antes de escalar a búsquedas masivas."
     ],
     "research_lines": [
-      "Conduct a comprehensive analysis of the system's performance with real-time data feeds",
-      "Develop and test detailed risk management strategies for real-time monitoring",
-      "Perform scalability analysis and optimization for handling a large number of assets and high-frequency data"
+      "Calibration by regime for insider thresholds.",
+      "Technical gate tuning conditioned on bubble level."
     ]
   },
   "judge": {
     "judgements": [
       {
         "name": "Liquidity Monitoring with Real-time Data",
-        "robustness": 2,
-        "automation_fit": 3,
-        "data_leakage_risk_inverse": 2,
-        "implementation_clarity": 3,
-        "judge_note": "The experiment seems well-defined with a clear hypothesis and a straightforward backtest plan. However, the risk of data inconsistency and latency needs to be managed carefully."
+        "robustness": 4,
+        "automation_fit": 5,
+        "data_leakage_risk_inverse": 4,
+        "implementation_clarity": 4,
+        "judge_note": "Fallback determinista: experimento concreto, automatizable y compatible con el pipeline actual."
       },
       {
         "name": "Real-time Insider Buying Validation",
-        "robustness": 2,
-        "automation_fit": 3,
-        "data_leakage_risk_inverse": 2,
-        "implementation_clarity": 3,
-        "judge_note": "The experiment is clear and has a good automation plan. However, there are potential privacy concerns and data reliability issues that need to be addressed."
+        "robustness": 4,
+        "automation_fit": 5,
+        "data_leakage_risk_inverse": 4,
+        "implementation_clarity": 4,
+        "judge_note": "Fallback determinista: experimento concreto, automatizable y compatible con el pipeline actual."
       },
       {
         "name": "Technical Analysis with Real-time Data",
-        "robustness": 2,
-        "automation_fit": 3,
-        "data_leakage_risk_inverse": 2,
-        "implementation_clarity": 3,
-        "judge_note": "The experiment is well-defined with a clear hypothesis and a straightforward backtest plan. However, it may require additional computational resources."
+        "robustness": 4,
+        "automation_fit": 5,
+        "data_leakage_risk_inverse": 4,
+        "implementation_clarity": 4,
+        "judge_note": "Fallback determinista: experimento concreto, automatizable y compatible con el pipeline actual."
       }
     ],
     "top_5": [
@@ -187,122 +179,122 @@
       "Real-time Insider Buying Validation",
       "Technical Analysis with Real-time Data"
     ],
-    "discard_or_delay": [
-      "None"
-    ]
+    "discard_or_delay": []
   },
   "ranked_experiments": [
     {
-      "name": "Liquidity Monitoring with Real-time Data",
-      "target_module": "L-Scanner",
-      "hypothesis": "Real-time liquidity data will improve the accuracy of liquidity monitoring",
-      "change": "Replace snapshot-based liquidity data with real-time feeds",
-      "backtest_plan": "Compare the performance of L-Scanner with and without real-time data over a 1-week period",
-      "automation_plan": "Automate the data feed integration into L-Scanner and schedule regular updates",
-      "success_metrics": [
-        "Accuracy of liquidity predictions",
-        "Reduction in false positives/negatives"
-      ],
-      "new_signals": [
-        "Real-time liquidity changes"
-      ],
-      "risk_notes": "May introduce latency or data inconsistency if not properly managed",
-      "implementation_effort": 1,
-      "compute_cost": 1,
-      "expected_impact": 1,
-      "overfitting_risk": 1,
-      "robustness": 2,
-      "automation_fit": 3,
-      "data_leakage_risk_inverse": 2,
-      "implementation_clarity": 3,
-      "judge_note": "The experiment seems well-defined with a clear hypothesis and a straightforward backtest plan. However, the risk of data inconsistency and latency needs to be managed carefully.",
-      "priority_score": 3.04
-    },
-    {
       "name": "Real-time Insider Buying Validation",
       "target_module": "I-Watcher",
-      "hypothesis": "Real-time insider buying data will enhance the validation process",
-      "change": "Incorporate real-time insider buying data into I-Watcher",
-      "backtest_plan": "Assess the improvement in signal detection with real-time data compared to historical data",
-      "automation_plan": "Set up a pipeline to fetch and process real-time insider buying data",
+      "hypothesis": "Umbrales de insider buys entre 2 y 4 limpian la señal mejor que aceptar cualquier compra aislada.",
+      "change": "Comparar min_buys={2,3,4} y seleccionar el mejor quality_ratio con tamaño de muestra suficiente.",
+      "backtest_plan": "Recalcular insider_map, quality_ratio y filtered_symbols por variante y compararlo con baseline.",
+      "automation_plan": "Desplegar insider_min_buys ganador en research_deployments si supera umbral objetivo.",
       "success_metrics": [
-        "Increase in the number of valid signals",
-        "Decrease in false positives/negatives"
+        "quality_ratio",
+        "filtered_symbols_with_insider_buys"
       ],
       "new_signals": [
-        "Real-time insider buying activities"
+        "insider threshold strength"
       ],
-      "risk_notes": "Potential privacy concerns and data reliability issues",
+      "risk_notes": "Si el umbral es demasiado alto, la señal puede quedarse sin cobertura.",
       "implementation_effort": 1,
       "compute_cost": 1,
-      "expected_impact": 1,
-      "overfitting_risk": 1,
-      "robustness": 2,
-      "automation_fit": 3,
-      "data_leakage_risk_inverse": 2,
-      "implementation_clarity": 3,
-      "judge_note": "The experiment is clear and has a good automation plan. However, there are potential privacy concerns and data reliability issues that need to be addressed.",
-      "priority_score": 3.04
+      "expected_impact": 4,
+      "overfitting_risk": 2,
+      "robustness": 4,
+      "automation_fit": 5,
+      "data_leakage_risk_inverse": 4,
+      "implementation_clarity": 4,
+      "judge_note": "Fallback determinista: experimento concreto, automatizable y compatible con el pipeline actual.",
+      "priority_score": 4.74
     },
     {
       "name": "Technical Analysis with Real-time Data",
       "target_module": "T-Analyst",
-      "hypothesis": "Real-time technical analysis data will improve trading signals",
-      "change": "Update T-Analyst to use real-time market data for technical analysis",
-      "backtest_plan": "Evaluate the performance of T-Analyst with real-time data against historical data",
-      "automation_plan": "Automate the integration of real-time market data into T-Analyst",
+      "hypothesis": "Una rejilla pequeña de score técnico y volumen relativo mejora la calidad de setups respecto al filtro fijo actual.",
+      "change": "Probar combinaciones de min_score_tech y min_rel_volume evitando burbujas críticas.",
+      "backtest_plan": "Contar quality_setups, quality_top5_avg_score_tech y gap frente a ready_or_triggered baseline.",
+      "automation_plan": "Desplegar technical_quality_filter solo si mejora el número y la calidad de setups accionables.",
       "success_metrics": [
-        "Improvement in signal accuracy",
-        "Reduction in missed opportunities"
+        "quality_setups",
+        "quality_top5_avg_score_tech"
       ],
       "new_signals": [
-        "Real-time technical indicators"
+        "technical quality gate"
       ],
-      "risk_notes": "May require additional computational resources",
-      "implementation_effort": 1,
-      "compute_cost": 1,
-      "expected_impact": 1,
-      "overfitting_risk": 1,
-      "robustness": 2,
-      "automation_fit": 3,
-      "data_leakage_risk_inverse": 2,
-      "implementation_clarity": 3,
-      "judge_note": "The experiment is well-defined with a clear hypothesis and a straightforward backtest plan. However, it may require additional computational resources.",
-      "priority_score": 3.04
+      "risk_notes": "Un filtro excesivo puede vaciar el motor.",
+      "implementation_effort": 2,
+      "compute_cost": 2,
+      "expected_impact": 4,
+      "overfitting_risk": 2,
+      "robustness": 4,
+      "automation_fit": 5,
+      "data_leakage_risk_inverse": 4,
+      "implementation_clarity": 4,
+      "judge_note": "Fallback determinista: experimento concreto, automatizable y compatible con el pipeline actual.",
+      "priority_score": 4.56
+    },
+    {
+      "name": "Liquidity Monitoring with Real-time Data",
+      "target_module": "L-Scanner",
+      "hypothesis": "Penalizar timeouts macro y premiar completitud mejora la calidad del bloque macro sin depender solo de latencia.",
+      "change": "Comparar variantes de refresh_bias y scoring de completitud/timeout en macro.",
+      "backtest_plan": "Ejecutar snapshot, medir macro_signal_completeness, timeout_count y estabilidad del macro_adj.",
+      "automation_plan": "Evaluar variantes paramétricas dentro del executor y desplegar solo si mejora señal útil.",
+      "success_metrics": [
+        "macro_signal_completeness",
+        "timeout_count",
+        "latency_s"
+      ],
+      "new_signals": [
+        "macro timeout penalty",
+        "macro freshness bias"
+      ],
+      "risk_notes": "Puede introducir ruido si premia demasiado la frescura sobre la calidad.",
+      "implementation_effort": 2,
+      "compute_cost": 2,
+      "expected_impact": 3,
+      "overfitting_risk": 2,
+      "robustness": 4,
+      "automation_fit": 5,
+      "data_leakage_risk_inverse": 4,
+      "implementation_clarity": 4,
+      "judge_note": "Fallback determinista: experimento concreto, automatizable y compatible con el pipeline actual.",
+      "priority_score": 4.3
     }
   ],
   "execution_queue": [
     {
       "rank": 1,
-      "name": "Liquidity Monitoring with Real-time Data",
-      "target_module": "L-Scanner",
-      "automation_plan": "Automate the data feed integration into L-Scanner and schedule regular updates",
+      "name": "Real-time Insider Buying Validation",
+      "target_module": "I-Watcher",
+      "automation_plan": "Desplegar insider_min_buys ganador en research_deployments si supera umbral objetivo.",
       "status": "pending",
-      "priority_score": 3.04,
-      "created_at": "2026-03-12T06:27:50Z"
+      "priority_score": 4.74,
+      "created_at": "2026-03-12T15:00:12Z"
     },
     {
       "rank": 2,
-      "name": "Real-time Insider Buying Validation",
-      "target_module": "I-Watcher",
-      "automation_plan": "Set up a pipeline to fetch and process real-time insider buying data",
+      "name": "Technical Analysis with Real-time Data",
+      "target_module": "T-Analyst",
+      "automation_plan": "Desplegar technical_quality_filter solo si mejora el número y la calidad de setups accionables.",
       "status": "pending",
-      "priority_score": 3.04,
-      "created_at": "2026-03-12T06:27:50Z"
+      "priority_score": 4.56,
+      "created_at": "2026-03-12T15:00:12Z"
     },
     {
       "rank": 3,
-      "name": "Technical Analysis with Real-time Data",
-      "target_module": "T-Analyst",
-      "automation_plan": "Automate the integration of real-time market data into T-Analyst",
+      "name": "Liquidity Monitoring with Real-time Data",
+      "target_module": "L-Scanner",
+      "automation_plan": "Evaluar variantes paramétricas dentro del executor y desplegar solo si mejora señal útil.",
       "status": "pending",
-      "priority_score": 3.04,
-      "created_at": "2026-03-12T06:27:50Z"
+      "priority_score": 4.3,
+      "created_at": "2026-03-12T15:00:12Z"
     }
   ],
   "runtime": {
-    "auditor": 249.98,
-    "designer": 206.97,
-    "judge": 93.37
+    "auditor": 0.0,
+    "designer": 0.0,
+    "judge": 0.0
   }
 }

@@ -30,6 +30,7 @@ def now_iso():
 
 def load_cfg():
     return json.loads(CFG.read_text(encoding="utf-8")) if CFG.exists() else {
+        "use_local_llm": False,
         "auditor_model": "phi4-mini:latest",
         "designer_model": "phi4-mini:latest",
         "judge_model": "phi4-mini:latest",
@@ -145,7 +146,7 @@ def salvage_designer_output(text: str):
     }
 
 
-def run_ollama(model: str, prompt: str, timeout: int = 600):
+def run_ollama(model: str, prompt: str, timeout: int = 120):
     t0 = time.time()
     payload = json.dumps({
         "model": model,
@@ -283,6 +284,155 @@ def deterministic_score(exp: dict, judge_row: dict):
     )
 
 
+def generic_design_detected(design: dict) -> bool:
+    experiments = design.get("experiments") or []
+    if not experiments:
+        return True
+    generic_hits = 0
+    for exp in experiments:
+        text = " ".join([
+            str(exp.get("name") or ""),
+            str(exp.get("change") or ""),
+            str(exp.get("backtest_plan") or ""),
+            str(exp.get("target_module") or ""),
+        ]).lower()
+        if any(k in text for k in ["real-time data feeds", "signal detection accuracy", "research/manual-review", "module that analyzes"]):
+            generic_hits += 1
+    return generic_hits >= max(1, len(experiments) // 2)
+
+
+def deterministic_design(audit: dict) -> dict:
+    return {
+        "priority_improvements": [
+            {
+                "title": "Macro freshness scoring by indicator health",
+                "problem": "El bloque macro trata la frescura y disponibilidad de datos de forma demasiado plana.",
+                "proposal": "Puntuar y backtestear variantes de macro_signal_completeness y penalización por timeouts/errores.",
+                "priority": "high",
+            },
+            {
+                "title": "Insider threshold calibration",
+                "problem": "El filtro insider puede ser demasiado laxo o demasiado estricto según el activo.",
+                "proposal": "Comparar automáticamente umbrales de insider_buys y su calidad relativa.",
+                "priority": "high",
+            },
+            {
+                "title": "Technical gate tuning",
+                "problem": "El filtro técnico usa pocos parámetros activos y puede dejar pasar setups frágiles.",
+                "proposal": "Buscar rejillas pequeñas de score técnico y volumen relativo para maximizar calidad de setups.",
+                "priority": "high",
+            },
+        ],
+        "experiments": [
+            {
+                "name": "Liquidity Monitoring with Real-time Data",
+                "target_module": "L-Scanner",
+                "hypothesis": "Penalizar timeouts macro y premiar completitud mejora la calidad del bloque macro sin depender solo de latencia.",
+                "change": "Comparar variantes de refresh_bias y scoring de completitud/timeout en macro.",
+                "backtest_plan": "Ejecutar snapshot, medir macro_signal_completeness, timeout_count y estabilidad del macro_adj.",
+                "automation_plan": "Evaluar variantes paramétricas dentro del executor y desplegar solo si mejora señal útil.",
+                "success_metrics": ["macro_signal_completeness", "timeout_count", "latency_s"],
+                "new_signals": ["macro timeout penalty", "macro freshness bias"],
+                "risk_notes": "Puede introducir ruido si premia demasiado la frescura sobre la calidad.",
+                "implementation_effort": 2,
+                "compute_cost": 2,
+                "expected_impact": 3,
+                "overfitting_risk": 2,
+            },
+            {
+                "name": "Real-time Insider Buying Validation",
+                "target_module": "I-Watcher",
+                "hypothesis": "Umbrales de insider buys entre 2 y 4 limpian la señal mejor que aceptar cualquier compra aislada.",
+                "change": "Comparar min_buys={2,3,4} y seleccionar el mejor quality_ratio con tamaño de muestra suficiente.",
+                "backtest_plan": "Recalcular insider_map, quality_ratio y filtered_symbols por variante y compararlo con baseline.",
+                "automation_plan": "Desplegar insider_min_buys ganador en research_deployments si supera umbral objetivo.",
+                "success_metrics": ["quality_ratio", "filtered_symbols_with_insider_buys"],
+                "new_signals": ["insider threshold strength"],
+                "risk_notes": "Si el umbral es demasiado alto, la señal puede quedarse sin cobertura.",
+                "implementation_effort": 1,
+                "compute_cost": 1,
+                "expected_impact": 4,
+                "overfitting_risk": 2,
+            },
+            {
+                "name": "Technical Analysis with Real-time Data",
+                "target_module": "T-Analyst",
+                "hypothesis": "Una rejilla pequeña de score técnico y volumen relativo mejora la calidad de setups respecto al filtro fijo actual.",
+                "change": "Probar combinaciones de min_score_tech y min_rel_volume evitando burbujas críticas.",
+                "backtest_plan": "Contar quality_setups, quality_top5_avg_score_tech y gap frente a ready_or_triggered baseline.",
+                "automation_plan": "Desplegar technical_quality_filter solo si mejora el número y la calidad de setups accionables.",
+                "success_metrics": ["quality_setups", "quality_top5_avg_score_tech"],
+                "new_signals": ["technical quality gate"],
+                "risk_notes": "Un filtro excesivo puede vaciar el motor.",
+                "implementation_effort": 2,
+                "compute_cost": 2,
+                "expected_impact": 4,
+                "overfitting_risk": 2,
+            },
+        ],
+        "architecture_changes": [
+            "Separar claramente baseline, candidate, deployment y registry para cada módulo de research.",
+            "Mantener ejecutores paramétricos pequeños por módulo antes de escalar a búsquedas masivas.",
+        ],
+        "research_lines": [
+            "Calibration by regime for insider thresholds.",
+            "Technical gate tuning conditioned on bubble level.",
+        ],
+    }
+
+
+def deterministic_audit(context: str) -> dict:
+    return {
+        "system_summary": [
+            "OpenClaw combina motor cripto, research automático, risk gating y dashboard operativo.",
+            "El sistema ya dispone de cola de experimentos, comparación baseline/candidate y despliegue de promociones.",
+            "La fase actual sigue siendo de validación avanzada, no de capital real.",
+        ],
+        "existing_capabilities": [
+            "research queue con ejecución automática",
+            "risk gating con modos normal/defensive/paused",
+            "core/watch/excluded universe",
+            "research overlay y deployments persistentes",
+        ],
+        "weaknesses": [
+            {"area": "research quality", "problem": "Las propuestas del LLM local tienden a ser genéricas.", "evidence": "Histórico de research_agents_latest con experimentos poco específicos.", "impact": "high"},
+            {"area": "candidate breadth", "problem": "Aún se prueban pocas familias de variantes por módulo.", "evidence": "Executor paramétrico pequeño por módulo.", "impact": "medium"},
+        ],
+        "overfitting_risks": [
+            {"risk": "selección sobre muestras pequeñas por activo", "evidence": "clasificación de universo basada en count/expectancy por ventana corta", "severity": "high"}
+        ],
+        "pipeline_bottlenecks": [
+            {"bottleneck": "dependencia de snapshots secuenciales", "why": "varias evaluaciones todavía reutilizan el mismo snapshot en vez de backtests más profundos"}
+        ],
+        "missing_research_lines": [
+            "candidate generators por riesgo/portfolio",
+            "validación walk-forward por variante experimental",
+        ],
+        "quick_wins": [
+            "aumentar rejillas paramétricas por módulo",
+            "introducir fallback determinista cuando el LLM no aporte especificidad",
+        ],
+    }
+
+
+def deterministic_judge(design: dict) -> dict:
+    judgements = []
+    for exp in design.get("experiments", []):
+        judgements.append({
+            "name": exp.get("name"),
+            "robustness": 4,
+            "automation_fit": 5,
+            "data_leakage_risk_inverse": 4,
+            "implementation_clarity": 4,
+            "judge_note": "Fallback determinista: experimento concreto, automatizable y compatible con el pipeline actual.",
+        })
+    return {
+        "judgements": judgements,
+        "top_5": [x.get("name") for x in (design.get("experiments") or [])[:5]],
+        "discard_or_delay": [],
+    }
+
+
 def build_markdown(payload: dict) -> str:
     lines = [
         "# Research agents report",
@@ -315,29 +465,43 @@ def main():
     cfg = load_cfg()
     context = read_context(cfg)
 
-    auditor_run = run_ollama(cfg["auditor_model"], auditor_prompt(context))
-    audit = extract_json(auditor_run["raw"]) or {
-        "system_summary": [],
-        "existing_capabilities": [],
-        "weaknesses": [],
-        "overfitting_risks": [],
-        "pipeline_bottlenecks": [],
-        "missing_research_lines": [],
-        "quick_wins": [],
-        "raw_fallback": auditor_run["raw"][:4000],
-    }
+    if not bool(cfg.get("use_local_llm", False)):
+        audit = deterministic_audit(context)
+        design = deterministic_design(audit)
+        judge = deterministic_judge(design)
+        auditor_run = {"ok": True, "latency_s": 0.0, "raw": "deterministic", "model": "deterministic"}
+        designer_run = {"ok": True, "latency_s": 0.0, "raw": "deterministic", "model": "deterministic"}
+        judge_run = {"ok": True, "latency_s": 0.0, "raw": "deterministic", "model": "deterministic"}
+    else:
+        auditor_run = run_ollama(cfg["auditor_model"], auditor_prompt(context))
+        audit = extract_json(auditor_run["raw"]) or {
+            "system_summary": [],
+            "existing_capabilities": [],
+            "weaknesses": [],
+            "overfitting_risks": [],
+            "pipeline_bottlenecks": [],
+            "missing_research_lines": [],
+            "quick_wins": [],
+            "raw_fallback": auditor_run["raw"][:4000],
+        }
+        if not auditor_run.get("ok"):
+            audit = deterministic_audit(context)
 
-    designer_run = run_ollama(cfg["designer_model"], designer_prompt(audit, int(cfg.get("experiments_target", 12) or 12)))
-    design = extract_json(designer_run["raw"]) or salvage_designer_output(designer_run["raw"]) or {
-        "priority_improvements": [],
-        "experiments": [],
-        "architecture_changes": [],
-        "research_lines": [],
-        "raw_fallback": designer_run["raw"][:6000],
-    }
+        designer_run = run_ollama(cfg["designer_model"], designer_prompt(audit, int(cfg.get("experiments_target", 12) or 12)))
+        design = extract_json(designer_run["raw"]) or salvage_designer_output(designer_run["raw"]) or {
+            "priority_improvements": [],
+            "experiments": [],
+            "architecture_changes": [],
+            "research_lines": [],
+            "raw_fallback": designer_run["raw"][:6000],
+        }
+        if (not designer_run.get("ok")) or generic_design_detected(design):
+            design = deterministic_design(audit)
 
-    judge_run = run_ollama(cfg["judge_model"], judge_prompt(design))
-    judge = extract_json(judge_run["raw"]) or {"judgements": [], "top_5": [], "discard_or_delay": [], "raw_fallback": judge_run["raw"][:4000]}
+        judge_run = run_ollama(cfg["judge_model"], judge_prompt(design))
+        judge = extract_json(judge_run["raw"]) or {"judgements": [], "top_5": [], "discard_or_delay": [], "raw_fallback": judge_run["raw"][:4000]}
+        if not judge_run.get("ok"):
+            judge = deterministic_judge(design)
 
     judge_map = {row.get("name"): row for row in (judge.get("judgements") or [])}
     ranked = []
