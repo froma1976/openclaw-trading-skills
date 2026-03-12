@@ -14,6 +14,7 @@ try {
     @{ Name = 'DATASET_QUALITY'; Cmd = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\dataset_quality.py' },
     @{ Name = 'EDGE_BREAKDOWN'; Cmd = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\edge_breakdown.py' },
     @{ Name = 'LEARNING_DAILY'; Cmd = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\learning_daily.py' },
+    @{ Name = 'TRADE_EDGE_LEARNER'; Cmd = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\learn_from_crypto_trades.py' },
     @{ Name = 'CLASSIFY_UNIVERSE'; Cmd = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\classify_universe.py' },
     @{ Name = 'CRYPTO_SNAPSHOT'; Cmd = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\source_ingest_crypto_free.py' }
   )

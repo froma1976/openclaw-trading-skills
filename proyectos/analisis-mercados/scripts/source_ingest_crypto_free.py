@@ -8,6 +8,7 @@ import os
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 UNIVERSE_STATUS = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/universe_status.json")
 CORE_RESEARCH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/core_market_research.json")
+TRADE_EDGE_MODEL = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/trade_edge_model.json")
 API_SAVING_MODE = os.getenv("API_SAVING_MODE", "1").strip() in {"1", "true", "TRUE", "yes"}
 MAX_SPY_ASSETS = int(os.getenv("MAX_SPY_ASSETS", "15"))
 STABLECOIN_IDS = {"tether", "usd-coin"}
@@ -66,6 +67,16 @@ def load_core_research():
         return out
     except Exception:
         return {}
+
+
+def load_trade_edge_model():
+    if not TRADE_EDGE_MODEL.exists():
+        return {"ticker_edge": {}, "confidence_edge": {}, "confluence_edge": {}, "research_edge": {}}
+    try:
+        data = json.loads(TRADE_EDGE_MODEL.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {"ticker_edge": {}, "confidence_edge": {}, "confluence_edge": {}, "research_edge": {}}
+    except Exception:
+        return {"ticker_edge": {}, "confidence_edge": {}, "confluence_edge": {}, "research_edge": {}}
 
 
 def fetch_breakout_spy(ticker: str) -> int:
@@ -361,9 +372,39 @@ def apply_research_overlay(ticker: str, scored: dict, research_map: dict):
     return scored
 
 
+def apply_trade_edge_overlay(ticker: str, scored: dict, edge_model: dict):
+    ticker_edge = (((edge_model or {}).get("ticker_edge") or {}).get(str(ticker).upper()) or {}).get("edge_score", 0)
+    conf_bucket = "80+" if int(scored.get("confidence_pct") or scored.get("score_final") or scored.get("score") or 0) >= 80 else ("70-79" if int(scored.get("confidence_pct") or scored.get("score_final") or scored.get("score") or 0) >= 70 else ("60-69" if int(scored.get("confidence_pct") or scored.get("score_final") or scored.get("score") or 0) >= 60 else "<60"))
+    confidence_edge = (((edge_model or {}).get("confidence_edge") or {}).get(conf_bucket) or {}).get("edge_score", 0)
+    confluence_edge = (((edge_model or {}).get("confluence_edge") or {}).get(str(int(scored.get("spy_confluence") or 0))) or {}).get("edge_score", 0)
+    research_key = str(scored.get("research_sentiment") or "unknown")
+    research_edge = (((edge_model or {}).get("research_edge") or {}).get(research_key) or {}).get("edge_score", 0)
+    delta = int(round(ticker_edge * 0.7 + confidence_edge * 0.4 + confluence_edge * 0.5 + research_edge * 0.3))
+    delta = max(-8, min(12, delta))
+
+    scored["trade_edge_score"] = ticker_edge
+    scored["trade_edge_delta"] = delta
+    score_final = max(0, min(100, int(round(scored.get("score_final", scored.get("score", 0)) + delta))))
+    scored["score_final"] = score_final
+    scored["confidence_pct"] = score_final
+    if delta > 0:
+        scored.setdefault("reasons", []).append("trade_edge_positive")
+    elif delta < 0:
+        scored.setdefault("reasons", []).append("trade_edge_negative")
+    state = "WATCH"
+    if score_final >= 60:
+        state = "READY"
+    if score_final >= 72:
+        state = "TRIGGERED"
+    scored["state"] = state
+    scored["decision_final"] = "BUY" if (score_final >= 60 and scored.get("bubble_level") != "Crítico" and not scored.get("rug_block")) else "AVOID"
+    return scored
+
+
 def main():
     universe = load_universe_status()
     research_map = load_core_research()
+    edge_model = load_trade_edge_model()
     dynamic_excluded = universe.get("excluded") or set()
     ids = ",".join(COINS)
     url = (
@@ -401,7 +442,7 @@ def main():
         sc = score_crypto(r)
 
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
-        sc = apply_research_overlay(ticker, sc, research_map)
+        sc = apply_research_overlay(ticker, sc, research_map or {})
         if ticker in STABLECOIN_TICKERS or ticker in EXCLUDED_TICKERS:
             spy_chart = 0
             spy_breakout = 0
@@ -414,6 +455,7 @@ def main():
         sc["spy_chart"] = spy_chart
         sc["spy_breakout"] = spy_breakout
         sc["spy_confluence"] = int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"] + sc["spy_chart"] + sc["spy_breakout"])
+        sc = apply_trade_edge_overlay(ticker, sc, edge_model)
 
         senior_report, technical_report, sentiment_report = build_reports(ticker, p, r, sc)
 
@@ -448,6 +490,8 @@ def main():
             "research_sentiment": sc.get("research_sentiment"),
             "research_catalyst_score": sc.get("research_catalyst_score", 0),
             "research_score_delta": sc.get("research_score_delta", 0),
+            "trade_edge_score": sc.get("trade_edge_score", 0),
+            "trade_edge_delta": sc.get("trade_edge_delta", 0),
             "senior_report": senior_report,
             "technical_report": technical_report,
             "sentiment_report": sentiment_report,
