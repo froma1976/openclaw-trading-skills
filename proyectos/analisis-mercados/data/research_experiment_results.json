@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-03-12T06:38:09Z",
+  "results": [
+    {
+      "experiment": "Liquidity Monitoring with Real-time Data",
+      "target_module": "L-Scanner",
+      "status": "completed",
+      "runner": "source_ingest_free.py",
+      "metrics": {
+        "macro_adj": 0,
+        "vix": null,
+        "dxy": null,
+        "latency_s": 138.66
+      },
+      "notes": "Baseline automatica para evaluar si merece aumentar cadencia/frescura del bloque macro-liquidez.",
+      "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
+      "stderr": ""
+    },
+    {
+      "experiment": "Real-time Insider Buying Validation",
+      "target_module": "I-Watcher",
+      "status": "completed",
+      "runner": "source_ingest_free.py",
+      "metrics": {
+        "symbols_with_insider_buys": 17,
+        "max_insider_buys_per_symbol": 10,
+        "latency_s": 134.32
+      },
+      "notes": "Baseline automatica del bloque insider para decidir si conviene invertir en feed mas rapido o limpieza de eventos.",
+      "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
+      "stderr": ""
+    },
+    {
+      "experiment": "Technical Analysis with Real-time Data",
+      "target_module": "T-Analyst",
+      "status": "completed",
+      "runner": "source_ingest_free.py",
+      "metrics": {
+        "top5_avg_score_tech": 78.4,
+        "ready_or_triggered": 0,
+        "latency_s": 116.39
+      },
+      "notes": "Baseline automatica del bloque tecnico antes de introducir feeds mas rapidos o nuevos indicadores.",
+      "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
+      "stderr": ""
+    }
+  ]
+}
