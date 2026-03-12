@@ -22,6 +22,7 @@ def _clean_env_value(v: str) -> str:
 
 FINNHUB_API_KEY = _clean_env_value(os.getenv("FINNHUB_API_KEY", ""))
 FMP_API_KEY = _clean_env_value(os.getenv("FMP_API_KEY", ""))
+ALPHA_VANTAGE_API_KEY = _clean_env_value(os.getenv("ALPHA_VANTAGE_API_KEY", "")) or _clean_env_value(os.getenv("ALPHAVANTAGE_API_KEY", ""))
 FIRECRAWL_API_KEY = _clean_env_value(os.getenv("FIRECRAWL_API_KEY", ""))
 FIRECRAWL_BASE_URL = _clean_env_value(os.getenv("FIRECRAWL_BASE_URL", "https://api.firecrawl.dev"))
 FIRECRAWL_TIMEOUT_SEC = int(os.getenv("FIRECRAWL_TIMEOUT_SEC", "12") or "12")
@@ -29,8 +30,8 @@ FIRECRAWL_ENABLED = os.getenv("FIRECRAWL_ENABLED", "false").strip().lower() in {
 
 
 def load_env_fallback():
-    global FINNHUB_API_KEY, FMP_API_KEY, FIRECRAWL_API_KEY, FIRECRAWL_BASE_URL, FIRECRAWL_TIMEOUT_SEC, FIRECRAWL_ENABLED
-    if FINNHUB_API_KEY and FMP_API_KEY and FIRECRAWL_API_KEY:
+    global FINNHUB_API_KEY, FMP_API_KEY, ALPHA_VANTAGE_API_KEY, FIRECRAWL_API_KEY, FIRECRAWL_BASE_URL, FIRECRAWL_TIMEOUT_SEC, FIRECRAWL_ENABLED
+    if FINNHUB_API_KEY and FMP_API_KEY and ALPHA_VANTAGE_API_KEY and FIRECRAWL_API_KEY:
         return
     env_path = Path(r"C:/Users/Fernando/.openclaw/.env")
     if not env_path.exists():
@@ -45,6 +46,8 @@ def load_env_fallback():
                 FINNHUB_API_KEY = v
             elif k == 'FMP_API_KEY' and not FMP_API_KEY:
                 FMP_API_KEY = v
+            elif k in {'ALPHA_VANTAGE_API_KEY', 'ALPHAVANTAGE_API_KEY'} and not ALPHA_VANTAGE_API_KEY:
+                ALPHA_VANTAGE_API_KEY = v
             elif k == 'FIRECRAWL_API_KEY' and not FIRECRAWL_API_KEY:
                 FIRECRAWL_API_KEY = v
             elif k == 'FIRECRAWL_BASE_URL' and not FIRECRAWL_BASE_URL:
@@ -584,6 +587,31 @@ def fetch_stocktwits_symbol(symbol: str):
     }
 
 
+def fetch_alpha_vantage_news_sentiment(symbol: str):
+    if not ALPHA_VANTAGE_API_KEY:
+        return None
+    try:
+        url = (
+            "https://www.alphavantage.co/query?"
+            f"function=NEWS_SENTIMENT&tickers={urllib.parse.quote(symbol)}&limit=5&apikey={urllib.parse.quote(ALPHA_VANTAGE_API_KEY)}"
+        )
+        data = get_json(url)
+        feed = data.get("feed", []) if isinstance(data, dict) else []
+        scores = []
+        for item in feed[:5]:
+            tss = item.get("ticker_sentiment", []) or []
+            direct = [x for x in tss if str(x.get("ticker") or "").upper() == symbol.upper()]
+            for row in (direct or tss[:1]):
+                try:
+                    scores.append(float(row.get("ticker_sentiment_score") or 0))
+                except Exception:
+                    pass
+        avg = round(sum(scores) / len(scores), 3) if scores else 0.0
+        return {"symbol": symbol, "items": len(feed), "sentiment_score": avg}
+    except Exception:
+        return None
+
+
 def macro_regime(out):
     vals = {m.get("series"): m.get("latest_value") for m in out.get("macro", []) if isinstance(m, dict)}
     vix = None
@@ -962,6 +990,36 @@ def main():
     apply_final_score(out)
 
     ranked = [m for m in out["market"] if isinstance(m, dict) and m.get("ok")]
+    ranked.sort(key=lambda x: x.get("score_final", x.get("score", 0)), reverse=True)
+
+    for row in ranked[:3]:
+        av = fetch_alpha_vantage_news_sentiment(str(row.get("ticker") or ""))
+        if not av:
+            continue
+        row["av_sentiment_score"] = av.get("sentiment_score")
+        row["av_items"] = av.get("items")
+        av_delta = 0
+        try:
+            score = float(av.get("sentiment_score") or 0)
+            if score >= 0.25:
+                av_delta = 4
+            elif score >= 0.1:
+                av_delta = 2
+            elif score <= -0.25:
+                av_delta = -4
+            elif score <= -0.1:
+                av_delta = -2
+        except Exception:
+            av_delta = 0
+        row["av_sentiment_delta"] = av_delta
+        row["score_final"] = max(0, min(100, int(round((row.get("score_final") or row.get("score") or 0) + av_delta))))
+        row["score"] = row["score_final"]
+        row["confidence_pct"] = row["score_final"]
+        if av_delta > 0:
+            row.setdefault("reasons", []).append("alpha_vantage_news_positive")
+        elif av_delta < 0:
+            row.setdefault("reasons", []).append("alpha_vantage_news_negative")
+
     ranked.sort(key=lambda x: x.get("score_final", x.get("score", 0)), reverse=True)
     out["top_opportunities"] = ranked[:5]
 
