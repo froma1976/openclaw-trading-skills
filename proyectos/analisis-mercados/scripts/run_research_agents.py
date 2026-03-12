@@ -11,6 +11,7 @@ CFG = ROOT / "config" / "research_agents.json"
 OLLAMA = Path(r"C:/Users/Fernando/AppData/Local/Programs/Ollama/ollama.exe")
 OUT_JSON = ROOT / "data" / "research_agents_latest.json"
 OUT_MD = ROOT / "reports" / "research_agents_latest.md"
+QUEUE_JSON = ROOT / "data" / "research_experiment_queue.json"
 
 FILES_TO_SCAN = [
     ROOT / "PROJECT.md",
@@ -80,6 +81,70 @@ def extract_json(text: str):
     return None
 
 
+def salvage_designer_output(text: str):
+    text = (text or "").strip()
+    if not text:
+        return None
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
+    try:
+        data = json.loads(text)
+        if isinstance(data, dict):
+            return data
+    except Exception:
+        pass
+
+    improvements = []
+    for m in re.finditer(r'"title"\s*:\s*"([^"]+)"[\s\S]*?"problem"\s*:\s*"([^"]+)"[\s\S]*?"proposal"\s*:\s*"([^"]+)"[\s\S]*?"priority"\s*:\s*"([^"]+)"', text):
+        improvements.append({
+            "title": m.group(1),
+            "problem": m.group(2),
+            "proposal": m.group(3),
+            "priority": m.group(4),
+        })
+
+    experiments = []
+    blocks = re.findall(r'\{[\s\S]*?"name"\s*:\s*"([^"]+)"[\s\S]*?"overfitting_risk"\s*:\s*(\d+)[\s\S]*?\}', text)
+    for name, overfit in blocks:
+        section = re.search(r'\{[\s\S]*?"name"\s*:\s*"%s"[\s\S]*?\}' % re.escape(name), text)
+        chunk = section.group(0) if section else ""
+        def pick(key, default=""):
+            mm = re.search(r'"%s"\s*:\s*"([^"]*)"' % key, chunk)
+            return mm.group(1) if mm else default
+        def pick_num(key, default=3):
+            mm = re.search(r'"%s"\s*:\s*(\d+)' % key, chunk)
+            return int(mm.group(1)) if mm else default
+        def pick_list(key):
+            mm = re.search(r'"%s"\s*:\s*\[([\s\S]*?)\]' % key, chunk)
+            if not mm:
+                return []
+            return re.findall(r'"([^"]+)"', mm.group(1))
+        experiments.append({
+            "name": name,
+            "hypothesis": pick("hypothesis"),
+            "change": pick("change"),
+            "backtest_plan": pick("backtest_plan"),
+            "success_metrics": pick_list("success_metrics"),
+            "new_signals": pick_list("new_signals"),
+            "risk_notes": pick("risk_notes"),
+            "implementation_effort": pick_num("implementation_effort"),
+            "compute_cost": pick_num("compute_cost"),
+            "expected_impact": pick_num("expected_impact"),
+            "overfitting_risk": int(overfit),
+        })
+
+    architecture_changes = re.findall(r'"architecture_changes"\s*:\s*\[([\s\S]*?)\]', text)
+    research_lines = re.findall(r'"research_lines"\s*:\s*\[([\s\S]*?)\]', text)
+    return {
+        "priority_improvements": improvements,
+        "experiments": experiments,
+        "architecture_changes": re.findall(r'"([^"]+)"', architecture_changes[0]) if architecture_changes else [],
+        "research_lines": re.findall(r'"([^"]+)"', research_lines[0]) if research_lines else [],
+        "raw_fallback": text[:6000],
+    }
+
+
 def run_ollama(model: str, prompt: str, timeout: int = 600):
     t0 = time.time()
     payload = json.dumps({
@@ -110,6 +175,7 @@ def auditor_prompt(context: str) -> str:
 Eres research-auditor, un auditor senior de sistemas cuantitativos.
 
 Analiza el sistema REAL incluido en el contexto. No inventes archivos ni capacidades.
+Debes basarte en evidencia explícita del contexto. Si no lo ves en el contexto, no lo afirmes.
 Responde SOLO JSON valido con esta forma exacta:
 {{
   "system_summary": ["..."],
@@ -130,17 +196,22 @@ def designer_prompt(audit: dict, experiments_target: int) -> str:
     return f"""
 Eres experiment-designer, investigador senior de trading cuantitativo.
 
-Diseña {experiments_target} experimentos concretos y automatizables a partir del diagnostico.
+Diseña {experiments_target} experimentos concretos, automatizables y específicos para ESTE sistema.
 No repitas lo que ya existe salvo para corregir un fallo claro.
+Evita propuestas genéricas como "usar machine learning" o "mejorar datos" sin aterrizarlas.
+Cada experimento debe poder lanzarse como script/backtest dentro del proyecto en menos de 1 semana de trabajo.
+Prioriza quick wins y mejoras testeables sobre ideas grandilocuentes.
 Responde SOLO JSON valido con esta forma exacta:
 {{
   "priority_improvements": [{{"title":"...","problem":"...","proposal":"...","priority":"high|medium|low"}}],
   "experiments": [
     {{
       "name":"...",
+      "target_module":"script o modulo a tocar",
       "hypothesis":"...",
       "change":"...",
       "backtest_plan":"...",
+      "automation_plan":"como meterlo en pipeline automatico",
       "success_metrics":["..."],
       "new_signals":["..."],
       "risk_notes":"...",
@@ -162,6 +233,7 @@ Diagnostico:
 def judge_prompt(design: dict) -> str:
     return f"""
 Eres experiment-judge. No inventes experimentos nuevos. Evalua solo los propuestos.
+Penaliza propuestas genéricas, difíciles de backtestear o que requieran infraestructura externa no presente.
 Para cada experimento, asigna del 1 al 5:
 - robustness
 - automation_fit
@@ -227,6 +299,9 @@ def build_markdown(payload: dict) -> str:
     lines += ["", "## Ranked experiments", "| Rank | Experiment | Score | Why |", "|---|---|---:|---|"]
     for i, row in enumerate(payload.get("ranked_experiments", []), start=1):
         lines.append(f"| {i} | {row['name']} | {row['priority_score']:.3f} | {row.get('judge_note','-')} |")
+    lines += ["", "## Execution queue"]
+    for row in payload.get("execution_queue", []):
+        lines.append(f"- [{row.get('status','pending')}] {row.get('name')}: {row.get('target_module')} -> {row.get('automation_plan')}")
     lines += ["", "## Architecture changes"]
     for row in (payload.get("designer") or {}).get("architecture_changes", []):
         lines.append(f"- {row}")
@@ -253,7 +328,7 @@ def main():
     }
 
     designer_run = run_ollama(cfg["designer_model"], designer_prompt(audit, int(cfg.get("experiments_target", 12) or 12)))
-    design = extract_json(designer_run["raw"]) or {
+    design = extract_json(designer_run["raw"]) or salvage_designer_output(designer_run["raw"]) or {
         "priority_improvements": [],
         "experiments": [],
         "architecture_changes": [],
@@ -275,6 +350,18 @@ def main():
         })
     ranked.sort(key=lambda x: (-x["priority_score"], -float(x.get("expected_impact", 0) or 0), x.get("name", "")))
 
+    execution_queue = []
+    for idx, exp in enumerate(ranked[:3], start=1):
+        execution_queue.append({
+            "rank": idx,
+            "name": exp.get("name"),
+            "target_module": exp.get("target_module", "research/manual-review"),
+            "automation_plan": exp.get("automation_plan", exp.get("backtest_plan", "manual")),
+            "status": "pending",
+            "priority_score": exp.get("priority_score"),
+            "created_at": now_iso(),
+        })
+
     payload = {
         "generated_at": now_iso(),
         "models": {
@@ -286,6 +373,7 @@ def main():
         "designer": design,
         "judge": judge,
         "ranked_experiments": ranked,
+        "execution_queue": execution_queue,
         "runtime": {
             "auditor": auditor_run["latency_s"],
             "designer": designer_run["latency_s"],
@@ -296,6 +384,7 @@ def main():
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     OUT_MD.write_text(build_markdown(payload), encoding="utf-8")
+    QUEUE_JSON.write_text(json.dumps({"generated_at": now_iso(), "items": execution_queue}, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"ok": True, "out_json": str(OUT_JSON), "out_md": str(OUT_MD), "experiments": len(ranked)}, ensure_ascii=False))
 
 
