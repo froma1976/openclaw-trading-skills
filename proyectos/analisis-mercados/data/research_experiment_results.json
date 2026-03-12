@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-12T06:57:58Z",
+  "generated_at": "2026-03-12T07:15:53Z",
   "results": [
     {
       "experiment": "Liquidity Monitoring with Real-time Data",
@@ -10,20 +10,20 @@
         "macro_adj": 0,
         "vix": null,
         "dxy": null,
-        "latency_s": 134.55
+        "latency_s": 115.3
       },
       "candidate": {
-        "macro_signal_completeness": 0,
+        "macro_signal_completeness": 1,
         "macro_adj_candidate": 1,
-        "latency_s": 123.79
+        "latency_s": 106.08
       },
       "notes": "Baseline automatica para evaluar si merece aumentar cadencia/frescura del bloque macro-liquidez.",
       "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
       "stderr": "",
       "decision": "discard",
       "delta": {
-        "signal_completeness": 0,
-        "latency_gain_s": 10.76
+        "signal_completeness": 1,
+        "latency_gain_s": 9.22
       },
       "rationale": "No mejora suficiente frente al baseline macro actual."
     },
@@ -35,12 +35,12 @@
       "baseline": {
         "symbols_with_insider_buys": 17,
         "max_insider_buys_per_symbol": 10,
-        "latency_s": 114.86
+        "latency_s": 115.86
       },
       "candidate": {
         "filtered_symbols_with_insider_buys": 6,
         "quality_ratio": 0.353,
-        "latency_s": 109.12
+        "latency_s": 110.07
       },
       "notes": "Baseline automatica del bloque insider para decidir si conviene invertir en feed mas rapido o limpieza de eventos.",
       "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
@@ -60,12 +60,12 @@
       "baseline": {
         "top5_avg_score_tech": 78.4,
         "ready_or_triggered": 0,
-        "latency_s": 114.07
+        "latency_s": 114.94
       },
       "candidate": {
         "quality_setups": 0,
         "quality_top5_avg_score_tech": 0,
-        "latency_s": 110.65
+        "latency_s": 111.49
       },
       "notes": "Baseline automatica del bloque tecnico antes de introducir feeds mas rapidos o nuevos indicadores.",
       "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
@@ -76,6 +76,16 @@
         "quality_vs_ready_gap": 0
       },
       "rationale": "El candidato técnico no genera setups mejores que el baseline."
+    }
+  ],
+  "deployments": [
+    {
+      "module": "I-Watcher",
+      "deployment_key": "insider_min_buys",
+      "deployment_value": 2,
+      "applied_from_experiment": "Real-time Insider Buying Validation",
+      "applied_at": "2026-03-12T07:15:53Z",
+      "rationale": "El filtrado por insider buys >=2 parece más limpio y defendible."
     }
   ]
 }

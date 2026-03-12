@@ -10,6 +10,7 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parents[1]
 CFG = BASE / "sources_config_free.json"
+RESEARCH_DEPLOYMENTS = BASE / "config" / "research_deployments.json"
 OUT_DIR = BASE / "data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT = OUT_DIR / "latest_snapshot_free.json"
@@ -69,6 +70,17 @@ def get_text(url: str):
     req = urllib.request.Request(url, headers={"User-Agent": "alpha-scout/1.0"})
     with urllib.request.urlopen(req, timeout=20) as r:
         return r.read().decode("utf-8", errors="ignore")
+
+
+def load_research_deployments():
+    if not RESEARCH_DEPLOYMENTS.exists():
+        return {}
+    try:
+        data = json.loads(RESEARCH_DEPLOYMENTS.read_text(encoding="utf-8"))
+        items = data.get("deployments", []) if isinstance(data, dict) else []
+        return {str((row or {}).get("module") or ""): row for row in items if isinstance(row, dict)}
+    except Exception:
+        return {}
 
 
 def firecrawl_scrape(url: str):
@@ -700,6 +712,9 @@ def insider_map(out):
 
 
 def apply_final_score(out):
+    deployments = load_research_deployments()
+    iwatcher_cfg = deployments.get("I-Watcher", {}) if isinstance(deployments, dict) else {}
+    insider_min_buys = int(iwatcher_cfg.get("deployment_value", 1) or 1) if iwatcher_cfg.get("deployment_key") == "insider_min_buys" else 1
     regime = macro_regime(out)
     smap = social_map(out)
     hmap = headline_signal_map(out)
@@ -755,7 +770,7 @@ def apply_final_score(out):
         options_score = 10 if hs["options"] > 0 else 0
 
         # refuerzo real de insiders (OpenInsider)
-        if ins.get("insider_buys", 0) >= 1:
+        if ins.get("insider_buys", 0) >= insider_min_buys:
             insider_score = max(insider_score, min(12, 6 + ins.get("insider_buys", 0) * 2))
 
         # refuerzo real de opciones (Yahoo options chain)
@@ -843,6 +858,7 @@ def apply_final_score(out):
         m["options_flow_score"] = options_score
         m["options_cp_ratio"] = op.get("cp_ratio")
         m["insider_buys"] = ins.get("insider_buys", 0)
+        m["insider_min_buys_active"] = insider_min_buys
         m["convergence_count"] = conv_count
         m["state"] = state
         m["score_final"] = final

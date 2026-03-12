@@ -9,6 +9,8 @@ ROOT = Path(r"C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados"
 QUEUE = ROOT / "data" / "research_experiment_queue.json"
 OUT_JSON = ROOT / "data" / "research_experiment_results.json"
 OUT_MD = ROOT / "reports" / "research_experiment_results.md"
+DEPLOY_JSON = ROOT / "config" / "research_deployments.json"
+REGISTRY_JSONL = ROOT / "data" / "research_experiment_registry.jsonl"
 PY = r"C:/Windows/py.exe"
 
 
@@ -35,6 +37,17 @@ def load_json(path: Path, default):
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return default
+
+
+def save_json(path: Path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def append_registry(row: dict):
+    REGISTRY_JSONL.parent.mkdir(parents=True, exist_ok=True)
+    with REGISTRY_JSONL.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
 def exec_lscanner(item: dict):
@@ -199,6 +212,56 @@ def compare_and_decide(result: dict):
     return result
 
 
+def deployment_payload(result: dict):
+    target = result.get("target_module")
+    if result.get("decision") != "promote":
+        return None
+    if target == "I-Watcher":
+        return {
+            "module": target,
+            "deployment_key": "insider_min_buys",
+            "deployment_value": 2,
+            "applied_from_experiment": result.get("experiment"),
+            "applied_at": now_iso(),
+            "rationale": result.get("rationale"),
+        }
+    if target == "L-Scanner":
+        return {
+            "module": target,
+            "deployment_key": "macro_refresh_bias",
+            "deployment_value": "faster_candidate",
+            "applied_from_experiment": result.get("experiment"),
+            "applied_at": now_iso(),
+            "rationale": result.get("rationale"),
+        }
+    if target == "T-Analyst":
+        return {
+            "module": target,
+            "deployment_key": "technical_quality_filter",
+            "deployment_value": {"min_score_tech": 80, "min_rel_volume": 0.9},
+            "applied_from_experiment": result.get("experiment"),
+            "applied_at": now_iso(),
+            "rationale": result.get("rationale"),
+        }
+    return None
+
+
+def apply_deployments(results: list):
+    deployed = load_json(DEPLOY_JSON, {"deployments": []})
+    current = {str((row or {}).get("module") or ""): row for row in (deployed.get("deployments") or [])}
+    changed = False
+    for result in results:
+        payload = deployment_payload(result)
+        if not payload:
+            continue
+        current[payload["module"]] = payload
+        changed = True
+    out = {"generated_at": now_iso(), "deployments": list(current.values())}
+    if changed:
+        save_json(DEPLOY_JSON, out)
+    return out
+
+
 def main():
     queue = load_json(QUEUE, {"items": []})
     items = queue.get("items", []) if isinstance(queue, dict) else []
@@ -222,11 +285,21 @@ def main():
         item["decision"] = results[-1].get("decision")
         item["rationale"] = results[-1].get("rationale")
         item["candidate_status"] = "promoted" if item.get("decision") == "promote" else ("discarded" if item.get("decision") == "discard" else "watch")
+        append_registry({
+            "logged_at": now_iso(),
+            "experiment": item.get("name"),
+            "target_module": item.get("target_module"),
+            "decision": item.get("decision"),
+            "candidate_status": item.get("candidate_status"),
+            "rationale": item.get("rationale"),
+            "result": results[-1],
+        })
 
-    payload = {"generated_at": now_iso(), "results": results}
-    OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    deployments = apply_deployments(results)
+    payload = {"generated_at": now_iso(), "results": results, "deployments": deployments.get("deployments", [])}
+    save_json(OUT_JSON, payload)
     OUT_MD.write_text(build_markdown(payload), encoding="utf-8")
-    QUEUE.write_text(json.dumps(queue, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_json(QUEUE, queue)
     print(json.dumps({"ok": True, "results": len(results), "out_json": str(OUT_JSON), "out_md": str(OUT_MD)}, ensure_ascii=False))
 
 
