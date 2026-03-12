@@ -123,6 +123,8 @@ def load_universe_status():
 
 
 def pick_runtime_universe(allowed_symbols: set, universe_core: set, universe_watch: set, universe_excluded: set) -> tuple[set, str]:
+    if not allowed_symbols:
+        return set(), "market_dynamic"
     if allowed_symbols:
         core_allowed = {s for s in allowed_symbols if s in universe_core and s not in universe_excluded}
         if core_allowed:
@@ -140,7 +142,7 @@ def pick_runtime_universe(allowed_symbols: set, universe_core: set, universe_wat
     watch_only = {s for s in universe_watch if s not in universe_excluded}
     if watch_only:
         return watch_only, "watch"
-    return set(), "none"
+    return set(), "market_dynamic"
 
 
 def allowed_now(cfg: dict, now: datetime) -> bool:
