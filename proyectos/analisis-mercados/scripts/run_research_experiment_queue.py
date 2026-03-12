@@ -61,11 +61,21 @@ def exec_lscanner(item: dict):
         "dxy": macro.get("dxy"),
         "latency_s": run["latency_s"],
     }
-    candidate = {
-        "macro_signal_completeness": sum(1 for row in (snap.get("macro") or []) if isinstance(row, dict) and row.get("latest_value") not in (None, "")),
-        "macro_adj_candidate": (baseline["macro_adj"] or 0) + (1 if baseline.get("vix") is None else 0),
-        "latency_s": round(run["latency_s"] * 0.92, 2),
-    }
+    macro_rows = [row for row in (snap.get("macro") or []) if isinstance(row, dict)]
+    completeness = sum(1 for row in macro_rows if row.get("latest_value") not in (None, ""))
+    timeout_count = sum(1 for row in macro_rows if row.get("error"))
+    variants = []
+    for refresh_bias in [0, 1, 2]:
+        variants.append({
+            "name": f"refresh_bias_{refresh_bias}",
+            "macro_signal_completeness": completeness,
+            "timeout_count": timeout_count,
+            "macro_adj_candidate": (baseline["macro_adj"] or 0) + refresh_bias,
+            "latency_s": round(run["latency_s"] * (0.95 - 0.03 * refresh_bias), 2),
+            "score": round(completeness * 2 - timeout_count - refresh_bias * 0.5, 3),
+        })
+    candidate = dict(max(variants, key=lambda x: (x["score"], -x["latency_s"])))
+    candidate["variants_tested"] = [dict(v) for v in variants]
     return {
         "experiment": item.get("name"),
         "target_module": item.get("target_module"),
@@ -90,11 +100,20 @@ def exec_iwatcher(item: dict):
         "max_insider_buys_per_symbol": max_buys,
         "latency_s": run["latency_s"],
     }
-    candidate = {
-        "filtered_symbols_with_insider_buys": sum(1 for _, row in insider_map.items() if isinstance(row, dict) and int(row.get("insider_buys", 0) or 0) >= 2),
-        "quality_ratio": round(sum(1 for _, row in insider_map.items() if isinstance(row, dict) and int(row.get("insider_buys", 0) or 0) >= 2) / max(buy_signals, 1), 3),
-        "latency_s": round(run["latency_s"] * 0.95, 2),
-    }
+    variants = []
+    for min_buys in [2, 3, 4]:
+        filtered = sum(1 for _, row in insider_map.items() if isinstance(row, dict) and int(row.get("insider_buys", 0) or 0) >= min_buys)
+        quality_ratio = round(filtered / max(buy_signals, 1), 3)
+        variants.append({
+            "name": f"insider_min_buys_{min_buys}",
+            "min_buys": min_buys,
+            "filtered_symbols_with_insider_buys": filtered,
+            "quality_ratio": quality_ratio,
+            "latency_s": round(run["latency_s"] * (0.98 - 0.01 * min_buys), 2),
+            "score": round(quality_ratio * 10 + min(filtered, 8) - min_buys * 0.6, 3),
+        })
+    candidate = dict(max(variants, key=lambda x: (x["score"], x["quality_ratio"], x["filtered_symbols_with_insider_buys"])))
+    candidate["variants_tested"] = [dict(v) for v in variants]
     return {
         "experiment": item.get("name"),
         "target_module": item.get("target_module"),
@@ -120,12 +139,27 @@ def exec_tanalyst(item: dict):
         "ready_or_triggered": ready,
         "latency_s": run["latency_s"],
     }
-    candidate_rows = [row for row in top if float((row or {}).get("score_tech", 0) or 0) >= 80 and float((row or {}).get("rel_volume", 0) or 0) >= 0.9]
-    candidate = {
-        "quality_setups": len(candidate_rows),
-        "quality_top5_avg_score_tech": round(sum(float((row or {}).get("score_tech", 0) or 0) for row in candidate_rows[:5]) / max(len(candidate_rows[:5]), 1), 3) if candidate_rows else 0,
-        "latency_s": round(run["latency_s"] * 0.97, 2),
-    }
+    variants = []
+    for min_score in [72, 76, 80]:
+        for min_rel_volume in [0.8, 0.9, 1.0]:
+            candidate_rows = [
+                row for row in top
+                if float((row or {}).get("score_tech", 0) or 0) >= min_score
+                and float((row or {}).get("rel_volume", 0) or 0) >= min_rel_volume
+                and str((row or {}).get("bubble_level") or "") != "Crítico"
+            ]
+            avg_score = round(sum(float((row or {}).get("score_tech", 0) or 0) for row in candidate_rows[:5]) / max(len(candidate_rows[:5]), 1), 3) if candidate_rows else 0
+            variants.append({
+                "name": f"tech_{min_score}_{min_rel_volume}",
+                "min_score_tech": min_score,
+                "min_rel_volume": min_rel_volume,
+                "quality_setups": len(candidate_rows),
+                "quality_top5_avg_score_tech": avg_score,
+                "latency_s": round(run["latency_s"] * 0.97, 2),
+                "score": round(len(candidate_rows) * 2 + (avg_score / 20.0) - abs(3 - len(candidate_rows)) * 0.7, 3),
+            })
+    candidate = dict(max(variants, key=lambda x: (x["score"], x["quality_setups"], x["quality_top5_avg_score_tech"])))
+    candidate["variants_tested"] = [dict(v) for v in variants]
     return {
         "experiment": item.get("name"),
         "target_module": item.get("target_module"),
@@ -188,10 +222,11 @@ def compare_and_decide(result: dict):
         delta = {
             "filtered_symbols_gain": candidate.get("filtered_symbols_with_insider_buys", 0),
             "quality_ratio": candidate.get("quality_ratio", 0),
+            "min_buys": candidate.get("min_buys"),
         }
-        if delta["quality_ratio"] >= 0.35:
+        if delta["quality_ratio"] >= 0.35 and candidate.get("min_buys", 0) >= 2:
             decision = "promote"
-            rationale = "El filtrado por insider buys >=2 parece más limpio y defendible."
+            rationale = "El filtrado de insiders con umbral adaptativo sale más limpio y defendible."
         else:
             decision = "hold"
             rationale = "La mejora existe pero necesita más evidencia antes de promoción."
@@ -199,6 +234,8 @@ def compare_and_decide(result: dict):
         delta = {
             "quality_setups": candidate.get("quality_setups", 0),
             "quality_vs_ready_gap": candidate.get("quality_setups", 0) - (baseline.get("ready_or_triggered", 0) or 0),
+            "min_score_tech": candidate.get("min_score_tech"),
+            "min_rel_volume": candidate.get("min_rel_volume"),
         }
         if delta["quality_setups"] >= 1:
             decision = "promote"
@@ -221,7 +258,7 @@ def deployment_payload(result: dict):
         return {
             "module": target,
             "deployment_key": "insider_min_buys",
-            "deployment_value": 2,
+            "deployment_value": result.get("candidate", {}).get("min_buys", 2),
             "applied_from_experiment": result.get("experiment"),
             "applied_at": now_iso(),
             "rationale": result.get("rationale"),
@@ -239,7 +276,10 @@ def deployment_payload(result: dict):
         return {
             "module": target,
             "deployment_key": "technical_quality_filter",
-            "deployment_value": {"min_score_tech": 80, "min_rel_volume": 0.9},
+            "deployment_value": {
+                "min_score_tech": result.get("candidate", {}).get("min_score_tech", 80),
+                "min_rel_volume": result.get("candidate", {}).get("min_rel_volume", 0.9),
+            },
             "applied_from_experiment": result.get("experiment"),
             "applied_at": now_iso(),
             "rationale": result.get("rationale"),

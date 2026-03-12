@@ -714,7 +714,11 @@ def insider_map(out):
 def apply_final_score(out):
     deployments = load_research_deployments()
     iwatcher_cfg = deployments.get("I-Watcher", {}) if isinstance(deployments, dict) else {}
+    tanalyst_cfg = deployments.get("T-Analyst", {}) if isinstance(deployments, dict) else {}
     insider_min_buys = int(iwatcher_cfg.get("deployment_value", 1) or 1) if iwatcher_cfg.get("deployment_key") == "insider_min_buys" else 1
+    tech_filter = tanalyst_cfg.get("deployment_value", {}) if tanalyst_cfg.get("deployment_key") == "technical_quality_filter" else {}
+    deployed_min_score_tech = int((tech_filter or {}).get("min_score_tech", 55) or 55)
+    deployed_min_rel_volume = float((tech_filter or {}).get("min_rel_volume", 0.0) or 0.0)
     regime = macro_regime(out)
     smap = social_map(out)
     hmap = headline_signal_map(out)
@@ -824,7 +828,7 @@ def apply_final_score(out):
         # Convergencia: estructural + capital + técnico
         structural_ok = (fundamental_score + catalyst_score + spinoff_score) >= 10
         capital_ok = (insider_score + options_score) > 0 or (social is not None and social >= 50)
-        technical_ok = tech >= 55
+        technical_ok = tech >= deployed_min_score_tech and (rel_vol is None or rel_vol >= deployed_min_rel_volume)
         conv_count = sum([1 if structural_ok else 0, 1 if capital_ok else 0, 1 if technical_ok else 0])
 
         state = "WATCH"
@@ -859,6 +863,8 @@ def apply_final_score(out):
         m["options_cp_ratio"] = op.get("cp_ratio")
         m["insider_buys"] = ins.get("insider_buys", 0)
         m["insider_min_buys_active"] = insider_min_buys
+        m["tech_filter_min_score_active"] = deployed_min_score_tech
+        m["tech_filter_min_rel_volume_active"] = deployed_min_rel_volume
         m["convergence_count"] = conv_count
         m["state"] = state
         m["score_final"] = final
