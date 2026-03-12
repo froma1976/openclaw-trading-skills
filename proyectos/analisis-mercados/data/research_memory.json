@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-03-12T07:24:11Z",
+  "totals": {
+    "discard": 2,
+    "promote": 1
+  },
+  "by_module": {
+    "L-Scanner": {
+      "discard": 1
+    },
+    "I-Watcher": {
+      "promote": 1
+    },
+    "T-Analyst": {
+      "discard": 1
+    }
+  },
+  "taxonomy": {
+    "L-Scanner": [
+      "Liquidity Monitoring with Real-time Data"
+    ],
+    "I-Watcher": [
+      "Real-time Insider Buying Validation"
+    ],
+    "T-Analyst": [
+      "Technical Analysis with Real-time Data"
+    ]
+  },
+  "last_promoted": [
+    {
+      "experiment": "Real-time Insider Buying Validation",
+      "module": "I-Watcher",
+      "logged_at": "2026-03-12T07:13:59Z",
+      "rationale": "El filtrado por insider buys >=2 parece más limpio y defendible."
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 # Research experiment execution
 
-- Generated at: 2026-03-12T06:57:58Z
+- Generated at: 2026-03-12T07:15:53Z
 - Items executed: 3
 
 | Experiment | Module | Status | Decision | Delta |
 |---|---|---|---|---|
-| Liquidity Monitoring with Real-time Data | L-Scanner | completed | discard | signal_completeness=0, latency_gain_s=10.76 |
+| Liquidity Monitoring with Real-time Data | L-Scanner | completed | discard | signal_completeness=1, latency_gain_s=9.22 |
 | Real-time Insider Buying Validation | I-Watcher | completed | promote | filtered_symbols_gain=6, quality_ratio=0.353 |
 | Technical Analysis with Real-time Data | T-Analyst | completed | discard | quality_setups=0, quality_vs_ready_gap=0 |
 

@@ -2,6 +2,7 @@
 import json
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -266,34 +267,43 @@ def main():
     queue = load_json(QUEUE, {"items": []})
     items = queue.get("items", []) if isinstance(queue, dict) else []
     results = []
-    for item in items[:3]:
-        target = item.get("target_module")
-        fn = EXECUTORS.get(target)
-        if not fn:
-            results.append({
+    target_items = items[:3]
+    future_map = {}
+    with ThreadPoolExecutor(max_workers=min(3, len(target_items) or 1)) as pool:
+        for item in target_items:
+            target = item.get("target_module")
+            fn = EXECUTORS.get(target)
+            if not fn:
+                result = {
+                    "experiment": item.get("name"),
+                    "target_module": target,
+                    "status": "skipped",
+                    "metrics": {},
+                    "notes": "No hay executor automatico para este modulo todavia.",
+                }
+                results.append(result)
+                item["status"] = result["status"]
+                continue
+            future_map[pool.submit(fn, item)] = item
+
+        for future in as_completed(future_map):
+            item = future_map[future]
+            result = compare_and_decide(future.result())
+            results.append(result)
+            item["status"] = result["status"]
+            item["last_run_at"] = now_iso()
+            item["decision"] = result.get("decision")
+            item["rationale"] = result.get("rationale")
+            item["candidate_status"] = "promoted" if item.get("decision") == "promote" else ("discarded" if item.get("decision") == "discard" else "watch")
+            append_registry({
+                "logged_at": now_iso(),
                 "experiment": item.get("name"),
-                "target_module": target,
-                "status": "skipped",
-                "metrics": {},
-                "notes": "No hay executor automatico para este modulo todavia.",
+                "target_module": item.get("target_module"),
+                "decision": item.get("decision"),
+                "candidate_status": item.get("candidate_status"),
+                "rationale": item.get("rationale"),
+                "result": result,
             })
-            continue
-        results.append(fn(item))
-        results[-1] = compare_and_decide(results[-1])
-        item["status"] = results[-1]["status"]
-        item["last_run_at"] = now_iso()
-        item["decision"] = results[-1].get("decision")
-        item["rationale"] = results[-1].get("rationale")
-        item["candidate_status"] = "promoted" if item.get("decision") == "promote" else ("discarded" if item.get("decision") == "discard" else "watch")
-        append_registry({
-            "logged_at": now_iso(),
-            "experiment": item.get("name"),
-            "target_module": item.get("target_module"),
-            "decision": item.get("decision"),
-            "candidate_status": item.get("candidate_status"),
-            "rationale": item.get("rationale"),
-            "result": results[-1],
-        })
 
     deployments = apply_deployments(results)
     payload = {"generated_at": now_iso(), "results": results, "deployments": deployments.get("deployments", [])}
