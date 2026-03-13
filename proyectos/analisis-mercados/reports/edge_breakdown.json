@@ -1,17 +1,8 @@
 {
-  "as_of": "2026-03-11T18:26:49Z",
+  "as_of": "2026-03-13T11:30:01Z",
   "window": "7d",
-  "orders_used": 357,
+  "orders_used": 270,
   "by_ticker": [
-    {
-      "key": "NEAR",
-      "count": 49,
-      "wins": 7,
-      "losses": 10,
-      "win_rate": 14.29,
-      "expectancy_usd": -0.0095,
-      "pnl_usd": -0.4648
-    },
     {
       "key": "FLOW",
       "count": 43,
@@ -22,58 +13,31 @@
       "pnl_usd": 0.9876
     },
     {
+      "key": "NEAR",
+      "count": 36,
+      "wins": 5,
+      "losses": 7,
+      "win_rate": 13.89,
+      "expectancy_usd": -0.0131,
+      "pnl_usd": -0.4722
+    },
+    {
       "key": "ETH",
-      "count": 40,
-      "wins": 20,
-      "losses": 20,
+      "count": 32,
+      "wins": 16,
+      "losses": 16,
       "win_rate": 50.0,
-      "expectancy_usd": 0.0216,
-      "pnl_usd": 0.8637
+      "expectancy_usd": 0.0157,
+      "pnl_usd": 0.5032
     },
     {
       "key": "DOGE",
       "count": 30,
-      "wins": 17,
-      "losses": 13,
-      "win_rate": 56.67,
-      "expectancy_usd": 0.02,
-      "pnl_usd": 0.5995
-    },
-    {
-      "key": "AAVE",
-      "count": 28,
       "wins": 16,
-      "losses": 12,
-      "win_rate": 57.14,
-      "expectancy_usd": 0.0255,
-      "pnl_usd": 0.7149
-    },
-    {
-      "key": "SUI",
-      "count": 26,
-      "wins": 16,
-      "losses": 10,
-      "win_rate": 61.54,
-      "expectancy_usd": 0.0353,
-      "pnl_usd": 0.9173
-    },
-    {
-      "key": "BTC",
-      "count": 26,
-      "wins": 13,
-      "losses": 11,
-      "win_rate": 50.0,
-      "expectancy_usd": -0.0275,
-      "pnl_usd": -0.7153
-    },
-    {
-      "key": "SOL",
-      "count": 21,
-      "wins": 14,
-      "losses": 6,
-      "win_rate": 66.67,
-      "expectancy_usd": 0.0241,
-      "pnl_usd": 0.5055
+      "losses": 14,
+      "win_rate": 53.33,
+      "expectancy_usd": 0.009,
+      "pnl_usd": 0.2711
     },
     {
       "key": "RENDER",
@@ -85,58 +49,76 @@
       "pnl_usd": 0.4027
     },
     {
-      "key": "LINK",
-      "count": 12,
-      "wins": 3,
-      "losses": 6,
-      "win_rate": 25.0,
-      "expectancy_usd": 0.0028,
-      "pnl_usd": 0.0332
+      "key": "SUI",
+      "count": 20,
+      "wins": 12,
+      "losses": 8,
+      "win_rate": 60.0,
+      "expectancy_usd": 0.0027,
+      "pnl_usd": 0.0533
     },
     {
-      "key": "BNB",
+      "key": "SOL",
+      "count": 12,
+      "wins": 9,
+      "losses": 2,
+      "win_rate": 75.0,
+      "expectancy_usd": 0.0113,
+      "pnl_usd": 0.1362
+    },
+    {
+      "key": "AAVE",
       "count": 11,
       "wins": 5,
-      "losses": 4,
+      "losses": 6,
       "win_rate": 45.45,
-      "expectancy_usd": -0.0061,
-      "pnl_usd": -0.0672
-    },
-    {
-      "key": "OP",
-      "count": 10,
-      "wins": 3,
-      "losses": 5,
-      "win_rate": 30.0,
-      "expectancy_usd": -0.0513,
-      "pnl_usd": -0.5128
-    },
-    {
-      "key": "ICP",
-      "count": 9,
-      "wins": 2,
-      "losses": 4,
-      "win_rate": 22.22,
-      "expectancy_usd": -0.0126,
-      "pnl_usd": -0.1136
-    },
-    {
-      "key": "XRP",
-      "count": 8,
-      "wins": 0,
-      "losses": 1,
-      "win_rate": 0.0,
-      "expectancy_usd": -0.0262,
-      "pnl_usd": -0.2098
+      "expectancy_usd": 0.0099,
+      "pnl_usd": 0.1089
     },
     {
       "key": "AVAX",
-      "count": 7,
-      "wins": 5,
-      "losses": 2,
-      "win_rate": 71.43,
-      "expectancy_usd": 0.0696,
-      "pnl_usd": 0.4871
+      "count": 9,
+      "wins": 6,
+      "losses": 3,
+      "win_rate": 66.67,
+      "expectancy_usd": 0.0558,
+      "pnl_usd": 0.5022
+    },
+    {
+      "key": "BTC",
+      "count": 9,
+      "wins": 4,
+      "losses": 5,
+      "win_rate": 44.44,
+      "expectancy_usd": -0.0143,
+      "pnl_usd": -0.1289
+    },
+    {
+      "key": "ICP",
+      "count": 8,
+      "wins": 3,
+      "losses": 3,
+      "win_rate": 37.5,
+      "expectancy_usd": 0.0145,
+      "pnl_usd": 0.1157
+    },
+    {
+      "key": "LINK",
+      "count": 8,
+      "wins": 2,
+      "losses": 3,
+      "win_rate": 25.0,
+      "expectancy_usd": 0.0122,
+      "pnl_usd": 0.0977
+    },
+    {
+      "key": "XRP",
+      "count": 6,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "expectancy_usd": -0.035,
+      "pnl_usd": -0.2098
     },
     {
       "key": "TRX",
@@ -157,13 +139,31 @@
       "pnl_usd": 0.0168
     },
     {
+      "key": "SHIB",
+      "count": 5,
+      "wins": 3,
+      "losses": 2,
+      "win_rate": 60.0,
+      "expectancy_usd": -0.0105,
+      "pnl_usd": -0.0526
+    },
+    {
       "key": "FET",
+      "count": 4,
+      "wins": 2,
+      "losses": 2,
+      "win_rate": 50.0,
+      "expectancy_usd": 0.0273,
+      "pnl_usd": 0.1091
+    },
+    {
+      "key": "BNB",
       "count": 3,
       "wins": 1,
       "losses": 2,
       "win_rate": 33.33,
-      "expectancy_usd": -0.0049,
-      "pnl_usd": -0.0147
+      "expectancy_usd": 0.0083,
+      "pnl_usd": 0.0248
     },
     {
       "key": "ADA",
@@ -175,91 +175,109 @@
       "pnl_usd": 0.1752
     },
     {
-      "key": "WLD",
+      "key": "BONK",
       "count": 1,
-      "wins": 0,
-      "losses": 1,
-      "win_rate": 0.0,
-      "expectancy_usd": -0.0195,
-      "pnl_usd": -0.0195
+      "wins": 1,
+      "losses": 0,
+      "win_rate": 100.0,
+      "expectancy_usd": 1.0498,
+      "pnl_usd": 1.0498
     },
     {
-      "key": "ARB",
+      "key": "GRT",
       "count": 1,
       "wins": 0,
       "losses": 1,
       "win_rate": 0.0,
-      "expectancy_usd": -0.0677,
-      "pnl_usd": -0.0677
+      "expectancy_usd": -0.1943,
+      "pnl_usd": -0.1943
     }
   ],
   "by_result": [
     {
       "key": "timeout",
-      "count": 298,
-      "wins": 129,
-      "losses": 102,
-      "win_rate": 43.29,
-      "expectancy_usd": 0.0171,
-      "pnl_usd": 5.0885
+      "count": 218,
+      "wins": 93,
+      "losses": 75,
+      "win_rate": 42.66,
+      "expectancy_usd": 0.0152,
+      "pnl_usd": 3.3086
     },
     {
       "key": "perdida",
-      "count": 37,
+      "count": 31,
       "wins": 0,
-      "losses": 37,
+      "losses": 31,
       "win_rate": 0.0,
-      "expectancy_usd": -0.2602,
-      "pnl_usd": -9.6272
+      "expectancy_usd": -0.2584,
+      "pnl_usd": -8.0119
     },
     {
       "key": "ganada",
-      "count": 22,
-      "wins": 22,
+      "count": 21,
+      "wins": 21,
       "losses": 0,
       "win_rate": 100.0,
-      "expectancy_usd": 0.3698,
-      "pnl_usd": 8.1351
+      "expectancy_usd": 0.3942,
+      "pnl_usd": 8.2781
     }
   ],
   "by_hour_bucket_utc": [
     {
       "key": "16-23",
-      "count": 123,
-      "wins": 53,
-      "losses": 41,
-      "win_rate": 43.09,
-      "expectancy_usd": 0.0175,
-      "pnl_usd": 2.1469
-    },
-    {
-      "key": "08-15",
-      "count": 122,
-      "wins": 57,
-      "losses": 43,
-      "win_rate": 46.72,
-      "expectancy_usd": 0.0191,
-      "pnl_usd": 2.331
+      "count": 106,
+      "wins": 43,
+      "losses": 33,
+      "win_rate": 40.57,
+      "expectancy_usd": 0.0084,
+      "pnl_usd": 0.8851
     },
     {
       "key": "00-07",
-      "count": 112,
-      "wins": 41,
-      "losses": 55,
-      "win_rate": 36.61,
-      "expectancy_usd": -0.0079,
-      "pnl_usd": -0.8816
+      "count": 92,
+      "wins": 36,
+      "losses": 46,
+      "win_rate": 39.13,
+      "expectancy_usd": -0.0097,
+      "pnl_usd": -0.894
+    },
+    {
+      "key": "08-15",
+      "count": 72,
+      "wins": 35,
+      "losses": 27,
+      "win_rate": 48.61,
+      "expectancy_usd": 0.0498,
+      "pnl_usd": 3.5836
     }
   ],
   "by_risk_mode": [
     {
       "key": "scalp_intradia",
-      "count": 357,
-      "wins": 151,
-      "losses": 139,
-      "win_rate": 42.3,
-      "expectancy_usd": 0.0101,
-      "pnl_usd": 3.5963
+      "count": 248,
+      "wins": 100,
+      "losses": 99,
+      "win_rate": 40.32,
+      "expectancy_usd": 0.0098,
+      "pnl_usd": 2.43
+    },
+    {
+      "key": "defensive",
+      "count": 11,
+      "wins": 8,
+      "losses": 3,
+      "win_rate": 72.73,
+      "expectancy_usd": 0.1053,
+      "pnl_usd": 1.158
+    },
+    {
+      "key": "normal",
+      "count": 11,
+      "wins": 6,
+      "losses": 4,
+      "win_rate": 54.55,
+      "expectancy_usd": -0.0012,
+      "pnl_usd": -0.0133
     }
   ]
 }

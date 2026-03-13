@@ -1,0 +1,123 @@
+{
+  "mode": "autopilot",
+  "project": "analisis-mercados",
+  "agents": [
+    {
+      "id": "alpha-scout",
+      "role": "orquestador",
+      "model": "ollama/phi4-mini",
+      "why": "mejor equilibrio para síntesis + decisión"
+    },
+    {
+      "id": "macro-agent",
+      "role": "macro/liquidez",
+      "model": "ollama/phi4-mini",
+      "why": "rápido y suficiente para clasificación macro"
+    },
+    {
+      "id": "news-catalyst-agent",
+      "role": "noticias/catalizadores",
+      "model": "ollama/phi4-mini",
+      "why": "más rápido en ciclo continuo; qwen queda en el orquestador"
+    },
+    {
+      "id": "technical-agent",
+      "role": "técnico/indicadores",
+      "model": "deterministic",
+      "why": "EMA/RSI/Bollinger se calculan por código, no por LLM"
+    },
+    {
+      "id": "risk-exec-agent",
+      "role": "riesgo/ejecución",
+      "model": "deterministic",
+      "why": "reglas duras de riesgo e invalidación"
+    },
+    {
+      "id": "devil-advocate-agent",
+      "role": "abogado del diablo / antisesgo",
+      "model": "deterministic",
+      "why": "busca invalidar la tesis: euforia, divergencia y sobreextensión"
+    },
+    {
+      "id": "local-council-agent",
+      "role": "árbitro final (local)",
+      "model": "ollama/qwen3:8b",
+      "why": "entra solo en casos críticos para dictamen final en local"
+    },
+    {
+      "id": "crypto-news-spy-agent",
+      "role": "espía de noticias cripto",
+      "model": "deterministic",
+      "why": "rastrea catalizadores y titulares cripto en tiempo real"
+    },
+    {
+      "id": "crypto-euphoria-spy-agent",
+      "role": "espía de euforia",
+      "model": "deterministic",
+      "why": "detecta euforia y riesgo de trampa de liquidez"
+    },
+    {
+      "id": "crypto-flow-spy-agent",
+      "role": "espía de flujo/volumen",
+      "model": "deterministic",
+      "why": "vigila volumen y movimiento para entradas rápidas"
+    },
+    {
+      "id": "crypto-whale-spy-agent",
+      "role": "espía de ballenas",
+      "model": "deterministic",
+      "why": "marca señales de manos fuertes"
+    },
+    {
+      "id": "crypto-execution-agent",
+      "role": "ejecución rápida cripto",
+      "model": "deterministic",
+      "why": "abre/cierra operaciones intradía en segundos/minutos"
+    },
+    {
+      "id": "crypto-chart-agent",
+      "role": "analista de velas cripto",
+      "model": "deterministic",
+      "why": "lee velas 1m/5m para confirmar entrada rápida"
+    },
+    {
+      "id": "crypto-breakout-agent",
+      "role": "cazador de ruptura temprana",
+      "model": "deterministic",
+      "why": "detecta aceleración + volumen para entrar al inicio del impulso"
+    },
+    {
+      "id": "crypto-whale-vc-agent",
+      "role": "espía ballenas/VC",
+      "model": "deterministic",
+      "why": "prioriza acumulación smart-money antes de ruido social"
+    },
+    {
+      "id": "crypto-dev-signal-agent",
+      "role": "espía de desarrollo",
+      "model": "deterministic",
+      "why": "premia proyectos con señales de construcción sostenida"
+    },
+    {
+      "id": "crypto-ecosystem-agent",
+      "role": "espía ecosistemas emergentes",
+      "model": "deterministic",
+      "why": "identifica nuevas redes con tracción temprana"
+    },
+    {
+      "id": "crypto-rugcheck-agent",
+      "role": "filtro anti-rug",
+      "model": "deterministic",
+      "why": "bloquea entradas con estructura tokenómica de alto riesgo"
+    }
+  ],
+  "fallback": {
+    "reasoning": "ollama/qwen3:8b",
+    "fast": "ollama/phi4-mini"
+  },
+  "constraints": {
+    "max_ram_gb": 15,
+    "prefer_local_models": true,
+    "no_cloud_required": true
+  }
+}

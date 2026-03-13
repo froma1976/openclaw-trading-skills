@@ -1,8 +1,9 @@
-from pathlib import Path
+﻿from pathlib import Path
 import os
 import sqlite3
 import json
 import hashlib
+import csv
 import subprocess
 import urllib.request
 import urllib.parse
@@ -10,6 +11,7 @@ from datetime import datetime, UTC, timedelta
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("DB_PATH", str(BASE_DIR / "agent_activity_registry.db")))
@@ -29,14 +31,16 @@ CRYPTO_SIGNALS_PATH = Path(os.getenv("CRYPTO_SIGNALS_PATH", "C:/Users/Fernando/.
 CRYPTO_ORDERS_PATH = Path(os.getenv("CRYPTO_ORDERS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json"))
 CRYPTO_STREAM_STATUS_PATH = Path(os.getenv("CRYPTO_STREAM_STATUS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_stream_status.json"))
 LEARNING_STATUS_PATH = Path(os.getenv("LEARNING_STATUS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status.json"))
+RESEARCH_AGENTS_PATH = Path(os.getenv("RESEARCH_AGENTS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/research_agents_latest.json"))
+RESEARCH_QUEUE_PATH = Path(os.getenv("RESEARCH_QUEUE_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/research_experiment_queue.json"))
+RESEARCH_RESULTS_PATH = Path(os.getenv("RESEARCH_RESULTS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/research_experiment_results.json"))
+RESEARCH_DEPLOYMENTS_PATH = Path(os.getenv("RESEARCH_DEPLOYMENTS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/config/research_deployments.json"))
 GPT53_BUDGET_PATH = Path(os.getenv("GPT53_BUDGET_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/gpt53_budget.json"))
+STARTUP_LOG_PATH = Path(os.getenv("STARTUP_LOG_PATH", "C:/Users/Fernando/.openclaw/workspace/startup-stack.log"))
 GPT53_MODE = os.getenv("GPT53_MODE", "normal").strip().lower()
-HISTORY_DIR = Path(os.getenv("HISTORY_DIR", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/history"))
-MODELS_DIR = Path(os.getenv("MODELS_DIR", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/models"))
-LSTM_REGISTRY_PATH = Path(os.getenv("LSTM_REGISTRY_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/models/registry.json"))
-LSTM_TRAIN_LOG_PATH = Path(os.getenv("LSTM_TRAIN_LOG_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/logs/train_lstm_daily.log"))
 
 app = FastAPI(title="Agent Ops Dashboard")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
@@ -53,7 +57,7 @@ def fingerprint(title: str, details: str) -> str:
 
 
 def approx_tokens(text: str) -> int:
-    # Aproximación simple y estable para telemetría local (sin SDK): ~4 chars/token
+    # AproximaciÃ³n simple y estable para telemetrÃ­a local (sin SDK): ~4 chars/token
     if not text:
         return 0
     return max(1, int(len(text) / 4))
@@ -198,9 +202,32 @@ def load_learning_status():
         return {"semaforo": "ROJO", "reason": "Sin datos suficientes", "trades_7d": 0, "expectancy_usd": 0, "profit_factor": 0}
     try:
         d = json.loads(LEARNING_STATUS_PATH.read_text(encoding="utf-8"))
-        return d if isinstance(d, dict) else {"semaforo": "ROJO", "reason": "Formato inválido", "trades_7d": 0}
+        return d if isinstance(d, dict) else {"semaforo": "ROJO", "reason": "Formato invÃ¡lido", "trades_7d": 0}
     except Exception:
         return {"semaforo": "ROJO", "reason": "No se pudo leer learning status", "trades_7d": 0}
+
+
+def _load_json_file(path: Path, default):
+    if not path.exists():
+        return default
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, type(default)) or isinstance(default, (dict, list)) else data
+    except Exception:
+        return default
+
+
+def load_research_panel():
+    agents = _load_json_file(RESEARCH_AGENTS_PATH, {})
+    queue = _load_json_file(RESEARCH_QUEUE_PATH, {})
+    results = _load_json_file(RESEARCH_RESULTS_PATH, {})
+    deployments = _load_json_file(RESEARCH_DEPLOYMENTS_PATH, {})
+    return {
+        "agents": agents if isinstance(agents, dict) else {},
+        "queue": queue if isinstance(queue, dict) else {},
+        "results": results if isinstance(results, dict) else {},
+        "deployments": deployments if isinstance(deployments, dict) else {},
+    }
 
 
 def load_crypto_stream_status():
@@ -256,18 +283,18 @@ def build_agent_sources(agents_runtime, sources_cfg):
             focus = "noticias/catalizadores"
         elif "technical" in t:
             sources = ["Snapshot mercado", "Indicadores EMA/RSI/Bollinger"]
-            focus = "análisis técnico"
+            focus = "anÃ¡lisis tÃ©cnico"
         elif "risk" in t or "devil" in t:
-            sources = ["Señales compuestas", "Reglas de riesgo"]
-            focus = "riesgo y validación"
+            sources = ["SeÃ±ales compuestas", "Reglas de riesgo"]
+            focus = "riesgo y validaciÃ³n"
         elif "crypto" in t:
             sources = crypto_sources
             focus = "scouting cripto"
         else:
             sources = market_sources + news_sources[:1]
-            focus = "orquestación"
+            focus = "orquestaciÃ³n"
 
-        where = " · ".join(sources)
+        where = " Â· ".join(sources)
         rows.append({"agent": aid, "focus": focus, "where": where, "sources": sources})
 
     return rows
@@ -340,6 +367,136 @@ def minutes_since_file(path: Path):
         return None
 
 
+def tail_text(path: Path, lines: int = 120) -> str:
+    try:
+        if not path.exists():
+            return ""
+        with path.open("r", encoding="utf-8", errors="replace") as f:
+            rows = f.readlines()
+        return "".join(rows[-lines:])
+    except Exception:
+        return ""
+
+
+def run_command(command: list[str], timeout: int = 8) -> dict:
+    try:
+        proc = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout,
+            check=False,
+        )
+        return {
+            "ok": proc.returncode == 0,
+            "returncode": proc.returncode,
+            "stdout": (proc.stdout or "").strip(),
+            "stderr": (proc.stderr or "").strip(),
+        }
+    except Exception as exc:
+        return {"ok": False, "returncode": None, "stdout": "", "stderr": str(exc)}
+
+
+def port_status(port: int) -> dict:
+    info = {"port": port, "listening": False, "pid": None, "process": None}
+    res = run_command(["netstat", "-ano"], timeout=6)
+    if not res.get("ok"):
+        return info
+
+    for line in (res.get("stdout") or "").splitlines():
+        if f":{port}" not in line or "LISTENING" not in line:
+            continue
+        parts = line.split()
+        if not parts:
+            continue
+        try:
+            pid = int(parts[-1])
+        except Exception:
+            pid = None
+        info["listening"] = True
+        info["pid"] = pid
+        if pid:
+            task = run_command(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"], timeout=6)
+            first = (task.get("stdout") or "").splitlines()
+            if first and "No tasks are running" not in first[0] and "No hay tareas" not in first[0]:
+                info["process"] = first[0]
+        break
+    return info
+
+
+def scheduled_task_status(name: str) -> dict:
+    res = run_command(["schtasks", "/Query", "/TN", name, "/FO", "LIST", "/V"], timeout=10)
+    if not res.get("ok"):
+        return {"name": name, "exists": False, "raw": res.get("stderr") or res.get("stdout") or "No disponible"}
+
+    raw = res.get("stdout") or ""
+    parsed = {}
+    for line in raw.splitlines():
+        if ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        parsed[key.strip()] = value.strip()
+    return {
+        "name": name,
+        "exists": True,
+        "state": parsed.get("Estado") or parsed.get("Status"),
+        "last_result": parsed.get("Ultimo resultado") or parsed.get("Last Result"),
+        "last_run": parsed.get("Ultimo tiempo de ejecucion") or parsed.get("Last Run Time"),
+        "next_run": parsed.get("Hora proxima ejecucion") or parsed.get("Next Run Time"),
+        "raw": raw,
+    }
+
+
+def sysadmin_snapshot():
+    run_status = system_status()
+    return {
+        "generated_at": now_iso(),
+        "run_status": run_status,
+        "dashboard": port_status(8080),
+        "gateway": port_status(18789),
+        "startup_log_tail": tail_text(STARTUP_LOG_PATH, 80),
+        "lstm_log_tail": tail_text(BASE_LSTM / "logs" / "history_update_and_train.log", 80),
+        "snapshot_file_min": minutes_since_file(SNAPSHOT_PATH),
+        "autopilot_log_min": minutes_since_file(AUTOPILOT_LOG),
+        "backup_root_min": run_status.get("backup_min"),
+        "scheduled_tasks": [
+            scheduled_task_status(name)
+            for name in [
+                "OpenClaw-Autopilot-15m",
+                "OpenClaw-State-Backup-10m",
+                "OpenClaw-Learning-Daily",
+                "OpenClaw-Crypto-Ingest-2m",
+                "OpenClaw-Crypto-Scalp-1m",
+                "OpenClaw-Crypto-Stream-Probe-3m",
+                "OpenClaw-Crypto-Watchdog-10m",
+                "LSTM Train (6h)",
+            ]
+        ],
+    }
+
+
+def terminal_snapshot():
+    sysinfo = sysadmin_snapshot()
+    return {
+        "generated_at": now_iso(),
+        "dashboard": sysinfo.get("dashboard"),
+        "gateway": sysinfo.get("gateway"),
+        "startup_log_tail": sysinfo.get("startup_log_tail"),
+        "lstm_log_tail": sysinfo.get("lstm_log_tail"),
+        "health": health(),
+        "routes": sorted([r.path for r in app.routes if getattr(r, "path", None)]),
+        "commands": [
+            'C:\\Windows\\py.exe -3 -m uvicorn app:app --host 127.0.0.1 --port 8080',
+            'openclaw status',
+            'openclaw gateway restart',
+            'schtasks /Query /TN "OpenClaw-Autopilot-15m" /FO LIST',
+            'type "C:\\Users\\Fernando\\.openclaw\\workspace\\startup-stack.log"',
+        ],
+    }
+
+
 def system_status():
     snap_m = minutes_since_file(SNAPSHOT_PATH)
     auto_m = minutes_since_file(AUTOPILOT_LOG)
@@ -410,118 +567,6 @@ def load_gpt53_budget():
     except Exception:
         pass
     return data
-
-
-def tail_lines(path: Path, limit: int = 8):
-    if not path.exists():
-        return []
-    try:
-        lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
-        return lines[-limit:]
-    except Exception:
-        return []
-
-
-def file_rows_estimate(path: Path):
-    if not path.exists():
-        return None
-    try:
-        with path.open("r", encoding="utf-8", errors="ignore") as f:
-            n = sum(1 for _ in f)
-        return max(0, n - 1)
-    except Exception:
-        return None
-
-
-def detect_lstm_training_running():
-    try:
-        cmd = [
-            "powershell",
-            "-NoProfile",
-            "-Command",
-            "Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'train_lstm_from_history.py|train_lstm.py|run_history_update_and_train_hidden.ps1' } | Select-Object -ExpandProperty ProcessId",
-        ]
-        out = subprocess.check_output(cmd, text=True, timeout=6)
-        pids = [x.strip() for x in out.splitlines() if x.strip()]
-        return {"running": len(pids) > 0, "pids": pids}
-    except Exception:
-        return {"running": False, "pids": []}
-
-
-def load_lstm_monitor():
-    symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
-    models = []
-
-    reg = {}
-    try:
-        if LSTM_REGISTRY_PATH.exists():
-            reg = json.loads(LSTM_REGISTRY_PATH.read_text(encoding="utf-8")).get("symbols", {})
-    except Exception:
-        reg = {}
-
-    for s in symbols:
-        meta_path = MODELS_DIR / f"lstm_{s}_meta.json"
-        hist_15m = HISTORY_DIR / f"{s}_15m.csv"
-        hist_5m = HISTORY_DIR / f"{s}_5m.csv"
-        hist_public_d = HISTORY_DIR / "public_ohlcv" / f"{s}_d.csv"
-
-        hist_path = hist_15m if hist_15m.exists() else (hist_5m if hist_5m.exists() else hist_public_d)
-        src_name = "15m_local" if hist_path == hist_15m else ("5m_local" if hist_path == hist_5m else "public_daily")
-
-        row = {
-            "symbol": s,
-            "meta_exists": meta_path.exists(),
-            "history_exists": hist_path.exists(),
-            "history_rows": file_rows_estimate(hist_path),
-            "history_updated_at": datetime.fromtimestamp(hist_path.stat().st_mtime, tz=UTC).isoformat(timespec="seconds").replace("+00:00", "Z") if hist_path.exists() else None,
-            "trained_at": None,
-            "val_mse": None,
-            "dataset_points": None,
-            "source": src_name,
-            "delta_pct": None,
-            "status_color": "AMARILLO",
-            "status_reason": "Sin histórico suficiente",
-        }
-        if meta_path.exists():
-            try:
-                meta = json.loads(meta_path.read_text(encoding="utf-8"))
-                row["trained_at"] = meta.get("trained_at")
-                row["val_mse"] = meta.get("val_mse")
-                row["dataset_points"] = meta.get("dataset_points")
-                row["source"] = meta.get("source") or row["source"]
-            except Exception:
-                pass
-
-        hist = (reg.get(s, {}) or {}).get("history", [])
-        if len(hist) >= 2:
-            try:
-                cur = float(hist[-1].get("val_mse"))
-                prev = float(hist[-2].get("val_mse"))
-                if prev > 0:
-                    delta_pct = ((cur - prev) / prev) * 100.0
-                    row["delta_pct"] = round(delta_pct, 2)
-                    if delta_pct <= -10:
-                        row["status_color"] = "VERDE"
-                        row["status_reason"] = "Mejora clara vs ayer"
-                    elif delta_pct >= 10:
-                        row["status_color"] = "ROJO"
-                        row["status_reason"] = "Empeora vs ayer"
-                    else:
-                        row["status_color"] = "AMARILLO"
-                        row["status_reason"] = "Estable (sin cambios fuertes)"
-            except Exception:
-                pass
-
-        models.append(row)
-
-    run = detect_lstm_training_running()
-    return {
-        "models": models,
-        "running": run.get("running", False),
-        "pids": run.get("pids", []),
-        "train_log_tail": tail_lines(LSTM_TRAIN_LOG_PATH, 10),
-        "train_log_path": str(LSTM_TRAIN_LOG_PATH),
-    }
 
 
 def save_gpt53_budget(data: dict):
@@ -748,7 +793,7 @@ def api_analysis(ticker: str):
         except Exception:
             pass
 
-    # vela simple desde Yahoo (últimas 60)
+    # vela simple desde Yahoo (Ãºltimas 60)
     candles = []
     try:
         url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(tkr)}?range=3mo&interval=1d"
@@ -770,15 +815,15 @@ def api_analysis(ticker: str):
 
     base = crow or top or row or {}
     reasons = (base.get("reasons") if isinstance(base, dict) else []) or []
-    contra = (base.get("argumento_en_contra") if isinstance(base, dict) else None) or "Sin objeción crítica detectada"
+    contra = (base.get("argumento_en_contra") if isinstance(base, dict) else None) or "Sin objeciÃ³n crÃ­tica detectada"
     decision = (base.get("decision_final") if isinstance(base, dict) else None) or "AVOID"
     confidence = (base.get("confidence_pct") if isinstance(base, dict) else None) or (base.get("score_final") if isinstance(base, dict) else None) or (base.get("score") if isinstance(base, dict) else 0) or 0
     bubble = (base.get("bubble_level") if isinstance(base, dict) else None) or "Bajo"
 
     narrativa = (
         f"{ctkr if crow else tkr}: confianza {confidence}%, burbuja {bubble}. "
-        f"Señales a favor: {', '.join(reasons[:4]) if reasons else 'sin señales fuertes'}. "
-        f"Principal objeción: {contra}. Decisión actual: {decision}."
+        f"SeÃ±ales a favor: {', '.join(reasons[:4]) if reasons else 'sin seÃ±ales fuertes'}. "
+        f"Principal objeciÃ³n: {contra}. DecisiÃ³n actual: {decision}."
     )
 
     if crow and isinstance(crow, dict):
@@ -786,8 +831,8 @@ def api_analysis(ticker: str):
         tr = crow.get("technical_report") or {}
         se = crow.get("sentiment_report") or {}
         narrativa += (
-            f" | Setup rápido: entrada {sr.get('setup',{}).get('entry','-')}, TP1 {sr.get('setup',{}).get('tp1','-')}, SL {sr.get('setup',{}).get('sl','-')}."
-            f" Sesgo técnico: {tr.get('sesgo','-')}."
+            f" | Setup rÃ¡pido: entrada {sr.get('setup',{}).get('entry','-')}, TP1 {sr.get('setup',{}).get('tp1','-')}, SL {sr.get('setup',{}).get('sl','-')}."
+            f" Sesgo tÃ©cnico: {tr.get('sesgo','-')}."
             f" Catalizador: {se.get('catalizador','-')}."
         )
 
@@ -863,7 +908,7 @@ def complete_order(order_id: str = Form(...)):
     pending = orders.get("pending", [])
     completed = orders.get("completed", [])
 
-    # Precio actual desde snapshot para calcular resultado automático
+    # Precio actual desde snapshot para calcular resultado automÃ¡tico
     signals = load_signals_snapshot()
     market = signals.get("market", []) if isinstance(signals, dict) else []
     price_map = {}
@@ -953,6 +998,25 @@ def crypto_resume():
     return RedirectResponse(url="/?crypto=resumed", status_code=303)
 
 
+@app.post("/kill_switch")
+def kill_switch():
+    d = load_crypto_orders()
+    daily = d.get("daily", {}) or {}
+    daily["paused"] = True
+    daily["pause_reason"] = "EMERGENCIA KILL SWITCH"
+    d["daily"] = daily
+    CRYPTO_ORDERS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CRYPTO_ORDERS_PATH.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute("UPDATE tasks SET status='cancelled', updated_at=? WHERE status IN ('pending', 'running')", (now_iso(),))
+        conn.commit()
+    finally:
+        conn.close()
+    return RedirectResponse(url="/?kill=activated", status_code=303)
+
+
 @app.post("/signals/autotasks")
 def create_tasks_from_top(threshold: int = Form(60), assigned_to: str = Form("alpha-scout")):
     signals = load_signals_snapshot()
@@ -1008,7 +1072,7 @@ def autopilot_run(threshold: int = Form(60), assigned_to: str = Form("alpha-scou
     top = signals.get("top_opportunities", []) if isinstance(signals, dict) else []
     gpt53_budget = load_gpt53_budget()
     gpt53_allowed, gpt53_reason = should_use_gpt53(top[0] if top else None, gpt53_budget)
-    # Reserva de presupuesto cuando el caso cumple umbral crítico
+    # Reserva de presupuesto cuando el caso cumple umbral crÃ­tico
     if gpt53_allowed:
         gpt53_budget["calls_used"] = int(gpt53_budget.get("calls_used", 0)) + 1
         gpt53_budget["tokens_used"] = int(gpt53_budget.get("tokens_used", 0)) + 6000
@@ -1043,7 +1107,7 @@ def autopilot_run(threshold: int = Form(60), assigned_to: str = Form("alpha-scou
                 continue
             task_id = f"tsk_{hashlib.sha1((title + now_iso()).encode()).hexdigest()[:10]}"
             ts = now_iso()
-            # próximo ciclo aprox cada 15 minutos
+            # prÃ³ximo ciclo aprox cada 15 minutos
             now_dt = datetime.now(UTC)
             mins = (now_dt.minute // 15 + 1) * 15
             if mins >= 60:
@@ -1059,12 +1123,12 @@ def autopilot_run(threshold: int = Form(60), assigned_to: str = Form("alpha-scou
                 (task_id, title, details, "autopilot", assigned_to, "pending", fp, "auto-signals", ts, ts, "alta", ts, due_at, next_check),
             )
             created += 1
-            # Modo simulador dinámico: también permite WATCH para generar operativa ficticia
+            # Modo simulador dinÃ¡mico: tambiÃ©n permite WATCH para generar operativa ficticia
             if state in {"WATCH", "READY", "TRIGGERED"}:
                 if upsert_order_pending(ticker, score, state, entry_price):
                     orders_created += 1
 
-        # Telemetría de tokens por actor (estimada) para entorno local/offline
+        # TelemetrÃ­a de tokens por actor (estimada) para entorno local/offline
         market_blob = " ".join(json.dumps(x, ensure_ascii=False) for x in (signals.get("market") or []))
         news_blob = " ".join(
             (it.get("title_es") or it.get("title") or "")
@@ -1118,7 +1182,7 @@ def home(request: Request):
     crypto_signals = load_crypto_snapshot()
     crypto_stream = load_crypto_stream_status()
     learning_status = load_learning_status()
-    lstm_monitor = load_lstm_monitor()
+    research_panel = load_research_panel()
     crypto_orders = load_crypto_orders()
     commits = latest_commits()
     autopilot_log = load_autopilot_log()
@@ -1147,19 +1211,19 @@ def home(request: Request):
                 title = (row["title"] or "").lower()
 
                 if "qqq" in title:
-                    tarea_humana = "analizando el ETF tecnológico principal de EE.UU."
+                    tarea_humana = "analizando el ETF tecnolÃ³gico principal de EE.UU."
                 elif "nvda" in title:
                     tarea_humana = "analizando NVIDIA por posible oportunidad"
                 elif "msft" in title:
                     tarea_humana = "analizando Microsoft por posible oportunidad"
                 elif "executar plan" in title or "ejecutar plan" in title or "[auto]" in title:
-                    tarea_humana = "evaluando si conviene abrir una operación simulada"
+                    tarea_humana = "evaluando si conviene abrir una operaciÃ³n simulada"
                 else:
-                    tarea_humana = "revisando señales del mercado"
+                    tarea_humana = "revisando seÃ±ales del mercado"
 
-                text = f"{aid}: {st_es}; {tarea_humana}. Última actualización: {row['updated_at']}"
+                text = f"{aid}: {st_es}; {tarea_humana}. Ãšltima actualizaciÃ³n: {row['updated_at']}"
             else:
-                text = f"{aid}: en espera de nuevas señales del mercado"
+                text = f"{aid}: en espera de nuevas seÃ±ales del mercado"
             agent_live.append({"agent": aid, "text": text})
         conn.close()
     except Exception:
@@ -1168,7 +1232,7 @@ def home(request: Request):
     completed_orders = orders.get("completed", [])
     journal = load_journal()
 
-    # Enriquecer órdenes pendientes con precio actual y variación % vs entrada
+    # Enriquecer Ã³rdenes pendientes con precio actual y variaciÃ³n % vs entrada
     unrealized_usd_est = 0.0
     try:
         market_rows = signals.get("market", []) if isinstance(signals, dict) else []
@@ -1186,13 +1250,13 @@ def home(request: Request):
             cur_px = px_map.get(t)
             o["current_price"] = round(cur_px, 4) if cur_px is not None else None
             entry = o.get("entry_price")
-            o["entry_kind"] = "forzada manual" if o.get("forced") else "automática"
+            o["entry_kind"] = "forzada manual" if o.get("forced") else "automÃ¡tica"
             o["entry_status"] = "entrada abierta"
             try:
                 if cur_px is not None and entry not in (None, 0, ""):
                     entry_f = float(entry)
                     o["pct_move"] = round(((cur_px - entry_f) / entry_f) * 100, 2)
-                    # estimación simple: 1 unidad por señal
+                    # estimaciÃ³n simple: 1 unidad por seÃ±al
                     o["pnl_usd_est"] = round(cur_px - entry_f, 4)
                     unrealized_usd_est += (cur_px - entry_f)
                 else:
@@ -1204,7 +1268,7 @@ def home(request: Request):
     except Exception:
         pass
 
-    # Separar órdenes: pendientes de entrada vs activas (entrada abierta)
+    # Separar Ã³rdenes: pendientes de entrada vs activas (entrada abierta)
     pre_entry_orders = [o for o in pending_orders if o.get("entry_price") in (None, "", 0)]
     active_orders = [o for o in pending_orders if o.get("entry_price") not in (None, "", 0)]
 
@@ -1214,7 +1278,7 @@ def home(request: Request):
     total_closed = len(completed_orders)
     win_rate = round((wins / total_closed) * 100, 1) if total_closed > 0 else 0.0
 
-    # expectancy y drawdown en R-múltiplos (simulado)
+    # expectancy y drawdown en R-mÃºltiplos (simulado)
     r_values = [float(j.get("r_multiple", 0)) for j in journal if isinstance(j, dict)]
     expectancy_r = round((sum(r_values) / len(r_values)), 3) if r_values else 0.0
     cum = 0.0
@@ -1229,8 +1293,8 @@ def home(request: Request):
         max_dd = max(max_dd, dd)
     max_drawdown_r = round(max_dd, 3)
 
-    # Semáforo global de mercado (simple)
-    market_today = {"label": "NEUTRO", "color": "warn", "reason": "señales mixtas"}
+    # SemÃ¡foro global de mercado (simple)
+    market_today = {"label": "NEUTRO", "color": "warn", "reason": "seÃ±ales mixtas"}
     try:
         mr = signals.get("macro_regime", {}) if isinstance(signals, dict) else {}
         vix = mr.get("vix")
@@ -1278,15 +1342,7 @@ def home(request: Request):
     crypto_completed = crypto_orders.get("completed", []) or []
     crypto_portfolio = crypto_orders.get("portfolio", {"capital_initial_usd": 300, "cash_usd": 300, "market_value_usd": 0, "equity_usd": 300})
     active_crypto_tickers = {str(o.get("ticker")) for o in crypto_active if o.get("ticker")}
-
-    # Precio live por ticker. Importante: NO usar fallback a entry_price,
-    # porque falsea el PnL a 0.0 cuando falta feed.
-    crypto_map = {
-        str(a.get("ticker") or "").upper(): float(a.get("price_usd"))
-        for a in (crypto_signals.get("assets", []) or [])
-        if a.get("ticker") and a.get("price_usd") is not None
-    }
-
+    crypto_map = {str(a.get("ticker")): float(a.get("price_usd")) for a in (crypto_signals.get("assets", []) or []) if a.get("ticker") and a.get("price_usd")}
     crypto_unrealized = 0.0
     crypto_realized = 0.0
     for c in crypto_completed:
@@ -1297,32 +1353,81 @@ def home(request: Request):
 
     for o in crypto_active:
         try:
-            ticker = str(o.get("ticker") or "").upper()
             ep = float(o.get("entry_price"))
-            cp = crypto_map.get(ticker)
-            if cp is None:
-                o["current_price"] = None
-                o["pct_move"] = None
-                o["pnl_usd_est"] = None
-                o["price_stale"] = True
-                continue
-
-            qty = o.get("qty")
-            if qty in (None, "", 0):
-                notional = float(o.get("notional_usd") or 0)
-                qty = (notional / ep) if ep > 0 else 0
-            qty = float(qty)
-
+            cp = float(crypto_map.get(o.get("ticker"), ep))
             o["current_price"] = round(cp, 6)
-            o["pct_move"] = round(((cp - ep) / ep) * 100, 2) if ep > 0 else None
-            o["pnl_usd_est"] = round((cp - ep) * qty, 6)
-            o["price_stale"] = False
-            crypto_unrealized += (cp - ep) * qty
+            o["pct_move"] = round(((cp - ep) / ep) * 100, 2)
+            o["pnl_usd_est"] = round(cp - ep, 6)
+            crypto_unrealized += (cp - ep)
         except Exception:
-            o["current_price"] = None
             o["pct_move"] = None
             o["pnl_usd_est"] = None
-            o["price_stale"] = True
+
+    unified_completed_orders = []
+    for o in completed_orders:
+        unified_completed_orders.append({
+            "market": "Cartera",
+            "ticker": o.get("ticker"),
+            "entry_price": o.get("entry_price"),
+            "exit_price": o.get("close_price") or o.get("exit_price"),
+            "result": o.get("result"),
+            "pnl_usd": o.get("pnl_usd") if o.get("pnl_usd") is not None else o.get("pnl_usd_est"),
+            "opened_at": o.get("created_at") or o.get("opened_at"),
+            "closed_at": o.get("closed_at"),
+        })
+    for o in crypto_completed:
+        unified_completed_orders.append({
+            "market": "Cripto",
+            "ticker": o.get("ticker"),
+            "entry_price": o.get("entry_price"),
+            "exit_price": o.get("close_price") or o.get("exit_price"),
+            "result": o.get("result"),
+            "pnl_usd": o.get("pnl_usd"),
+            "opened_at": o.get("opened_at"),
+            "closed_at": o.get("closed_at"),
+        })
+    def _sort_key(row):
+        return str(row.get("closed_at") or row.get("opened_at") or "")
+    unified_completed_orders = sorted(unified_completed_orders, key=_sort_key, reverse=True)
+
+    quant_data = []
+    quant_path = Path(os.getenv("PRICE_WAREHOUSE_PATH", "C:/Users/Fernando/.openclaw/workspace/memory/price_warehouse.csv"))
+    try:
+        if quant_path.exists():
+            with open(quant_path, newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                quant_data = list(reader)
+                quant_data.reverse()
+    except Exception:
+        pass
+
+    stock_quant_data = []
+    stock_quant_path = Path(os.getenv("STOCK_WAREHOUSE_PATH", "C:/Users/Fernando/.openclaw/workspace/memory/stock_price_warehouse.csv"))
+    try:
+        if stock_quant_path.exists():
+            with open(stock_quant_path, newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                stock_quant_data = list(reader)
+                stock_quant_data.reverse()
+    except Exception:
+        pass
+
+    rag_journal = []
+    journal_db = Path("C:/Users/Fernando/.openclaw/workspace/skills/trading-journal/journal_db.json")
+    try:
+        if journal_db.exists():
+            jdata = json.loads(journal_db.read_text(encoding="utf-8"))
+            if isinstance(jdata, dict) and "records" in jdata:
+                for r in jdata["records"]:
+                    rag_journal.append({
+                        "date": r.get("timestamp_utc", ""),
+                        "asset": "General/System",
+                        "action": "THESIS",
+                        "text": r.get("content", "")
+                    })
+                rag_journal.reverse()
+    except Exception:
+        pass
 
     return templates.TemplateResponse(
         "index.html",
@@ -1343,7 +1448,7 @@ def home(request: Request):
             "crypto_signals": crypto_signals,
             "crypto_stream": crypto_stream,
             "learning_status": learning_status,
-            "lstm_monitor": lstm_monitor,
+            "research_panel": research_panel,
             "crypto_orders_active": crypto_active,
             "crypto_orders_completed": crypto_completed,
             "crypto_daily": crypto_orders.get("daily", {}),
@@ -1363,6 +1468,10 @@ def home(request: Request):
             "orders_pending": pre_entry_orders,
             "orders_active": active_orders,
             "orders_completed": completed_orders,
+            "unified_completed_orders": unified_completed_orders[:40],
+            "quant_data": quant_data[:100],
+            "stock_quant_data": stock_quant_data[:100],
+            "rag_journal": rag_journal[:50],
             "orders_kpi": {
                 "pending": len(pre_entry_orders),
                 "active": len(active_orders),
@@ -1381,3 +1490,326 @@ def home(request: Request):
             "gpt53_budget": data.get("gpt53_budget", {"mode": "ahorro", "calls_used": 0, "max_calls": 4}),
         },
     )
+
+# ===== BEGIN_LSTM_REAL_SAFE =====
+import re
+
+BASE_LSTM = Path(r"C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados")
+LSTM_LOG = BASE_LSTM / "logs" / "history_update_and_train.log"
+LSTM_LOCK = BASE_LSTM / "logs" / "history_train.lock"
+LSTM_REGISTRY = BASE_LSTM / "models" / "registry.json"
+LSTM_LEARNING_STATUS = BASE_LSTM / "data" / "learning_status.json"
+LSTM_WALKFORWARD = BASE_LSTM / "reports" / "walkforward_report.md"
+
+def _tail(path: Path, n: int = 200) -> str:
+    if not path.exists():
+        return ""
+    with path.open("r", encoding="utf-8", errors="replace") as f:
+        lines = f.readlines()
+    return "".join(lines[-n:])
+
+
+def _json_or(path: Path, default):
+    try:
+        if not path.exists():
+            return default
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, type(default)) or isinstance(default, (dict, list)) else data
+    except Exception:
+        return default
+
+
+def _walkforward_rows() -> list[dict]:
+    if not LSTM_WALKFORWARD.exists():
+        return []
+    rows = []
+    try:
+        for line in LSTM_WALKFORWARD.read_text(encoding="utf-8", errors="replace").splitlines():
+            m = re.match(r"\|\s*([A-Z0-9_]+)\s*\|\s*([0-9.]+)\s*\|\s*([0-9.]+)\s*\|", line)
+            if not m or m.group(1) == "Symbol":
+                continue
+            baseline = float(m.group(2))
+            lstm = float(m.group(3))
+            rows.append({
+                "symbol": m.group(1),
+                "baseline_acc": baseline,
+                "lstm_acc": lstm,
+                "delta": round(lstm - baseline, 3),
+            })
+    except Exception:
+        return []
+    return rows
+
+@app.get("/lstm-real", response_class=HTMLResponse)
+def lstm_real_page(request: Request):
+    html = """
+    <!doctype html><html><head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>LSTM Real</title>
+    <style>
+      :root{--bg:#08101a;--panel:#0f1724;--panel2:#101d2f;--line:#27415d;--txt:#e9f2ff;--muted:#91a7c7;--ok:#2fd08d;--warn:#ffba52;--bad:#ff6b6b}
+      *{box-sizing:border-box}body{font-family:Georgia,"Segoe UI",serif;margin:0;background:radial-gradient(circle at top,#173154 0,#08101a 56%);color:var(--txt)}
+      .wrap{max-width:1220px;margin:0 auto;padding:22px 16px 28px}.hero{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-bottom:16px}
+      h1{margin:0;font-size:30px}.muted{color:var(--muted)}.pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#091420;font-size:12px}
+      .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{grid-column:span 12;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 18px 36px #0000002b}
+      .span3{grid-column:span 3}.span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
+      .kpi{font-size:28px;font-weight:700;margin-top:4px}.ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+      button{padding:9px 12px;border-radius:10px;border:1px solid #35518a;background:#1d3b72;color:white;cursor:pointer}
+      table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid #223950;text-align:left;vertical-align:top}th{color:#c4d7f5}
+      pre{background:#0b0f14;color:#d7e0ea;padding:12px;border:1px solid #2a3a5b;border-radius:14px;max-height:48vh;overflow:auto;white-space:pre-wrap}
+      .badge{display:inline-block;padding:5px 9px;border-radius:999px;border:1px solid var(--line);font-size:12px;background:#0a1420}
+      @media (max-width:920px){.span3,.span4,.span6,.span8{grid-column:span 12}.hero{display:block}}
+    </style></head><body>
+      <div class="wrap">
+        <div class="hero">
+          <div>
+            <div class="pill">Modelo predictivo explicado para humanos</div>
+            <h1>LSTM Real</h1>
+            <div class="muted">Aquí ves si el modelo está sano, si mejora frente a una base simple y qué tan útil parece ahora.</div>
+          </div>
+          <div><button onclick="load()">Actualizar ahora</button></div>
+        </div>
+        <div class="grid">
+          <div class="card span3"><div class="muted">Estado</div><div id="st" class="kpi">...</div><div id="stMeta" class="muted"></div></div>
+          <div class="card span3"><div class="muted">Último cierre</div><div id="end" class="kpi">...</div><div id="endMeta" class="muted"></div></div>
+          <div class="card span3"><div class="muted">Edge reciente</div><div id="edgeKpi" class="kpi">...</div><div id="edgeMeta" class="muted"></div></div>
+          <div class="card span3"><div class="muted">Champion models</div><div id="champKpi" class="kpi">...</div><div id="champMeta" class="muted"></div></div>
+          <div class="card span6"><h2>Qué está pasando</h2><div id="humanSummary" class="muted">Cargando...</div><div id="healthBadges" style="margin-top:12px"></div></div>
+          <div class="card span6"><h2>Comparativa rápida</h2><table><thead><tr><th>Símbolo</th><th>Mejor MSE</th><th>LSTM vs base</th><th>Lectura</th></tr></thead><tbody id="modelRows"></tbody></table></div>
+          <div class="card span12"><h2>Walk-forward entendible</h2><table><thead><tr><th>Símbolo</th><th>Base simple</th><th>LSTM</th><th>Mejora</th><th>Veredicto</th></tr></thead><tbody id="wfRows"></tbody></table></div>
+          <div class="card span12"><h2>Log técnico</h2><pre id="log">Cargando log de entrenamiento...</pre></div>
+        </div>
+      </div>
+      <script>
+        function badge(text, cls){ return `<span class="badge ${cls||''}">${text}</span>` }
+        async function load(){
+          try {
+            const r = await fetch('/api/lstm-real/status');
+            const j = await r.json();
+            const statusNode = document.getElementById('st');
+            statusNode.textContent = j.training ? 'ENTRENANDO' : 'EN ESPERA';
+            statusNode.className = 'kpi ' + (j.training ? 'warn' : 'ok');
+            document.getElementById('stMeta').textContent = j.training ? 'Hay un entrenamiento corriendo ahora mismo.' : 'No hay entrenamiento abierto en este instante.';
+            document.getElementById('end').textContent = j.last_end ? (j.last_end.exit === 0 ? 'OK' : 'REVISAR') : 'N/D';
+            document.getElementById('end').className = 'kpi ' + (j.last_end && j.last_end.exit === 0 ? 'ok' : 'warn');
+            document.getElementById('endMeta').textContent = j.last_end ? j.last_end.ended_at : 'Sin cierre detectado';
+            document.getElementById('edgeKpi').textContent = (j.learning && j.learning.semaforo) || 'N/D';
+            document.getElementById('edgeKpi').className = 'kpi ' + (((j.learning||{}).semaforo === 'VERDE') ? 'ok' : (((j.learning||{}).semaforo === 'AMARILLO') ? 'warn' : 'bad'));
+            document.getElementById('edgeMeta').textContent = j.learning ? `Win rate ${j.learning.win_rate ?? '-'}% · Expectancy ${j.learning.expectancy_usd ?? '-'} USD` : 'Sin learning status';
+            document.getElementById('champKpi').textContent = String((j.registry_rows||[]).length || 0);
+            document.getElementById('champMeta').textContent = 'Modelos champion monitorizados';
+            const summary = j.training
+              ? 'El modelo está entrenando ahora mismo. La prioridad es dejarlo terminar y mirar si el cierre acaba limpio.'
+              : ((j.learning||{}).semaforo === 'VERDE'
+                ? 'La lectura actual es positiva: el edge reciente acompaña y el LSTM no parece estar estropeando la base.'
+                : ((j.learning||{}).semaforo === 'AMARILLO'
+                  ? 'La lectura actual es prudente: el sistema funciona, pero todavía está en una zona de validación y no de confianza total.'
+                  : 'La lectura actual pide cuidado: el bloque LSTM no está en una situación bonita y conviene revisarlo antes de confiar demasiado.'));
+            document.getElementById('humanSummary').textContent = summary;
+            document.getElementById('healthBadges').innerHTML = [
+              badge(`Trades 7d: ${(j.learning||{}).trades_7d ?? '-'}`, ''),
+              badge(`PnL 7d: ${(j.learning||{}).pnl_7d_usd ?? '-'} USD`, ''),
+              badge(`Max DD: ${(j.learning||{}).max_drawdown_usd ?? '-'} USD`, ''),
+              badge(`Lock: ${j.training ? 'activo' : 'libre'}`, j.training ? 'warn' : 'ok')
+            ].join(' ');
+            const modelRows = (j.registry_rows||[]).map(row => {
+              const cls = row.best_val_mse < 0.001 ? 'ok' : 'warn';
+              return `<tr><td>${row.symbol}</td><td>${row.best_val_mse}</td><td>${row.delta_text}</td><td><span class="${cls}">${row.reading}</span></td></tr>`;
+            }).join('');
+            document.getElementById('modelRows').innerHTML = modelRows || '<tr><td colspan="4">Sin modelos registrados.</td></tr>';
+            const wfRows = (j.walkforward||[]).map(row => {
+              const cls = row.delta > 0 ? 'ok' : (row.delta === 0 ? 'warn' : 'bad');
+              const verdict = row.delta > 0 ? 'Mejora sobre la base' : 'No mejora todavía';
+              return `<tr><td>${row.symbol}</td><td>${row.baseline_acc}</td><td>${row.lstm_acc}</td><td><span class="${cls}">${row.delta > 0 ? '+' : ''}${row.delta}</span></td><td>${verdict}</td></tr>`;
+            }).join('');
+            document.getElementById('wfRows').innerHTML = wfRows || '<tr><td colspan="5">Sin comparativa walk-forward.</td></tr>';
+            document.getElementById('log').textContent = j.log_tail || '(sin log disponible)';
+          } catch(e) {
+            document.getElementById('log').textContent = 'Error cargando datos: ' + e;
+          }
+        }
+        load(); setInterval(load, 10000);
+      </script>
+    </body></html>
+    """
+    return HTMLResponse(html)
+
+@app.get("/api/lstm-real/status")
+def lstm_real_status():
+    log_tail = _tail(LSTM_LOG, n=220)
+    last_end = None
+    if log_tail:
+        for m in re.finditer(r"\[(?P<ts>[^\]]+)\]\s+END\s+exit=(?P<exit>-?\d+)", log_tail):
+            last_end = {"ended_at": m.group("ts"), "exit": int(m.group("exit"))}
+    registry = _json_or(LSTM_REGISTRY, {"symbols": {}})
+    learning = _json_or(LSTM_LEARNING_STATUS, {})
+    walkforward = _walkforward_rows()
+    registry_rows = []
+    for symbol, payload in (registry.get("symbols") or {}).items():
+        best = payload.get("best_val_mse")
+        wf = next((r for r in walkforward if r.get("symbol") == symbol), None)
+        delta_text = f"{wf['lstm_acc']} vs {wf['baseline_acc']}" if wf else "Sin walk-forward"
+        reading = "Fino" if isinstance(best, (int, float)) and best < 0.001 else "Aceptable"
+        registry_rows.append({
+            "symbol": symbol,
+            "best_val_mse": best,
+            "delta_text": delta_text,
+            "reading": reading,
+        })
+    return {
+        "ok": True,
+        "training": LSTM_LOCK.exists(),
+        "log_path": str(LSTM_LOG),
+        "last_end": last_end,
+        "log_tail": log_tail,
+        "learning": learning,
+        "walkforward": walkforward,
+        "registry_rows": registry_rows,
+    }
+# ===== END_LSTM_REAL_SAFE =====
+
+
+@app.get("/sysadmin", response_class=HTMLResponse)
+def sysadmin_page(request: Request):
+    html = """
+    <!doctype html><html><head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>SysAdmin</title>
+    <style>
+      :root{--bg:#08111d;--panel:#0f1b2e;--panel2:#13243d;--line:#284464;--txt:#ebf2ff;--muted:#8ea6c9;--ok:#30c48d;--warn:#ffb84d;--bad:#ff6b6b}
+      *{box-sizing:border-box}body{margin:0;font-family:Georgia,"Segoe UI",serif;background:radial-gradient(circle at top,#18365c 0,#08111d 55%);color:var(--txt)}
+      .wrap{max-width:1240px;margin:0 auto;padding:24px 18px 30px}.hero{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:18px}
+      h1{margin:0;font-size:30px} .muted{color:var(--muted)} .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+      .card{grid-column:span 12;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 18px 40px #00000030}
+      .span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
+      .pill{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#0a1526;font-size:12px;color:#d8e6ff}
+      .kpi{font-size:28px;font-weight:700;margin-top:6px}.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+      table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid #23405e;text-align:left;vertical-align:top}th{color:#bfd3f7}
+      pre{margin:0;background:#07111e;border:1px solid #223c57;border-radius:14px;padding:12px;overflow:auto;max-height:300px;white-space:pre-wrap}
+      @media (max-width:920px){.span4,.span6,.span8{grid-column:span 12}.hero{display:block}}
+    </style></head><body>
+      <div class="wrap">
+        <div class="hero">
+          <div>
+            <div class="pill">Cabina operativa local</div>
+            <h1>SysAdmin</h1>
+            <div class="muted">Estado del stack sin tocar la home de finanzas.</div>
+          </div>
+          <div class="muted">Auto refresh cada 15s</div>
+        </div>
+        <div class="grid">
+          <div class="card span4"><div class="muted">Dashboard 8080</div><div class="kpi" id="dashState">...</div><div class="muted" id="dashMeta"></div></div>
+          <div class="card span4"><div class="muted">Gateway 18789</div><div class="kpi" id="gwState">...</div><div class="muted" id="gwMeta"></div></div>
+          <div class="card span4"><div class="muted">Modo del sistema</div><div class="kpi" id="sysMode">...</div><div class="muted" id="sysMeta"></div></div>
+          <div class="card span12"><h2>Tareas programadas</h2><table><thead><tr><th>Tarea</th><th>Estado</th><th>Ultima</th><th>Siguiente</th><th>Resultado</th></tr></thead><tbody id="tasksRows"></tbody></table></div>
+          <div class="card span6"><h2>Startup log</h2><pre id="startupLog">Cargando...</pre></div>
+          <div class="card span6"><h2>LSTM log</h2><pre id="lstmLog">Cargando...</pre></div>
+        </div>
+      </div>
+      <script>
+        function badgeClass(ok, warn){ return ok ? 'ok' : (warn ? 'warn' : 'bad'); }
+        function yesNo(flag){ return flag ? 'ACTIVO' : 'CAIDO'; }
+        async function load(){
+          const r = await fetch('/api/sysadmin/status');
+          const j = await r.json();
+          const dash = j.dashboard || {};
+          const gw = j.gateway || {};
+          const rs = j.run_status || {};
+          const dashNode = document.getElementById('dashState');
+          dashNode.textContent = yesNo(!!dash.listening);
+          dashNode.className = 'kpi ' + badgeClass(!!dash.listening, false);
+          document.getElementById('dashMeta').textContent = dash.pid ? ('PID ' + dash.pid) : 'Sin listener';
+          const gwNode = document.getElementById('gwState');
+          gwNode.textContent = yesNo(!!gw.listening);
+          gwNode.className = 'kpi ' + badgeClass(!!gw.listening, false);
+          document.getElementById('gwMeta').textContent = gw.pid ? ('PID ' + gw.pid) : 'Sin listener';
+          const sysNode = document.getElementById('sysMode');
+          sysNode.textContent = (rs.status || 'REVISAR') + ' / ' + (rs.mode || 'DEGRADADO');
+          sysNode.className = 'kpi ' + (rs.color || 'warn');
+          document.getElementById('sysMeta').textContent = 'snapshot ' + (j.snapshot_file_min ?? 'n/d') + ' min · autopilot ' + (j.autopilot_log_min ?? 'n/d') + ' min';
+          document.getElementById('startupLog').textContent = j.startup_log_tail || '(sin log)';
+          document.getElementById('lstmLog').textContent = j.lstm_log_tail || '(sin log)';
+          const rows = (j.scheduled_tasks || []).map(t => '<tr><td><strong>' + t.name + '</strong></td><td>' + (t.state || (t.exists ? 'detectada' : 'no encontrada')) + '</td><td>' + (t.last_run || '-') + '</td><td>' + (t.next_run || '-') + '</td><td>' + (t.last_result || '-') + '</td></tr>').join('');
+          document.getElementById('tasksRows').innerHTML = rows || '<tr><td colspan="5">Sin tareas registradas</td></tr>';
+        }
+        load(); setInterval(load, 15000);
+      </script>
+    </body></html>
+    """
+    return HTMLResponse(html)
+
+
+@app.get("/api/sysadmin/status")
+def api_sysadmin_status():
+    return JSONResponse(sysadmin_snapshot())
+
+
+@app.get("/terminal", response_class=HTMLResponse)
+def terminal_page(request: Request):
+    html = """
+    <!doctype html><html><head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Terminal</title>
+    <style>
+      :root{--bg:#05070b;--panel:#0b0e14;--line:#233242;--txt:#d6f6df;--muted:#87c79a;--accent:#7ee787}
+      *{box-sizing:border-box}body{margin:0;font-family:"Cascadia Mono","Consolas",monospace;background:#05070b;color:var(--txt)}
+      .wrap{max-width:1280px;margin:0 auto;padding:20px}.top{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:16px}
+      h1{margin:0;font-size:28px;color:var(--accent)}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+      .card{grid-column:span 12;background:linear-gradient(180deg,#0b0e14,#0a1119);border:1px solid var(--line);border-radius:16px;padding:14px}
+      .span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
+      pre{margin:0;background:#030508;border:1px solid #1a2633;border-radius:12px;padding:12px;overflow:auto;max-height:360px;white-space:pre-wrap}
+      ul{margin:0;padding-left:18px}.chip{display:inline-block;padding:6px 10px;border:1px solid #22432b;border-radius:999px;background:#0a1710;color:#a8f0b4;font-size:12px;margin-right:8px}
+      @media (max-width:920px){.span4,.span6,.span8{grid-column:span 12}.top{display:block}}
+    </style></head><body>
+      <div class="wrap">
+        <div class="top">
+          <div>
+            <div class="chip">Readonly ops console</div>
+            <h1>Terminal</h1>
+            <div class="muted">Vista de logs y comandos utiles, sin romper nada.</div>
+          </div>
+          <div class="muted">Auto refresh cada 10s</div>
+        </div>
+        <div class="grid">
+          <div class="card span4"><div class="muted">Dashboard</div><pre id="dashBlock">...</pre></div>
+          <div class="card span4"><div class="muted">Gateway</div><pre id="gwBlock">...</pre></div>
+          <div class="card span4"><div class="muted">Health API</div><pre id="healthBlock">...</pre></div>
+          <div class="card span8"><div class="muted">Startup log</div><pre id="startupLog">Cargando...</pre></div>
+          <div class="card span4"><div class="muted">Comandos utiles</div><pre id="cmdBlock">Cargando...</pre></div>
+          <div class="card span12"><div class="muted">LSTM training log</div><pre id="lstmLog">Cargando...</pre></div>
+        </div>
+      </div>
+      <script>
+        async function load(){
+          const r = await fetch('/api/terminal/status');
+          const j = await r.json();
+          document.getElementById('dashBlock').textContent = JSON.stringify(j.dashboard || {}, null, 2);
+          document.getElementById('gwBlock').textContent = JSON.stringify(j.gateway || {}, null, 2);
+          document.getElementById('healthBlock').textContent = JSON.stringify(j.health || {}, null, 2);
+          document.getElementById('startupLog').textContent = j.startup_log_tail || '(sin log)';
+          document.getElementById('lstmLog').textContent = j.lstm_log_tail || '(sin log)';
+          document.getElementById('cmdBlock').textContent = (j.commands || []).join('\n');
+        }
+        load(); setInterval(load, 10000);
+      </script>
+    </body></html>
+    """
+    return HTMLResponse(html)
+
+
+@app.get("/api/terminal/status")
+def api_terminal_status():
+    return JSONResponse(terminal_snapshot())
+
+
+# ===== BEGIN_CONTROL_PAGE =====
+@app.get("/control", response_class=HTMLResponse)
+def control_page():
+    html_path = Path(__file__).parent / "templates" / "control.html"
+    if not html_path.exists():
+        return HTMLResponse("Template not found", status_code=500)
+    return HTMLResponse(html_path.read_text(encoding="utf-8", errors="replace"))
+# ===== END_CONTROL_PAGE =====
+
+
+

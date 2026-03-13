@@ -1,0 +1,2183 @@
+{
+  "generated_at": "2026-03-04T23:04:01Z",
+  "macro": [
+    {
+      "series": "M2SL",
+      "latest_date": "2026-01-01",
+      "latest_value": "22442.1"
+    },
+    {
+      "series": "DGS10",
+      "latest_date": "2026-03-03",
+      "latest_value": "4.06"
+    },
+    {
+      "series": "DGS2",
+      "latest_date": "2026-03-03",
+      "latest_value": "3.51"
+    },
+    {
+      "series": "DTWEXBGS",
+      "latest_date": "2026-02-27",
+      "latest_value": "117.8223"
+    },
+    {
+      "series": "VIXCLS",
+      "error": "The read operation timed out"
+    }
+  ],
+  "market": [
+    {
+      "ticker": "QQQ",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NGM",
+      "regularMarketPrice": 610.75,
+      "previousClose": null,
+      "lastCloseSeries": 610.75,
+      "chg_5d_pct": -0.96,
+      "chg_20d_pct": -0.94,
+      "ema20": 609.246,
+      "ema50": 612.203,
+      "sma200": 587.995,
+      "overextension_200d_pct": 3.87,
+      "rsi14": 50.23,
+      "bb_upper": 616.903,
+      "bb_lower": 596.714,
+      "rel_volume": 0.98,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 59,
+      "score": 81,
+      "reasons": [
+        "universo_prioritario",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "social_bullish",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": 71.4,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 3,
+      "state": "TRIGGERED",
+      "score_final": 81,
+      "confidence_pct": 81,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "HOLD"
+    },
+    {
+      "ticker": "SPY",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 685.13,
+      "previousClose": null,
+      "lastCloseSeries": 685.1300048828125,
+      "chg_5d_pct": -1.16,
+      "chg_20d_pct": -0.64,
+      "ema20": 686.716,
+      "ema50": 685.804,
+      "sma200": 655.617,
+      "overextension_200d_pct": 4.5,
+      "rsi14": 48.29,
+      "bb_upper": 695.356,
+      "bb_lower": 677.499,
+      "rel_volume": 0.8,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 50,
+      "score": 64,
+      "reasons": [
+        "price_below_ema20",
+        "ema20_above_ema50",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": 33.3,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 64,
+      "confidence_pct": 64,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "IWM",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 261.76,
+      "previousClose": null,
+      "lastCloseSeries": 261.760009765625,
+      "chg_5d_pct": -1.07,
+      "chg_20d_pct": -0.39,
+      "ema20": 262.614,
+      "ema50": 259.656,
+      "sma200": 238.616,
+      "overextension_200d_pct": 9.7,
+      "rsi14": 49.33,
+      "bb_upper": 268.325,
+      "bb_lower": 257.546,
+      "rel_volume": 0.93,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 50,
+      "score": 64,
+      "reasons": [
+        "price_below_ema20",
+        "ema20_above_ema50",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 64,
+      "confidence_pct": 64,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "GLD",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 471.8,
+      "previousClose": null,
+      "lastCloseSeries": 471.79998779296875,
+      "chg_5d_pct": -0.34,
+      "chg_20d_pct": 3.85,
+      "ema20": 466.909,
+      "ema50": 445.75,
+      "sma200": 364.909,
+      "overextension_200d_pct": 29.29,
+      "rsi14": 54.17,
+      "bb_upper": 490.072,
+      "bb_lower": 441.68,
+      "rel_volume": 0.68,
+      "breakout_20": false,
+      "intraday_15m_bias": "bajista",
+      "score_tech": 70,
+      "score": 74,
+      "reasons": [
+        "tendencia_20d_positiva",
+        "price_above_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "intraday_15m_bajista",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "bubble_critical",
+        "devil_advocate_active"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "READY",
+      "score_final": 74,
+      "confidence_pct": 74,
+      "bubble_level": "Crítico",
+      "argumento_en_contra": "Sobreextensión >20% sobre media 200d",
+      "decision_final": "HOLD"
+    },
+    {
+      "ticker": "TLT",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NGM",
+      "regularMarketPrice": 89.15,
+      "previousClose": null,
+      "lastCloseSeries": 89.1500015258789,
+      "chg_5d_pct": -0.85,
+      "chg_20d_pct": 2.75,
+      "ema20": 89.211,
+      "ema50": 88.696,
+      "sma200": 88.061,
+      "overextension_200d_pct": 1.24,
+      "rsi14": 51.46,
+      "bb_upper": 91.26,
+      "bb_lower": 86.928,
+      "rel_volume": 1.19,
+      "breakout_20": false,
+      "intraday_15m_bias": "bajista",
+      "score_tech": 58,
+      "score": 72,
+      "reasons": [
+        "tendencia_20d_positiva",
+        "price_below_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "intraday_15m_bajista",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "READY",
+      "score_final": 72,
+      "confidence_pct": 72,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "HOLD"
+    },
+    {
+      "ticker": "XLF",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 51.5,
+      "previousClose": null,
+      "lastCloseSeries": 51.5,
+      "chg_5d_pct": -0.71,
+      "chg_20d_pct": -3.79,
+      "ema20": 52.171,
+      "ema50": 52.954,
+      "sma200": 52.852,
+      "overextension_200d_pct": -2.56,
+      "rsi14": 42.96,
+      "bb_upper": 54.35,
+      "bb_lower": 50.253,
+      "rel_volume": 0.83,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 38,
+      "score": 52,
+      "reasons": [
+        "price_below_ema20",
+        "ema20_below_ema50",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 52,
+      "confidence_pct": 52,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "XLV",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 157.05,
+      "previousClose": null,
+      "lastCloseSeries": 157.0500030517578,
+      "chg_5d_pct": -0.49,
+      "chg_20d_pct": 1.91,
+      "ema20": 157.29,
+      "ema50": 155.96,
+      "sma200": 144.195,
+      "overextension_200d_pct": 8.91,
+      "rsi14": 50.01,
+      "bb_upper": 159.544,
+      "bb_lower": 154.801,
+      "rel_volume": 0.84,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 63,
+      "score": 77,
+      "reasons": [
+        "tendencia_20d_positiva",
+        "price_below_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "READY",
+      "score_final": 77,
+      "confidence_pct": 77,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "HOLD"
+    },
+    {
+      "ticker": "XLE",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 56.19,
+      "previousClose": null,
+      "lastCloseSeries": 56.189998626708984,
+      "chg_5d_pct": 2.41,
+      "chg_20d_pct": 8.75,
+      "ema20": 54.377,
+      "ema50": 51.356,
+      "sma200": 45.363,
+      "overextension_200d_pct": 23.87,
+      "rsi14": 68.14,
+      "bb_upper": 57.073,
+      "bb_lower": 52.252,
+      "rel_volume": 1.15,
+      "breakout_20": false,
+      "intraday_15m_bias": "alcista",
+      "score_tech": 100,
+      "score": 100,
+      "reasons": [
+        "momento_5d_fuerte",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "intraday_15m_alcista",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "bubble_critical",
+        "devil_advocate_active"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "READY",
+      "score_final": 100,
+      "confidence_pct": 100,
+      "bubble_level": "Crítico",
+      "argumento_en_contra": "Sobreextensión >20% sobre media 200d",
+      "decision_final": "HOLD"
+    },
+    {
+      "ticker": "XLI",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 175.97,
+      "previousClose": null,
+      "lastCloseSeries": 175.97000122070312,
+      "chg_5d_pct": 0.21,
+      "chg_20d_pct": 4.16,
+      "ema20": 174.155,
+      "ema50": 168.487,
+      "sma200": 154.765,
+      "overextension_200d_pct": 13.7,
+      "rsi14": 59.04,
+      "bb_upper": 179.704,
+      "bb_lower": 169.852,
+      "rel_volume": 0.98,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 81,
+      "score": 87,
+      "reasons": [
+        "momento_5d_positivo",
+        "tendencia_20d_positiva",
+        "price_above_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "devil_advocate_active"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "READY",
+      "score_final": 87,
+      "confidence_pct": 87,
+      "bubble_level": "Medio",
+      "argumento_en_contra": "Divergencia bajista: precio sube con volumen débil",
+      "decision_final": "BUY"
+    },
+    {
+      "ticker": "NVDA",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 183.04,
+      "previousClose": null,
+      "lastCloseSeries": 183.0399932861328,
+      "chg_5d_pct": -6.4,
+      "chg_20d_pct": 1.5,
+      "ema20": 185.48,
+      "ema50": 185.419,
+      "sma200": 175.685,
+      "overextension_200d_pct": 4.19,
+      "rsi14": 47.33,
+      "bb_upper": 197.324,
+      "bb_lower": 173.49,
+      "rel_volume": 0.89,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 52,
+      "score": 74,
+      "reasons": [
+        "momento_5d_debil",
+        "tendencia_20d_positiva",
+        "universo_prioritario",
+        "price_below_ema20",
+        "ema20_above_ema50",
+        "social_bullish",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": 68.4,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "READY",
+      "score_final": 74,
+      "confidence_pct": 74,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "HOLD"
+    },
+    {
+      "ticker": "MSFT",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 405.2,
+      "previousClose": null,
+      "lastCloseSeries": 405.20001220703125,
+      "chg_5d_pct": 1.15,
+      "chg_20d_pct": -1.46,
+      "ema20": 407.063,
+      "ema50": 432.238,
+      "sma200": 485.023,
+      "overextension_200d_pct": -16.46,
+      "rsi14": 44.79,
+      "bb_upper": 415.447,
+      "bb_lower": 385.729,
+      "rel_volume": 0.88,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 48,
+      "score": 54,
+      "reasons": [
+        "momento_5d_positivo",
+        "universo_prioritario",
+        "price_below_ema20",
+        "ema20_below_ema50",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "devil_advocate_active"
+      ],
+      "score_social": 40.0,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 54,
+      "confidence_pct": 54,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Divergencia bajista: precio sube con volumen débil",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "AMZN",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 216.82,
+      "previousClose": null,
+      "lastCloseSeries": 216.82000732421875,
+      "chg_5d_pct": 2.93,
+      "chg_20d_pct": -9.14,
+      "ema20": 212.938,
+      "ema50": 220.705,
+      "sma200": 224.382,
+      "overextension_200d_pct": -3.37,
+      "rsi14": 51.65,
+      "bb_upper": 224.327,
+      "bb_lower": 193.812,
+      "rel_volume": 0.83,
+      "breakout_20": false,
+      "intraday_15m_bias": "alcista",
+      "score_tech": 61,
+      "score": 59,
+      "reasons": [
+        "momento_5d_fuerte",
+        "tendencia_20d_debil",
+        "universo_prioritario",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "intraday_15m_alcista",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "devil_advocate_active"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Miss/Inline",
+      "score_macro_adj": 0,
+      "score_asymmetry": 6,
+      "fundamental_inflection_score": 6,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 59,
+      "confidence_pct": 59,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Divergencia bajista: precio sube con volumen débil",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "META",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 667.73,
+      "previousClose": null,
+      "lastCloseSeries": 667.72998046875,
+      "chg_5d_pct": 2.15,
+      "chg_20d_pct": -3.47,
+      "ema20": 655.678,
+      "ema50": 657.714,
+      "sma200": 691.377,
+      "overextension_200d_pct": -3.42,
+      "rsi14": 54.75,
+      "bb_upper": 679.265,
+      "bb_lower": 630.897,
+      "rel_volume": 0.82,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 71,
+      "score": 85,
+      "reasons": [
+        "momento_5d_fuerte",
+        "universo_prioritario",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "social_bullish",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "devil_advocate_active"
+      ],
+      "score_social": 100.0,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 3,
+      "state": "TRIGGERED",
+      "score_final": 85,
+      "confidence_pct": 85,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Divergencia bajista: precio sube con volumen débil",
+      "decision_final": "BUY"
+    },
+    {
+      "ticker": "AMD",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 202.07,
+      "previousClose": null,
+      "lastCloseSeries": 202.07000732421875,
+      "chg_5d_pct": -4.17,
+      "chg_20d_pct": -16.54,
+      "ema20": 207.37,
+      "ema50": 214.316,
+      "sma200": 187.815,
+      "overextension_200d_pct": 7.59,
+      "rsi14": 45.19,
+      "bb_upper": 217.88,
+      "bb_lower": 190.229,
+      "rel_volume": 0.95,
+      "breakout_20": false,
+      "intraday_15m_bias": "alcista",
+      "score_tech": 22,
+      "score": 44,
+      "reasons": [
+        "momento_5d_debil",
+        "tendencia_20d_debil",
+        "universo_prioritario",
+        "price_below_ema20",
+        "ema20_below_ema50",
+        "intraday_15m_alcista",
+        "social_bullish",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": 100.0,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "WATCH",
+      "score_final": 44,
+      "confidence_pct": 44,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "TSLA",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 405.94,
+      "previousClose": null,
+      "lastCloseSeries": 405.94000244140625,
+      "chg_5d_pct": -2.75,
+      "chg_20d_pct": -3.8,
+      "ema20": 411.548,
+      "ema50": 422.516,
+      "sma200": 391.547,
+      "overextension_200d_pct": 3.68,
+      "rsi14": 45.25,
+      "bb_upper": 427.538,
+      "bb_lower": 392.913,
+      "rel_volume": 1.13,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 28,
+      "score": 42,
+      "reasons": [
+        "momento_5d_debil",
+        "price_below_ema20",
+        "ema20_below_ema50",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": 27.3,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 42,
+      "confidence_pct": 42,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "AVGO",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 317.53,
+      "previousClose": null,
+      "lastCloseSeries": 317.5299987792969,
+      "chg_5d_pct": -4.45,
+      "chg_20d_pct": -0.87,
+      "ema20": 326.473,
+      "ema50": 334.306,
+      "sma200": 319.68,
+      "overextension_200d_pct": -0.67,
+      "rsi14": 41.82,
+      "bb_upper": 347.407,
+      "bb_lower": 307.316,
+      "rel_volume": 1.12,
+      "breakout_20": false,
+      "intraday_15m_bias": "bajista",
+      "score_tech": 27,
+      "score": 27,
+      "reasons": [
+        "momento_5d_debil",
+        "universo_prioritario",
+        "price_below_ema20",
+        "ema20_below_ema50",
+        "intraday_15m_bajista",
+        "earnings_calendar_signal"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Miss/Inline",
+      "score_macro_adj": 0,
+      "score_asymmetry": 0,
+      "fundamental_inflection_score": 0,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 0,
+      "state": "WATCH",
+      "score_final": 27,
+      "confidence_pct": 27,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "AAPL",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 262.52,
+      "previousClose": null,
+      "lastCloseSeries": 262.5199890136719,
+      "chg_5d_pct": -4.27,
+      "chg_20d_pct": -2.58,
+      "ema20": 266.039,
+      "ema50": 265.632,
+      "sma200": 243.688,
+      "overextension_200d_pct": 7.73,
+      "rsi14": 45.95,
+      "bb_upper": 281.027,
+      "bb_lower": 255.562,
+      "rel_volume": 0.81,
+      "breakout_20": false,
+      "intraday_15m_bias": "bajista",
+      "score_tech": 35,
+      "score": 49,
+      "reasons": [
+        "momento_5d_debil",
+        "price_below_ema20",
+        "ema20_above_ema50",
+        "intraday_15m_bajista",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 49,
+      "confidence_pct": 49,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "GOOGL",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 303.13,
+      "previousClose": null,
+      "lastCloseSeries": 303.1300048828125,
+      "chg_5d_pct": -3.12,
+      "chg_20d_pct": -10.77,
+      "ema20": 312.278,
+      "ema50": 313.433,
+      "sma200": 251.722,
+      "overextension_200d_pct": 20.42,
+      "rsi14": 38.35,
+      "bb_upper": 330.463,
+      "bb_lower": 294.194,
+      "rel_volume": 0.7,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 13,
+      "score": 17,
+      "reasons": [
+        "momento_5d_debil",
+        "tendencia_20d_debil",
+        "price_below_ema20",
+        "ema20_below_ema50",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "bubble_critical",
+        "devil_advocate_active"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 17,
+      "confidence_pct": 17,
+      "bubble_level": "Crítico",
+      "argumento_en_contra": "Sobreextensión >20% sobre media 200d",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "JPM",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NYQ",
+      "regularMarketPrice": 299.39,
+      "previousClose": null,
+      "lastCloseSeries": 299.3900146484375,
+      "chg_5d_pct": -1.29,
+      "chg_20d_pct": -4.91,
+      "ema20": 304.759,
+      "ema50": 308.447,
+      "sma200": 299.88,
+      "overextension_200d_pct": -0.16,
+      "rsi14": 43.27,
+      "bb_upper": 322.716,
+      "bb_lower": 291.572,
+      "rel_volume": 0.64,
+      "breakout_20": false,
+      "intraday_15m_bias": "alcista",
+      "score_tech": 43,
+      "score": 51,
+      "reasons": [
+        "price_below_ema20",
+        "ema20_below_ema50",
+        "intraday_15m_alcista",
+        "social_bullish",
+        "earnings_calendar_signal"
+      ],
+      "score_social": 63.6,
+      "earnings_label": "Earnings Miss/Inline",
+      "score_macro_adj": 0,
+      "score_asymmetry": 0,
+      "fundamental_inflection_score": 0,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 51,
+      "confidence_pct": 51,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "UNH",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NYQ",
+      "regularMarketPrice": 291.96,
+      "previousClose": null,
+      "lastCloseSeries": 291.9599914550781,
+      "chg_5d_pct": 2.73,
+      "chg_20d_pct": 2.74,
+      "ema20": 290.842,
+      "ema50": 303.806,
+      "sma200": 315.345,
+      "overextension_200d_pct": -7.42,
+      "rsi14": 48.53,
+      "bb_upper": 299.343,
+      "bb_lower": 268.682,
+      "rel_volume": 0.86,
+      "breakout_20": false,
+      "intraday_15m_bias": "alcista",
+      "score_tech": 75,
+      "score": 75,
+      "reasons": [
+        "momento_5d_fuerte",
+        "tendencia_20d_positiva",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "intraday_15m_alcista",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "devil_advocate_active"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 8,
+      "fundamental_inflection_score": 8,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 1,
+      "state": "WATCH",
+      "score_final": 75,
+      "confidence_pct": 75,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Divergencia bajista: precio sube con volumen débil",
+      "decision_final": "HOLD"
+    }
+  ],
+  "news": [
+    {
+      "feed": "https://feeds.reuters.com/reuters/businessNews",
+      "error": "<urlopen error [Errno 11001] getaddrinfo failed>",
+      "items": []
+    },
+    {
+      "feed": "https://feeds.reuters.com/reuters/technologyNews",
+      "error": "<urlopen error [Errno 11001] getaddrinfo failed>",
+      "items": []
+    },
+    {
+      "feed": "https://www.marketwatch.com/rss/topstories",
+      "items": [
+        {
+          "title": "Okta’s stock rallies as momentum in AI agents fuels an earnings beat",
+          "title_es": "Las acciones de Okta se recuperan a medida que el impulso de los agentes de inteligencia artificial impulsa un aumento de las ganancias",
+          "link": "https://www.marketwatch.com/story/oktas-stock-rallies-as-momentum-in-ai-agents-fuels-an-earnings-beat-4b3983ec?mod=mw_rss_topstories",
+          "pubDate": "Wed, 04 Mar 2026 22:22:00 GMT"
+        },
+        {
+          "title": "Moderna’s stock rallies as settlement of a patent dispute clears vaccine pipeline",
+          "title_es": "Las acciones de Moderna se recuperan a medida que la resolución de una disputa sobre patentes despeja la cartera de vacunas",
+          "link": "https://www.marketwatch.com/story/modernas-stock-rallies-more-than-10-as-deal-over-a-patent-dispute-clears-vaccine-pipeline-d34e6793?mod=mw_rss_topstories",
+          "pubDate": "Wed, 04 Mar 2026 22:17:00 GMT"
+        },
+        {
+          "title": "BlackRock’s target-date funds are about to get riskier. Here’s what you need to know.",
+          "title_es": "Los fondos con fecha objetivo de BlackRock están a punto de volverse más riesgosos. Esto es lo que necesita saber.",
+          "link": "https://www.marketwatch.com/story/blackrocks-target-date-funds-are-about-to-get-riskier-heres-what-you-need-to-know-4d795704?mod=mw_rss_topstories",
+          "pubDate": "Wed, 04 Mar 2026 22:12:00 GMT"
+        },
+        {
+          "title": "Here are 6 reasons why stocks may shake off Iran fears and move higher in March",
+          "title_es": "Aquí hay 6 razones por las que las acciones pueden deshacerse de los temores de Irán y subir en marzo",
+          "link": "https://www.marketwatch.com/story/here-are-6-reasons-why-stocks-may-shake-off-iran-fears-and-move-higher-in-march-5516c160?mod=mw_rss_topstories",
+          "pubDate": "Wed, 04 Mar 2026 22:10:00 GMT"
+        },
+        {
+          "title": "This fund signals investor demand for South Korean stocks may be returning after ugly rout",
+          "title_es": "Este fondo indica que la demanda de acciones de Corea del Sur por parte de los inversores puede estar regresando después de una fea caída",
+          "link": "https://www.marketwatch.com/story/selloff-descends-into-a-rout-in-south-korea-with-biggest-one-day-drop-since-2008-911de87c?mod=mw_rss_topstories",
+          "pubDate": "Wed, 04 Mar 2026 22:00:00 GMT"
+        }
+      ]
+    },
+    {
+      "feed": "https://www.investing.com/rss/news_25.rss",
+      "items": [
+        {
+          "title": "Morgan Stanley lays off 2,500 employees across all divisions, WSJ reports",
+          "title_es": "Morgan Stanley despide a 2.500 empleados en todas sus divisiones, informa el WSJ",
+          "link": "https://www.investing.com/news/stock-market-news/morgan-stanley-lays-off-2500-employees-across-all-divisions-wsj-reports-4542478",
+          "pubDate": "2026-03-04 22:43:11"
+        },
+        {
+          "title": "US agency considers limits on telecom foreign call centers, requiring English proficiency",
+          "title_es": "Agencia estadounidense considera límites a los centros de llamadas extranjeros de telecomunicaciones, que exigen dominio del inglés",
+          "link": "https://www.investing.com/news/stock-market-news/us-agency-considers-limits-on-telecom-foreign-call-centers-requiring-english-proficiency-4542522",
+          "pubDate": "2026-03-04 22:42:52"
+        },
+        {
+          "title": "Tech giants sign energy pledge at White House ahead of midterms",
+          "title_es": "Los gigantes tecnológicos firman un compromiso energético en la Casa Blanca antes de las elecciones intermedias",
+          "link": "https://www.investing.com/news/stock-market-news/tech-giants-sign-energy-pledge-at-white-house-ahead-of-midterms-4542220",
+          "pubDate": "2026-03-04 22:42:32"
+        },
+        {
+          "title": "Broadcom sees revenue above estimates as AI fuels custom chip demand",
+          "title_es": "Broadcom ve ingresos superiores a las estimaciones a medida que la IA impulsa la demanda de chips personalizados",
+          "link": "https://www.investing.com/news/stock-market-news/broadcom-sees-revenue-above-estimates-as-ai-fuels-custom-chip-demand-4542363",
+          "pubDate": "2026-03-04 22:18:27"
+        },
+        {
+          "title": "Palantir faces challenge to remove Anthropic from Pentagon’s AI software",
+          "title_es": "Palantir enfrenta el desafío de eliminar Anthropic del software de inteligencia artificial del Pentágono",
+          "link": "https://www.investing.com/news/stock-market-news/palantir-faces-challenge-to-remove-anthropic-from-pentagons-ai-software-4542314",
+          "pubDate": "2026-03-04 22:00:46"
+        }
+      ]
+    }
+  ],
+  "social": [
+    {
+      "symbol": "QQQ",
+      "messages_checked": 30,
+      "bullish": 18,
+      "bearish": 3,
+      "sentiment_score": 71.4
+    },
+    {
+      "symbol": "SPY",
+      "messages_checked": 30,
+      "bullish": 10,
+      "bearish": 5,
+      "sentiment_score": 33.3
+    },
+    {
+      "symbol": "NVDA",
+      "messages_checked": 30,
+      "bullish": 16,
+      "bearish": 3,
+      "sentiment_score": 68.4
+    },
+    {
+      "symbol": "MSFT",
+      "messages_checked": 30,
+      "bullish": 7,
+      "bearish": 3,
+      "sentiment_score": 40.0
+    },
+    {
+      "symbol": "AMD",
+      "messages_checked": 30,
+      "bullish": 15,
+      "bearish": 0,
+      "sentiment_score": 100.0
+    },
+    {
+      "symbol": "TSLA",
+      "messages_checked": 30,
+      "bullish": 7,
+      "bearish": 4,
+      "sentiment_score": 27.3
+    },
+    {
+      "symbol": "META",
+      "messages_checked": 30,
+      "bullish": 6,
+      "bearish": 0,
+      "sentiment_score": 100.0
+    },
+    {
+      "symbol": "JPM",
+      "messages_checked": 30,
+      "bullish": 9,
+      "bearish": 2,
+      "sentiment_score": 63.6
+    }
+  ],
+  "earnings": [
+    {
+      "symbol": "QQQ",
+      "source": "fmp",
+      "date": "2026-03-03",
+      "eps_estimate": 2.16,
+      "eps_actual": 2.44,
+      "revenue_estimate": 30462546697,
+      "revenue_actual": 31919000000
+    },
+    {
+      "symbol": "SPY",
+      "source": "fmp",
+      "date": "2026-03-03",
+      "eps_estimate": 2.16,
+      "eps_actual": 2.44,
+      "revenue_estimate": 30462546697,
+      "revenue_actual": 31919000000
+    },
+    {
+      "symbol": "IWM",
+      "source": "fmp",
+      "date": "2026-03-03",
+      "eps_estimate": 2.16,
+      "eps_actual": 2.44,
+      "revenue_estimate": 30462546697,
+      "revenue_actual": 31919000000
+    },
+    {
+      "symbol": "GLD",
+      "source": "fmp",
+      "date": "2026-03-03",
+      "eps_estimate": 2.16,
+      "eps_actual": 2.44,
+      "revenue_estimate": 30462546697,
+      "revenue_actual": 31919000000
+    },
+    {
+      "symbol": "TLT",
+      "source": "fmp",
+      "date": "2026-03-03",
+      "eps_estimate": 2.16,
+      "eps_actual": 2.44,
+      "revenue_estimate": 30462546697,
+      "revenue_actual": 31919000000
+    },
+    {
+      "symbol": "XLF",
+      "source": "fmp",
+      "date": "2026-03-03",
+      "eps_estimate": 2.16,
+      "eps_actual": 2.44,
+      "revenue_estimate": 30462546697,
+      "revenue_actual": 31919000000
+    },
+    {
+      "symbol": "XLV",
+      "source": "fmp",
+      "date": "2026-03-03",
+      "eps_estimate": 2.16,
+      "eps_actual": 2.44,
+      "revenue_estimate": 30462546697,
+      "revenue_actual": 31919000000
+    },
+    {
+      "symbol": "XLE",
+      "source": "fmp",
+      "date": "2026-03-03",
+      "eps_estimate": 2.16,
+      "eps_actual": 2.44,
+      "revenue_estimate": 30462546697,
+      "revenue_actual": 31919000000
+    },
+    {
+      "symbol": "XLI",
+      "source": "fmp",
+      "date": "2026-03-03",
+      "eps_estimate": 2.16,
+      "eps_actual": 2.44,
+      "revenue_estimate": 30462546697,
+      "revenue_actual": 31919000000
+    },
+    {
+      "symbol": "NVDA",
+      "source": "finnhub",
+      "date": "2026-02-25",
+      "eps_estimate": 1.5634,
+      "eps_actual": 1.62,
+      "revenue_estimate": 67537594458,
+      "revenue_actual": 68127000000
+    },
+    {
+      "symbol": "MSFT",
+      "source": "fmp",
+      "date": "2026-01-28",
+      "eps_estimate": 3.9,
+      "eps_actual": 4.14,
+      "revenue_estimate": 80308701686,
+      "revenue_actual": 81273000000
+    },
+    {
+      "symbol": "AMZN",
+      "source": "fmp",
+      "date": "2026-02-05",
+      "eps_estimate": 1.97,
+      "eps_actual": 1.95,
+      "revenue_estimate": 211454786507,
+      "revenue_actual": 213386000000
+    },
+    {
+      "symbol": "META",
+      "source": "fmp",
+      "date": "2026-01-28",
+      "eps_estimate": 8.19,
+      "eps_actual": 8.88,
+      "revenue_estimate": 58330095020,
+      "revenue_actual": 59894000000
+    },
+    {
+      "symbol": "AMD",
+      "source": "fmp",
+      "date": "2026-02-03",
+      "eps_estimate": 1.32,
+      "eps_actual": 1.53,
+      "revenue_estimate": 9668356900,
+      "revenue_actual": 10270000000
+    },
+    {
+      "symbol": "TSLA",
+      "source": "fmp",
+      "date": "2026-01-28",
+      "eps_estimate": 0.4548,
+      "eps_actual": 0.5,
+      "revenue_estimate": 24776435200,
+      "revenue_actual": 24901000000
+    },
+    {
+      "symbol": "AVGO",
+      "source": "finnhub",
+      "date": "2026-03-04",
+      "eps_estimate": 2.0607,
+      "eps_actual": 2.05,
+      "revenue_estimate": 19519405878,
+      "revenue_actual": 19311000000
+    },
+    {
+      "symbol": "AAPL",
+      "source": "fmp",
+      "date": "2026-01-29",
+      "eps_estimate": 2.67,
+      "eps_actual": 2.84,
+      "revenue_estimate": 138391007589,
+      "revenue_actual": 143756000000
+    },
+    {
+      "symbol": "GOOGL",
+      "source": "fmp",
+      "date": "2026-02-04",
+      "eps_estimate": 2.57,
+      "eps_actual": 2.82,
+      "revenue_estimate": 103897702150,
+      "revenue_actual": 113896000000
+    },
+    {
+      "symbol": "JPM",
+      "source": "fmp",
+      "date": "2026-01-13",
+      "eps_estimate": 4.85,
+      "eps_actual": 4.63,
+      "revenue_estimate": 46166454906,
+      "revenue_actual": 45798000000
+    },
+    {
+      "symbol": "UNH",
+      "source": "fmp",
+      "date": "2026-01-27",
+      "eps_estimate": 2.1,
+      "eps_actual": 2.11,
+      "revenue_estimate": 113771843450,
+      "revenue_actual": 113215000000
+    }
+  ],
+  "options": [
+    {
+      "symbol": "QQQ",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "SPY",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "IWM",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "GLD",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "TLT",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "XLF",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "XLV",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "XLE",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "XLI",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "NVDA",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "MSFT",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "AMZN",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "META",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "AMD",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "TSLA",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "AVGO",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "AAPL",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "GOOGL",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "JPM",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    },
+    {
+      "symbol": "UNH",
+      "error": "HTTP Error 401: Unauthorized",
+      "call_oi": null,
+      "put_oi": null,
+      "cp_ratio": null
+    }
+  ],
+  "finviz_news": [
+    {
+      "symbol": "QQQ",
+      "items": [
+        {
+          "title": "Home",
+          "title_es": "Hogar",
+          "link": "/"
+        },
+        {
+          "title": "News",
+          "title_es": "Noticias",
+          "link": "/news.ashx"
+        },
+        {
+          "title": "Screener",
+          "title_es": "evaluador",
+          "link": "/screener.ashx"
+        }
+      ]
+    },
+    {
+      "symbol": "SPY",
+      "items": [
+        {
+          "title": "Home",
+          "title_es": "Hogar",
+          "link": "/"
+        },
+        {
+          "title": "News",
+          "title_es": "Noticias",
+          "link": "/news.ashx"
+        },
+        {
+          "title": "Screener",
+          "title_es": "evaluador",
+          "link": "/screener.ashx"
+        }
+      ]
+    },
+    {
+      "symbol": "IWM",
+      "items": [
+        {
+          "title": "Home",
+          "title_es": "Hogar",
+          "link": "/"
+        },
+        {
+          "title": "News",
+          "title_es": "Noticias",
+          "link": "/news.ashx"
+        },
+        {
+          "title": "Screener",
+          "title_es": "evaluador",
+          "link": "/screener.ashx"
+        }
+      ]
+    },
+    {
+      "symbol": "GLD",
+      "items": [
+        {
+          "title": "Home",
+          "title_es": "Hogar",
+          "link": "/"
+        },
+        {
+          "title": "News",
+          "title_es": "Noticias",
+          "link": "/news.ashx"
+        },
+        {
+          "title": "Screener",
+          "title_es": "evaluador",
+          "link": "/screener.ashx"
+        }
+      ]
+    },
+    {
+      "symbol": "TLT",
+      "items": [
+        {
+          "title": "Home",
+          "title_es": "Hogar",
+          "link": "/"
+        },
+        {
+          "title": "News",
+          "title_es": "Noticias",
+          "link": "/news.ashx"
+        },
+        {
+          "title": "Screener",
+          "title_es": "evaluador",
+          "link": "/screener.ashx"
+        }
+      ]
+    },
+    {
+      "symbol": "XLF",
+      "items": [
+        {
+          "title": "Home",
+          "title_es": "Hogar",
+          "link": "/"
+        },
+        {
+          "title": "News",
+          "title_es": "Noticias",
+          "link": "/news.ashx"
+        },
+        {
+          "title": "Screener",
+          "title_es": "evaluador",
+          "link": "/screener.ashx"
+        }
+      ]
+    },
+    {
+      "symbol": "XLV",
+      "items": [
+        {
+          "title": "Home",
+          "title_es": "Hogar",
+          "link": "/"
+        },
+        {
+          "title": "News",
+          "title_es": "Noticias",
+          "link": "/news.ashx"
+        },
+        {
+          "title": "Screener",
+          "title_es": "evaluador",
+          "link": "/screener.ashx"
+        }
+      ]
+    },
+    {
+      "symbol": "XLE",
+      "items": [
+        {
+          "title": "Home",
+          "title_es": "Hogar",
+          "link": "/"
+        },
+        {
+          "title": "News",
+          "title_es": "Noticias",
+          "link": "/news.ashx"
+        },
+        {
+          "title": "Screener",
+          "title_es": "evaluador",
+          "link": "/screener.ashx"
+        }
+      ]
+    }
+  ],
+  "insider_map": {
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">PBF": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">PYPL": {
+      "insider_buys": 0,
+      "insider_events": 3
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">TTWO": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">INSW": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">KYMR": {
+      "insider_buys": 0,
+      "insider_events": 3
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">PACB": {
+      "insider_buys": 0,
+      "insider_events": 3
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">IESC": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">FBLG": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">DELL": {
+      "insider_buys": 0,
+      "insider_events": 4
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">CRNX": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">CDNS": {
+      "insider_buys": 1,
+      "insider_events": 3
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">ALLO": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">LOB": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">UFCS": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">GTE": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">FDP": {
+      "insider_buys": 0,
+      "insider_events": 4
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">WDAY": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">AMBA": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">AKAM": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">WULF": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">DBX": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">ROOT": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">PGNY": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">GOOGL": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">TJX": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">VITL": {
+      "insider_buys": 1,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">XERS": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">GL": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">ALHC": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">PCB": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">CBDS": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">STEM": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">BWXT": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">CARG": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">SBFG": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">AMZN": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">MUR": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">VG": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">ECPG": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">PB": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">RPRX": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">AXON": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">SERV": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">GPK": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">CUBE": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">DRH": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">EDSA": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">HERZ": {
+      "insider_buys": 2,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">ABNB": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">NNE": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">MATX": {
+      "insider_buys": 0,
+      "insider_events": 8
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">FET": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">HBAN": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">AMH": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">EDIT": {
+      "insider_buys": 0,
+      "insider_events": 3
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">IRON": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">SMBC": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">MORN": {
+      "insider_buys": 1,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">ALAB": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">EQIX": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">REPX": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">CENX": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">OKLO": {
+      "insider_buys": 0,
+      "insider_events": 2
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">GLUE": {
+      "insider_buys": 0,
+      "insider_events": 1
+    },
+    "', DELAY, 1)\" onmouseout=\"UnTip()\">DUOL": {
+      "insider_buys": 1,
+      "insider_events": 1
+    }
+  },
+  "macro_regime": {
+    "vix": null,
+    "dgs10": 4.06,
+    "dxy": 117.8223,
+    "macro_adj": 0,
+    "macro_reasons": []
+  },
+  "top_opportunities": [
+    {
+      "ticker": "XLE",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 56.19,
+      "previousClose": null,
+      "lastCloseSeries": 56.189998626708984,
+      "chg_5d_pct": 2.41,
+      "chg_20d_pct": 8.75,
+      "ema20": 54.377,
+      "ema50": 51.356,
+      "sma200": 45.363,
+      "overextension_200d_pct": 23.87,
+      "rsi14": 68.14,
+      "bb_upper": 57.073,
+      "bb_lower": 52.252,
+      "rel_volume": 1.15,
+      "breakout_20": false,
+      "intraday_15m_bias": "alcista",
+      "score_tech": 100,
+      "score": 100,
+      "reasons": [
+        "momento_5d_fuerte",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "intraday_15m_alcista",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "bubble_critical",
+        "devil_advocate_active"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "READY",
+      "score_final": 100,
+      "confidence_pct": 100,
+      "bubble_level": "Crítico",
+      "argumento_en_contra": "Sobreextensión >20% sobre media 200d",
+      "decision_final": "HOLD"
+    },
+    {
+      "ticker": "XLI",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 175.97,
+      "previousClose": null,
+      "lastCloseSeries": 175.97000122070312,
+      "chg_5d_pct": 0.21,
+      "chg_20d_pct": 4.16,
+      "ema20": 174.155,
+      "ema50": 168.487,
+      "sma200": 154.765,
+      "overextension_200d_pct": 13.7,
+      "rsi14": 59.04,
+      "bb_upper": 179.704,
+      "bb_lower": 169.852,
+      "rel_volume": 0.98,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 81,
+      "score": 87,
+      "reasons": [
+        "momento_5d_positivo",
+        "tendencia_20d_positiva",
+        "price_above_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "devil_advocate_active"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "READY",
+      "score_final": 87,
+      "confidence_pct": 87,
+      "bubble_level": "Medio",
+      "argumento_en_contra": "Divergencia bajista: precio sube con volumen débil",
+      "decision_final": "BUY"
+    },
+    {
+      "ticker": "META",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 667.73,
+      "previousClose": null,
+      "lastCloseSeries": 667.72998046875,
+      "chg_5d_pct": 2.15,
+      "chg_20d_pct": -3.47,
+      "ema20": 655.678,
+      "ema50": 657.714,
+      "sma200": 691.377,
+      "overextension_200d_pct": -3.42,
+      "rsi14": 54.75,
+      "bb_upper": 679.265,
+      "bb_lower": 630.897,
+      "rel_volume": 0.82,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 71,
+      "score": 85,
+      "reasons": [
+        "momento_5d_fuerte",
+        "universo_prioritario",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "social_bullish",
+        "fundamental_inflection",
+        "earnings_calendar_signal",
+        "devil_advocate_active"
+      ],
+      "score_social": 100.0,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 3,
+      "state": "TRIGGERED",
+      "score_final": 85,
+      "confidence_pct": 85,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Divergencia bajista: precio sube con volumen débil",
+      "decision_final": "BUY"
+    },
+    {
+      "ticker": "QQQ",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NGM",
+      "regularMarketPrice": 610.75,
+      "previousClose": null,
+      "lastCloseSeries": 610.75,
+      "chg_5d_pct": -0.96,
+      "chg_20d_pct": -0.94,
+      "ema20": 609.246,
+      "ema50": 612.203,
+      "sma200": 587.995,
+      "overextension_200d_pct": 3.87,
+      "rsi14": 50.23,
+      "bb_upper": 616.903,
+      "bb_lower": 596.714,
+      "rel_volume": 0.98,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 59,
+      "score": 81,
+      "reasons": [
+        "universo_prioritario",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "social_bullish",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": 71.4,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 3,
+      "state": "TRIGGERED",
+      "score_final": 81,
+      "confidence_pct": 81,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "HOLD"
+    },
+    {
+      "ticker": "XLV",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "PCX",
+      "regularMarketPrice": 157.05,
+      "previousClose": null,
+      "lastCloseSeries": 157.0500030517578,
+      "chg_5d_pct": -0.49,
+      "chg_20d_pct": 1.91,
+      "ema20": 157.29,
+      "ema50": 155.96,
+      "sma200": 144.195,
+      "overextension_200d_pct": 8.91,
+      "rsi14": 50.01,
+      "bb_upper": 159.544,
+      "bb_lower": 154.801,
+      "rel_volume": 0.84,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 63,
+      "score": 77,
+      "reasons": [
+        "tendencia_20d_positiva",
+        "price_below_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "fundamental_inflection",
+        "earnings_calendar_signal"
+      ],
+      "score_social": null,
+      "earnings_label": "Earnings Beat",
+      "score_macro_adj": 0,
+      "score_asymmetry": 14,
+      "fundamental_inflection_score": 14,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "convergence_count": 2,
+      "state": "READY",
+      "score_final": 77,
+      "confidence_pct": 77,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
+      "decision_final": "HOLD"
+    }
+  ]
+}

@@ -1,6 +1,61 @@
 {
-  "generated_at": "2026-03-13T00:09:34Z",
+  "generated_at": "2026-03-13T02:17:00Z",
   "results": [
+    {
+      "experiment": "Liquidity Monitoring with Real-time Data",
+      "target_module": "L-Scanner",
+      "status": "completed",
+      "runner": "source_ingest_free.py",
+      "baseline": {
+        "macro_adj": 0,
+        "vix": null,
+        "dxy": null,
+        "latency_s": 115.93
+      },
+      "candidate": {
+        "name": "refresh_bias_0",
+        "macro_signal_completeness": 1,
+        "timeout_count": 4,
+        "macro_adj_candidate": 0,
+        "latency_s": 110.13,
+        "score": -2.0,
+        "variants_tested": [
+          {
+            "name": "refresh_bias_0",
+            "macro_signal_completeness": 1,
+            "timeout_count": 4,
+            "macro_adj_candidate": 0,
+            "latency_s": 110.13,
+            "score": -2.0
+          },
+          {
+            "name": "refresh_bias_1",
+            "macro_signal_completeness": 1,
+            "timeout_count": 4,
+            "macro_adj_candidate": 1,
+            "latency_s": 106.66,
+            "score": -2.5
+          },
+          {
+            "name": "refresh_bias_2",
+            "macro_signal_completeness": 1,
+            "timeout_count": 4,
+            "macro_adj_candidate": 2,
+            "latency_s": 103.18,
+            "score": -3.0
+          }
+        ]
+      },
+      "notes": "Baseline automatica para evaluar si merece aumentar cadencia/frescura del bloque macro-liquidez.",
+      "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
+      "stderr": "",
+      "decision": "discard",
+      "delta": {
+        "signal_completeness": 1,
+        "latency_gain_s": 5.8
+      },
+      "rationale": "No mejora suficiente frente al baseline macro actual."
+    },
     {
       "experiment": "Real-time Insider Buying Validation",
       "target_module": "I-Watcher",
@@ -8,15 +63,15 @@
       "runner": "source_ingest_free.py",
       "baseline": {
         "symbols_with_insider_buys": 17,
-        "max_insider_buys_per_symbol": 4,
-        "latency_s": 115.27
+        "max_insider_buys_per_symbol": 9,
+        "latency_s": 115.92
       },
       "candidate": {
         "name": "insider_min_buys_2",
         "min_buys": 2,
         "filtered_symbols_with_insider_buys": 1,
         "quality_ratio": 0.059,
-        "latency_s": 110.66,
+        "latency_s": 111.28,
         "score": 0.39,
         "variants_tested": [
           {
@@ -24,7 +79,7 @@
             "min_buys": 2,
             "filtered_symbols_with_insider_buys": 1,
             "quality_ratio": 0.059,
-            "latency_s": 110.66,
+            "latency_s": 111.28,
             "score": 0.39
           },
           {
@@ -32,7 +87,7 @@
             "min_buys": 3,
             "filtered_symbols_with_insider_buys": 1,
             "quality_ratio": 0.059,
-            "latency_s": 109.51,
+            "latency_s": 110.12,
             "score": -0.21
           },
           {
@@ -40,7 +95,7 @@
             "min_buys": 4,
             "filtered_symbols_with_insider_buys": 1,
             "quality_ratio": 0.059,
-            "latency_s": 108.35,
+            "latency_s": 108.96,
             "score": -0.81
           }
         ]
@@ -57,69 +112,14 @@
       "rationale": "La mejora existe pero necesita más evidencia antes de promoción."
     },
     {
-      "experiment": "Liquidity Monitoring with Real-time Data",
-      "target_module": "L-Scanner",
-      "status": "completed",
-      "runner": "source_ingest_free.py",
-      "baseline": {
-        "macro_adj": 0,
-        "vix": null,
-        "dxy": null,
-        "latency_s": 115.28
-      },
-      "candidate": {
-        "name": "refresh_bias_0",
-        "macro_signal_completeness": 1,
-        "timeout_count": 4,
-        "macro_adj_candidate": 0,
-        "latency_s": 109.52,
-        "score": -2.0,
-        "variants_tested": [
-          {
-            "name": "refresh_bias_0",
-            "macro_signal_completeness": 1,
-            "timeout_count": 4,
-            "macro_adj_candidate": 0,
-            "latency_s": 109.52,
-            "score": -2.0
-          },
-          {
-            "name": "refresh_bias_1",
-            "macro_signal_completeness": 1,
-            "timeout_count": 4,
-            "macro_adj_candidate": 1,
-            "latency_s": 106.06,
-            "score": -2.5
-          },
-          {
-            "name": "refresh_bias_2",
-            "macro_signal_completeness": 1,
-            "timeout_count": 4,
-            "macro_adj_candidate": 2,
-            "latency_s": 102.6,
-            "score": -3.0
-          }
-        ]
-      },
-      "notes": "Baseline automatica para evaluar si merece aumentar cadencia/frescura del bloque macro-liquidez.",
-      "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
-      "stderr": "",
-      "decision": "discard",
-      "delta": {
-        "signal_completeness": 1,
-        "latency_gain_s": 5.76
-      },
-      "rationale": "No mejora suficiente frente al baseline macro actual."
-    },
-    {
       "experiment": "Technical Analysis with Real-time Data",
       "target_module": "T-Analyst",
       "status": "completed",
       "runner": "source_ingest_free.py",
       "baseline": {
-        "top5_avg_score_tech": 47.6,
+        "top5_avg_score_tech": 47.8,
         "ready_or_triggered": 0,
-        "latency_s": 115.49
+        "latency_s": 116.29
       },
       "candidate": {
         "name": "tech_72_0.8",
@@ -127,7 +127,7 @@
         "min_rel_volume": 0.8,
         "quality_setups": 0,
         "quality_top5_avg_score_tech": 0,
-        "latency_s": 112.03,
+        "latency_s": 112.8,
         "score": -2.1,
         "variants_tested": [
           {
@@ -136,7 +136,7 @@
             "min_rel_volume": 0.8,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.03,
+            "latency_s": 112.8,
             "score": -2.1
           },
           {
@@ -145,7 +145,7 @@
             "min_rel_volume": 0.9,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.03,
+            "latency_s": 112.8,
             "score": -2.1
           },
           {
@@ -154,7 +154,7 @@
             "min_rel_volume": 1.0,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.03,
+            "latency_s": 112.8,
             "score": -2.1
           },
           {
@@ -163,7 +163,7 @@
             "min_rel_volume": 0.8,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.03,
+            "latency_s": 112.8,
             "score": -2.1
           },
           {
@@ -172,7 +172,7 @@
             "min_rel_volume": 0.9,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.03,
+            "latency_s": 112.8,
             "score": -2.1
           },
           {
@@ -181,7 +181,7 @@
             "min_rel_volume": 1.0,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.03,
+            "latency_s": 112.8,
             "score": -2.1
           },
           {
@@ -190,7 +190,7 @@
             "min_rel_volume": 0.8,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.03,
+            "latency_s": 112.8,
             "score": -2.1
           },
           {
@@ -199,7 +199,7 @@
             "min_rel_volume": 0.9,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.03,
+            "latency_s": 112.8,
             "score": -2.1
           },
           {
@@ -208,7 +208,7 @@
             "min_rel_volume": 1.0,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.03,
+            "latency_s": 112.8,
             "score": -2.1
           }
         ]

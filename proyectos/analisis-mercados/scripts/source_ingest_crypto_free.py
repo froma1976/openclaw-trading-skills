@@ -35,9 +35,26 @@ SYMBOL = {
 
 
 def get_json(url: str):
-    req = request.Request(url, headers={"User-Agent": "crypto-scout/1.0"})
-    with request.urlopen(req, timeout=20) as r:
-        return json.loads(r.read().decode("utf-8"))
+    try:
+        req = request.Request(url, headers={"User-Agent": "crypto-scout/1.0"})
+        with request.urlopen(req, timeout=10) as r:
+            return json.loads(r.read().decode("utf-8"))
+    except:
+        return None
+
+
+def get_binance_price(ticker: str) -> float:
+    if not ticker:
+        return 0.0
+    try:
+        # Binance Public API (No key required for ticker price)
+        url = f"https://api.binance.com/api/v3/ticker/price?symbol={ticker}USDT"
+        data = get_json(url)
+        if data and "price" in data:
+            return float(data["price"])
+    except:
+        pass
+    return 0.0
 
 
 def load_universe_status():
@@ -413,15 +430,14 @@ def main():
     )
     source_label = "coingecko-free"
     notes = "Scoring cripto con ahorro API activo (espías de velas en subset líquido)"
-    try:
-        rows = get_json(url)
-    except Exception:
+    rows = get_json(url)
+    if not isinstance(rows, list):
         previous = {"assets": []}
         if OUT.exists():
             try:
                 previous = json.loads(OUT.read_text(encoding="utf-8"))
             except Exception:
-                previous = {"assets": []}
+                pass
         rows = previous.get("assets", []) or []
         source_label = "snapshot-cache"
         notes = "Fallback a ultimo snapshot local por rate limit/error externo"
@@ -436,7 +452,16 @@ def main():
             spy_allowed.add(SYMBOL.get(rr.get("id"), str(rr.get("symbol", "")).upper()))
 
     for r in rows:
+        ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
         p = float(r.get("current_price") or 0)
+        
+        # Fallback: Si CoinGecko da 0 o falla, consultamos Binance en tiempo real
+        if p <= 0:
+            p = get_binance_price(ticker)
+            r["current_price"] = p
+            if p > 0:
+                notes = f"Precios recuperados vía Binance (CoinGecko fallback) - {notes}"
+        
         ch24 = float(r.get("price_change_percentage_24h") or 0)
         ch7 = float(r.get("price_change_percentage_7d_in_currency") or 0)
         sc = score_crypto(r)

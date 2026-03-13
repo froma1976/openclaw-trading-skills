@@ -2,11 +2,16 @@
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+import requests
+import os
+import urllib.parse
+import urllib.request
 
 SNAP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")
 RISK_CFG = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/config/risk.yaml")
 UNIVERSE_STATUS = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/universe_status.json")
+MACRO_SENTINEL_PATH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/macro_sentinel.json")
 
 TARGET_PCT = 0.9
 STOP_PCT = 0.55
@@ -24,6 +29,117 @@ def now_iso():
 
 def parse_iso(ts: str):
     return datetime.fromisoformat((ts or "").replace("Z", "+00:00"))
+
+
+def record_to_memory(ticker, result, pnl):
+    """
+    Registra el resultado de la operacion en la memoria persistente del agente (Episodic Memory)
+    y envia una notificacion a Telegram para informar sobre el aprendizaje.
+    """
+    # 1. Intentar cargar credenciales de Telegram desde .env si no estan en el entorno
+    env_path = Path("C:/Users/Fernando/.openclaw/.env")
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    
+    if not token or not chat_id:
+        if env_path.exists():
+            for line in env_path.read_text(encoding="utf-8").splitlines():
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    if k.strip() == "TELEGRAM_BOT_TOKEN": token = v.strip()
+                    if k.strip() == "TELEGRAM_CHAT_ID": chat_id = v.strip()
+
+    # 2. Notificar por Telegram
+    if token and chat_id:
+        try:
+            emoji = "✅" if result == "ganada" else "❌" if result == "perdida" else "⏳"
+            msg = (
+                f"🧠 *Conviction Learning System*\n\n"
+                f"{emoji} Asset: #{ticker}\n"
+                f"📝 Resultado: {result.upper()}\n"
+                f"💰 PnL: {pnl} USD\n\n"
+                f"🔍 _Evento guardado en Memoria Episódica para mejorar estrategias futuras._"
+            )
+            tg_url = f"https://api.telegram.org/bot{token}/sendMessage"
+            params = urllib.parse.urlencode({"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"})
+            urllib.request.urlopen(f"{tg_url}?{params}", timeout=5)
+        except Exception:
+            pass
+
+    # 3. Guardar en memoria de largo plazo (MCP)
+    mcp_url = os.getenv("MCP_MEMORY_URL", "http://localhost:3001/tools/store_episodic")
+    try:
+        payload = {
+            "content": f"Trade cerrado para {ticker}. Resultado: {result}. PnL: {pnl} USD.",
+            "tags": ["crypto", "trading", ticker, result],
+            "metadata": {"timestamp": datetime.now(UTC).isoformat(), "asset": ticker, "pnl": pnl}
+        }
+    except Exception:
+        pass
+
+
+def analyze_ticker_memory(completed_orders, ticker):
+    """
+    Analiza la 'experiencia' reciente con un ticker especifico.
+    Retorna un multiplicador de confianza/riesgo (0.0 a 1.25)
+    """
+    recent = [o for o in completed_orders if o.get("ticker") == ticker][-4:] # Ultimos 4 trades
+    if not recent:
+        return 1.0, "Nuevo para hoy"
+    
+    losses = [o for o in recent if o.get("result") == "perdida" or (o.get("pnl_usd") or 0) < 0]
+    wins = [o for o in recent if o.get("result") == "ganada" and (o.get("pnl_usd") or 0) > 0]
+    
+    if len(losses) >= 3:
+        return 0.0, "BLOQUEADO: Racha perdedora critica (3+)"
+    if len(losses) == 2:
+        return 0.5, "REDUCIDO: Deteccion de volatilidad adversa (2 fallos)"
+    if len(wins) >= 3:
+        return 1.25, "BULLISH: Racha ganadora (Confianza extra)"
+    
+    return 1.0, "Normal"
+
+
+def get_macro_sentiment(api_key):
+    """
+    Consulta el sentimiento Macro usando Alpha Vantage (NEWS_SENTIMENT).
+    Usa un cache de 6 horas para no agotar la API (Solo usa 4 llamadas/dia de las 25 disponibles).
+    """
+    now = datetime.now(UTC)
+    cache = load_json(MACRO_SENTINEL_PATH, {"ts": "", "score": 0.0, "label": "Neutral"})
+    
+    # Verificamos si el cache tiene menos de 6 horas
+    if cache.get("ts"):
+        last_update = parse_iso(cache["ts"])
+        if (now - last_update).total_seconds() < 21600: # 6 horas
+            return cache.get("score", 0.0), cache.get("label", "Neutral")
+
+    if not api_key or api_key == "demo":
+        return 0.0, "Neutral (No Key)"
+
+    try:
+        # Consultamos sentimiento sobre Blockchain/Crypto
+        url = f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&topics=blockchain&apikey={api_key}"
+        r = requests.get(url, timeout=10)
+        data = r.json()
+        
+        feed = data.get("feed", [])
+        if not feed:
+            return cache.get("score", 0.0), cache.get("label", "Neutral")
+            
+        # Promediamos el sentimiento de las noticias (habitualmente -1.0 a 1.0)
+        scores = [float(item.get("overall_sentiment_score", 0)) for item in feed[:15]]
+        avg_score = sum(scores) / len(scores) if scores else 0.0
+        
+        label = "Bullish" if avg_score > 0.15 else "Bearish" if avg_score < -0.15 else "Neutral"
+        
+        # Guardar en cache
+        new_cache = {"ts": now_iso(), "score": round(avg_score, 4), "label": label}
+        MACRO_SENTINEL_PATH.write_text(json.dumps(new_cache), encoding="utf-8")
+        
+        return avg_score, label
+    except Exception:
+        return cache.get("score", 0.0), cache.get("label", "Neutral")
 
 
 def load_json(path: Path, default):
@@ -381,6 +497,10 @@ def main():
             daily["loss_streak"] = int(daily.get("loss_streak", 0)) + 1
         else:
             daily["loss_streak"] = 0
+        
+        # Integracion con Memoria de Agente
+        record_to_memory(ticker, result, pnl)
+        
         completed.append(order)
         closed_now += 1
 
@@ -431,6 +551,16 @@ def main():
         daily["paused_at"] = ""
 
     mode = daily.get("mode", "normal")
+    
+    # --- NIVEL EXPERTO: SENTINELA MACRO (Alpha Vantage Protected) ---
+    av_key = os.getenv("ALPHA_VANTAGE_API_KEY", "FR1V3DW34QCGBDK3")
+    macro_score, macro_label = get_macro_sentiment(av_key)
+    macro_multiplier = 1.0
+    if macro_label == "Bearish":
+        macro_multiplier = 0.6  # Reducimos exposicion si el sentimiento global es malo
+    elif macro_label == "Bullish":
+        macro_multiplier = 1.1  # Aumentamos un poco si hay euforia positiva
+        
     entry_scale = defensive_scale if mode == "defensive" else 1.0
     effective_max_trades_day = max(1, int(round(max_trades_day * entry_scale))) if mode == "defensive" else max_trades_day
     effective_max_trades_hour = max(1, int(round(max_trades_hour * entry_scale))) if mode == "defensive" else max_trades_hour
@@ -456,6 +586,13 @@ def main():
             continue
         if ticker in active_tickers:
             continue
+        
+        # --- NUEVA LOGICA DE MEMORIA AUTODIDACTA ---
+        ticker_multiplier, memory_reason = analyze_ticker_memory(completed, ticker)
+        if ticker_multiplier <= 0:
+            # print(f"DEBUG: Saltando {ticker} por memoria negativa: {memory_reason}")
+            continue
+            
         if candidate.get("decision_final") != "BUY":
             continue
         if candidate.get("state") not in {"READY", "TRIGGERED"}:
@@ -488,7 +625,7 @@ def main():
             research_scale = research_positive_size_scale
         elif research_sentiment in {"negative", "mixed"} and research_catalyst_score < 0:
             research_scale = research_negative_size_scale
-        notional = min(alloc_per_trade_usd * entry_scale * research_scale, cash)
+        notional = min(alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier, cash)
         if notional < min_notional_usd:
             continue
         qty = notional / price

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-13T00:07:38Z",
+  "generated_at": "2026-03-13T01:15:02Z",
   "items": [
     {
       "rank": 1,
@@ -8,8 +8,8 @@
       "automation_plan": "Desplegar insider_min_buys ganador en research_deployments si supera umbral objetivo.",
       "status": "completed",
       "priority_score": 4.74,
-      "created_at": "2026-03-13T00:07:38Z",
-      "last_run_at": "2026-03-13T00:09:33Z",
+      "created_at": "2026-03-13T01:15:02Z",
+      "last_run_at": "2026-03-13T02:17:00Z",
       "decision": "hold",
       "rationale": "La mejora existe pero necesita más evidencia antes de promoción.",
       "candidate_status": "watch"
@@ -21,8 +21,8 @@
       "automation_plan": "Desplegar technical_quality_filter solo si mejora el número y la calidad de setups accionables.",
       "status": "completed",
       "priority_score": 4.56,
-      "created_at": "2026-03-13T00:07:38Z",
-      "last_run_at": "2026-03-13T00:09:34Z",
+      "created_at": "2026-03-13T01:15:02Z",
+      "last_run_at": "2026-03-13T02:17:00Z",
       "decision": "discard",
       "rationale": "El candidato técnico no genera setups mejores que el baseline.",
       "candidate_status": "discarded"
@@ -34,8 +34,8 @@
       "automation_plan": "Evaluar variantes paramétricas dentro del executor y desplegar solo si mejora señal útil.",
       "status": "completed",
       "priority_score": 4.3,
-      "created_at": "2026-03-13T00:07:38Z",
-      "last_run_at": "2026-03-13T00:09:33Z",
+      "created_at": "2026-03-13T01:15:02Z",
+      "last_run_at": "2026-03-13T02:17:00Z",
       "decision": "discard",
       "rationale": "No mejora suficiente frente al baseline macro actual.",
       "candidate_status": "discarded"

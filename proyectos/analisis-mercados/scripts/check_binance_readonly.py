@@ -30,7 +30,14 @@ def main():
         print(json.dumps({"ok": False, "error": "missing BINANCE_API_KEY/BINANCE_API_SECRET"}, ensure_ascii=False))
         return
 
-    ts = int(time.time() * 1000)
+    # Use Binance server time to avoid local clock skew errors (-1021)
+    try:
+        with request.urlopen("https://api.binance.com/api/v3/time", timeout=10) as r:
+            st = json.loads(r.read().decode("utf-8")).get("serverTime")
+        ts = int(st) if st else int(time.time() * 1000)
+    except Exception:
+        ts = int(time.time() * 1000)
+
     qs = parse.urlencode({"timestamp": ts, "recvWindow": 5000})
     sig = hmac.new(sec.encode(), qs.encode(), hashlib.sha256).hexdigest()
     url = f"https://api.binance.com/api/v3/account?{qs}&signature={sig}"
@@ -39,7 +46,23 @@ def main():
         with request.urlopen(req, timeout=20) as r:
             payload = json.loads(r.read().decode("utf-8"))
     except Exception as e:
-        print(json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False))
+        # Try to extract Binance JSON error details on HTTP errors
+        err_payload = None
+        try:
+            import urllib.error
+            if isinstance(e, urllib.error.HTTPError):
+                body = e.read().decode("utf-8", errors="ignore")
+                try:
+                    err_payload = json.loads(body)
+                except Exception:
+                    err_payload = {"raw": body}
+        except Exception:
+            pass
+
+        out = {"ok": False, "error": str(e)}
+        if err_payload is not None:
+            out["details"] = err_payload
+        print(json.dumps(out, ensure_ascii=False))
         return
 
     print(json.dumps({

@@ -1,0 +1,15 @@
+version: 1
+capital_base_usd: 300.0
+risk_per_trade_pct: 1.0
+max_daily_loss_pct: 5.0
+pause_after_consecutive_losses: 3
+pause_hours: 24
+slippage_bps: 5
+fee_bps: 10
+allowed_symbols:
+  - BTCUSDT
+  - SOLUSDT
+allowed_hours_utc:
+  start: "08:00"
+  end: "20:00"
+execution_mode: sim_only

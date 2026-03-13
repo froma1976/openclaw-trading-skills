@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-03-12T07:15:53Z",
+  "generated_at": "2026-03-12T07:35:30Z",
   "deployments": [
     {
       "module": "I-Watcher",
       "deployment_key": "insider_min_buys",
       "deployment_value": 2,
       "applied_from_experiment": "Real-time Insider Buying Validation",
-      "applied_at": "2026-03-12T07:15:53Z",
-      "rationale": "El filtrado por insider buys >=2 parece más limpio y defendible."
+      "applied_at": "2026-03-12T07:35:30Z",
+      "rationale": "El filtrado de insiders con umbral adaptativo sale más limpio y defendible."
     }
   ]
 }
