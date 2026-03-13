@@ -1,34 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_ltc_1773436805",
-      "ticker": "LTC",
-      "opened_at": "2026-03-13T21:20:05Z",
-      "entry_price": 55.94,
-      "qty": 0.53628888,
-      "notional_usd": 30.0,
-      "target_price": 56.44346,
-      "stop_price": 55.63233,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 63,
-      "score": 63,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 1,
-        "flow": -1,
-        "whale": 0
-      },
-      "current_price": 55.79,
-      "pct_move": -0.268,
-      "pnl_usd_est": -0.080443
-    },
-    {
       "id": "crp_sand_1773437342",
       "ticker": "SAND",
       "opened_at": "2026-03-13T21:29:02Z",
@@ -52,9 +24,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.0847,
-      "pct_move": -0.39,
-      "pnl_usd_est": -0.117132
+      "current_price": 0.084817,
+      "pct_move": -0.253,
+      "pnl_usd_est": -0.075854
     },
     {
       "id": "crp_apt_1773437342",
@@ -80,9 +52,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.939,
-      "pct_move": -0.416,
-      "pnl_usd_est": -0.124687
+      "current_price": 0.939656,
+      "pct_move": -0.346,
+      "pnl_usd_est": -0.103816
     },
     {
       "id": "crp_etc_1773437342",
@@ -136,9 +108,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 1.861,
-      "pct_move": 0.054,
-      "pnl_usd_est": 0.016129
+      "current_price": 1.86,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0
     }
   ],
   "completed": [
@@ -22455,22 +22427,54 @@
       "close_price": 0.094,
       "result": "perdida",
       "pnl_usd": -0.191535
+    },
+    {
+      "id": "crp_ltc_1773436805",
+      "ticker": "LTC",
+      "opened_at": "2026-03-13T21:20:05Z",
+      "entry_price": 55.94,
+      "qty": 0.53628888,
+      "notional_usd": 30.0,
+      "target_price": 56.44346,
+      "stop_price": 55.63233,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 63,
+      "score": 63,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": -1,
+        "whale": 0
+      },
+      "current_price": 55.79,
+      "pct_move": -0.268,
+      "pnl_usd_est": -0.080443,
+      "closed_at": "2026-03-13T21:33:02Z",
+      "close_price": 55.79,
+      "result": "timeout",
+      "pnl_usd": -0.080443
     }
   ],
   "daily": {
     "date": "2026-03-13",
     "trades": 219,
-    "loss_streak": 2,
-    "paused": false,
-    "pause_reason": "",
-    "mode": "defensive",
-    "mode_reason": "racha negativa o pnl diario en deterioro",
-    "paused_at": ""
+    "loss_streak": 3,
+    "paused": true,
+    "pause_reason": "pausa activa (6/180 min)",
+    "mode": "paused",
+    "mode_reason": "pausa activa (6/180 min)",
+    "paused_at": "2026-03-13T21:33:06Z"
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 531.301775928014,
-    "market_value_usd": 149.59,
-    "equity_usd": 680.89
+    "cash_usd": 561.221332596014,
+    "market_value_usd": 119.72,
+    "equity_usd": 680.94
   }
 }
