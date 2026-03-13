@@ -1,32 +1,32 @@
 {
   "active": [
     {
-      "id": "crp_bonk_1773435662",
+      "id": "crp_bonk_1773435726",
       "ticker": "BONK",
-      "opened_at": "2026-03-13T21:01:02Z",
+      "opened_at": "2026-03-13T21:02:06Z",
       "entry_price": 6e-06,
-      "qty": 6038647.34299517,
+      "qty": 6019261.63723917,
       "notional_usd": 37.5,
       "target_price": 6e-06,
       "stop_price": 6e-06,
       "state": "ACTIVE",
       "mode": "scalp_intradia",
       "risk_mode": "normal",
-      "confidence": 100,
-      "score": 100,
+      "confidence": 60,
+      "score": 60,
       "research_sentiment": "unknown",
       "research_catalyst_score": 0,
       "research_size_scale": 1.0,
-      "spy_confluence": 4,
+      "spy_confluence": 1,
       "spy_breakdown": {
         "news": 1,
         "euphoria": 1,
-        "flow": 1,
-        "whale": 1
+        "flow": -1,
+        "whale": 0
       },
       "current_price": 6e-06,
-      "pct_move": 3.5,
-      "pnl_usd_est": 1.268116
+      "pct_move": 3.833,
+      "pnl_usd_est": 1.38443
     }
   ],
   "completed": [
@@ -21447,11 +21447,43 @@
       "close_price": 0.941,
       "result": "timeout",
       "pnl_usd": 0.103972
+    },
+    {
+      "id": "crp_bonk_1773435662",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T21:01:02Z",
+      "entry_price": 6e-06,
+      "qty": 6038647.34299517,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 100,
+      "score": 100,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 3.833,
+      "pnl_usd_est": 1.388889,
+      "closed_at": "2026-03-13T21:02:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.388889
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 187,
+    "trades": 188,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -21461,8 +21493,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 622.05,
+    "cash_usd": 623.44,
     "market_value_usd": 37.5,
-    "equity_usd": 659.55
+    "equity_usd": 660.94
   }
 }
