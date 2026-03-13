@@ -29,34 +29,6 @@
       "pnl_usd_est": -0.011359
     },
     {
-      "id": "crp_bonk_1773434766",
-      "ticker": "BONK",
-      "opened_at": "2026-03-13T20:46:06Z",
-      "entry_price": 6e-06,
-      "qty": 6058158.31987076,
-      "notional_usd": 37.5,
-      "target_price": 6e-06,
-      "stop_price": 6e-06,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 91,
-      "score": 91,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 4,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 1,
-        "flow": 1,
-        "whale": 1
-      },
-      "current_price": 6e-06,
-      "pct_move": 3.167,
-      "pnl_usd_est": 1.15105
-    },
-    {
       "id": "crp_gala_1773434766",
       "ticker": "GALA",
       "opened_at": "2026-03-13T20:46:06Z",
@@ -21331,6 +21303,38 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 1.149194
+    },
+    {
+      "id": "crp_bonk_1773434766",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T20:46:06Z",
+      "entry_price": 6e-06,
+      "qty": 6058158.31987076,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 91,
+      "score": 91,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 3.167,
+      "pnl_usd_est": 1.15105,
+      "closed_at": "2026-03-13T20:47:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.15105
     }
   ],
   "daily": {
@@ -21345,8 +21349,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 498.17,
-    "market_value_usd": 157.49,
-    "equity_usd": 655.66
+    "cash_usd": 536.8210500807755,
+    "market_value_usd": 119.99,
+    "equity_usd": 656.81
   }
 }
