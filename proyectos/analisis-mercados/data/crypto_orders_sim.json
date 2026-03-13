@@ -1,34 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_bonk_1773416521",
-      "ticker": "BONK",
-      "opened_at": "2026-03-13T15:42:01Z",
-      "entry_price": 6e-06,
-      "qty": 4716981.13207547,
-      "notional_usd": 30.0,
-      "target_price": 6e-06,
-      "stop_price": 6e-06,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 88,
-      "score": 88,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 3,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 0,
-        "flow": 1,
-        "whale": 1
-      },
-      "current_price": 6e-06,
-      "pct_move": 6.0,
-      "pnl_usd_est": 1.698113
-    },
-    {
       "id": "crp_sol_1773416521",
       "ticker": "SOL",
       "opened_at": "2026-03-13T15:42:01Z",
@@ -253,9 +225,37 @@
       "pnl_usd_est": 0.0
     },
     {
-      "id": "crp_shib_1773416521",
+      "id": "crp_bonk_1773416586",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T15:43:06Z",
+      "entry_price": 6e-06,
+      "qty": 4716981.13207547,
+      "notional_usd": 30.0,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 88,
+      "score": 88,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 3,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 6.0,
+      "pnl_usd_est": 1.698113
+    },
+    {
+      "id": "crp_shib_1773416586",
       "ticker": "SHIB",
-      "opened_at": "2026-03-13T15:42:01Z",
+      "opened_at": "2026-03-13T15:43:06Z",
       "entry_price": 6e-06,
       "qty": 6157635.4679803,
       "notional_usd": 37.5,
@@ -18851,11 +18851,75 @@
       "close_price": 4.13,
       "result": "perdida",
       "pnl_usd": -0.216346
+    },
+    {
+      "id": "crp_bonk_1773416521",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T15:42:01Z",
+      "entry_price": 6e-06,
+      "qty": 4716981.13207547,
+      "notional_usd": 30.0,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 88,
+      "score": 88,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 3,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 6.0,
+      "pnl_usd_est": 1.698113,
+      "closed_at": "2026-03-13T15:43:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.698113
+    },
+    {
+      "id": "crp_shib_1773416521",
+      "ticker": "SHIB",
+      "opened_at": "2026-03-13T15:42:01Z",
+      "entry_price": 6e-06,
+      "qty": 6157635.4679803,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 91,
+      "score": 91,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 0,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": 1.5,
+      "pnl_usd_est": 0.554187,
+      "closed_at": "2026-03-13T15:43:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 0.554187
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 107,
+    "trades": 109,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -18865,8 +18929,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 343.04,
+    "cash_usd": 345.29,
     "market_value_usd": 262.5,
-    "equity_usd": 605.54
+    "equity_usd": 607.79
   }
 }
