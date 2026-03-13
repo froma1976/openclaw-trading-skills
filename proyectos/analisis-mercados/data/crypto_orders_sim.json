@@ -1,34 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_doge_1773409742",
-      "ticker": "DOGE",
-      "opened_at": "2026-03-13T13:49:02Z",
-      "entry_price": 0.100623,
-      "qty": 298.14257178,
-      "notional_usd": 30.0,
-      "target_price": 0.101529,
-      "stop_price": 0.10007,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 89,
-      "score": 89,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 0,
-        "flow": 1,
-        "whale": 0
-      },
-      "current_price": 0.10043,
-      "pct_move": -0.192,
-      "pnl_usd_est": -0.057542
-    },
-    {
       "id": "crp_uni_1773410102",
       "ticker": "UNI",
       "opened_at": "2026-03-13T13:55:02Z",
@@ -80,9 +52,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.106171,
-      "pct_move": -0.11,
-      "pnl_usd_est": -0.033023
+      "current_price": 0.106218,
+      "pct_move": -0.066,
+      "pnl_usd_est": -0.019758
     },
     {
       "id": "crp_gala_1773410163",
@@ -108,9 +80,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003583,
-      "pct_move": -0.182,
-      "pnl_usd_est": -0.054741
+      "current_price": 0.003571,
+      "pct_move": -0.516,
+      "pnl_usd_est": -0.154864
     },
     {
       "id": "crp_sol_1773410223",
@@ -136,9 +108,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 91.96,
-      "pct_move": -0.119,
-      "pnl_usd_est": -0.035842
+      "current_price": 92.03,
+      "pct_move": -0.043,
+      "pnl_usd_est": -0.013034
     },
     {
       "id": "crp_avax_1773410223",
@@ -192,9 +164,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 56.49,
-      "pct_move": -0.071,
-      "pnl_usd_est": -0.021228
+      "current_price": 56.54,
+      "pct_move": 0.018,
+      "pnl_usd_est": 0.005307
     },
     {
       "id": "crp_inj_1773410342",
@@ -248,9 +220,65 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 2186.59,
-      "pct_move": -0.133,
-      "pnl_usd_est": -0.039872
+      "current_price": 2187.36,
+      "pct_move": -0.098,
+      "pnl_usd_est": -0.029322
+    },
+    {
+      "id": "crp_doge_1773410525",
+      "ticker": "DOGE",
+      "opened_at": "2026-03-13T14:02:05Z",
+      "entry_price": 0.100374,
+      "qty": 149.44109032,
+      "notional_usd": 15.0,
+      "target_price": 0.101277,
+      "stop_price": 0.099822,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 89,
+      "score": 89,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 0.100316,
+      "pct_move": -0.058,
+      "pnl_usd_est": -0.008668
+    },
+    {
+      "id": "crp_op_1773410762",
+      "ticker": "OP",
+      "opened_at": "2026-03-13T14:06:02Z",
+      "entry_price": 0.126501,
+      "qty": 118.57613774,
+      "notional_usd": 15.0,
+      "target_price": 0.12764,
+      "stop_price": 0.125805,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 79,
+      "score": 79,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 3,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 0.126501,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0
     }
   ],
   "completed": [
@@ -18119,12 +18147,44 @@
       "close_price": 2189.5,
       "result": "timeout",
       "pnl_usd": 0.058896
+    },
+    {
+      "id": "crp_doge_1773409742",
+      "ticker": "DOGE",
+      "opened_at": "2026-03-13T13:49:02Z",
+      "entry_price": 0.100623,
+      "qty": 298.14257178,
+      "notional_usd": 30.0,
+      "target_price": 0.101529,
+      "stop_price": 0.10007,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 89,
+      "score": 89,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 0.100374,
+      "pct_move": -0.247,
+      "pnl_usd_est": -0.074238,
+      "closed_at": "2026-03-13T14:02:01Z",
+      "close_price": 0.100374,
+      "result": "timeout",
+      "pnl_usd": -0.074238
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 84,
-    "loss_streak": 0,
+    "trades": 86,
+    "loss_streak": 1,
     "paused": false,
     "pause_reason": "",
     "mode": "normal",
@@ -18133,8 +18193,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 336.25,
-    "market_value_usd": 269.51,
-    "equity_usd": 605.76
+    "cash_usd": 336.18,
+    "market_value_usd": 269.53,
+    "equity_usd": 605.71
   }
 }
