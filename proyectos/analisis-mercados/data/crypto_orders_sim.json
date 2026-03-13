@@ -1,34 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_op_1773434102",
-      "ticker": "OP",
-      "opened_at": "2026-03-13T20:35:02Z",
-      "entry_price": 0.124127,
-      "qty": 120.84397432,
-      "notional_usd": 15.0,
-      "target_price": 0.125244,
-      "stop_price": 0.123444,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 83,
-      "score": 83,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 4,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 1,
-        "flow": 1,
-        "whale": 1
-      },
-      "current_price": 0.124033,
-      "pct_move": -0.076,
-      "pnl_usd_est": -0.011359
-    },
-    {
       "id": "crp_gala_1773434766",
       "ticker": "GALA",
       "opened_at": "2026-03-13T20:46:06Z",
@@ -52,9 +24,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003551,
-      "pct_move": 0.006,
-      "pnl_usd_est": 0.001943
+      "current_price": 0.003548,
+      "pct_move": -0.093,
+      "pnl_usd_est": -0.027878
     },
     {
       "id": "crp_algo_1773434766",
@@ -80,9 +52,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 0.093655,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.09375,
+      "pct_move": 0.101,
+      "pnl_usd_est": 0.030431
     },
     {
       "id": "crp_sand_1773434766",
@@ -108,9 +80,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.084585,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.084658,
+      "pct_move": 0.086,
+      "pnl_usd_est": 0.012946
     },
     {
       "id": "crp_apt_1773434766",
@@ -136,9 +108,37 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.93775,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.938526,
+      "pct_move": 0.083,
+      "pnl_usd_est": 0.024825
+    },
+    {
+      "id": "crp_bonk_1773435302",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T20:55:02Z",
+      "entry_price": 6e-06,
+      "qty": 6058158.31987076,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 91,
+      "score": 91,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 3.167,
+      "pnl_usd_est": 1.15105
     }
   ],
   "completed": [
@@ -21335,11 +21335,43 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 1.15105
+    },
+    {
+      "id": "crp_op_1773434102",
+      "ticker": "OP",
+      "opened_at": "2026-03-13T20:35:02Z",
+      "entry_price": 0.124127,
+      "qty": 120.84397432,
+      "notional_usd": 15.0,
+      "target_price": 0.125244,
+      "stop_price": 0.123444,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 83,
+      "score": 83,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 0.1242,
+      "pct_move": 0.059,
+      "pnl_usd_est": 0.008822,
+      "closed_at": "2026-03-13T20:48:01Z",
+      "close_price": 0.1242,
+      "result": "timeout",
+      "pnl_usd": 0.008822
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 184,
+    "trades": 185,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -21349,8 +21381,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 536.8210500807755,
-    "market_value_usd": 119.99,
-    "equity_usd": 656.81
+    "cash_usd": 514.33,
+    "market_value_usd": 142.54,
+    "equity_usd": 656.87
   }
 }
