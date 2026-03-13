@@ -24,9 +24,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 88.85,
-      "pct_move": 0.079,
-      "pnl_usd_est": 0.013601
+      "current_price": 88.61,
+      "pct_move": -0.191,
+      "pnl_usd_est": -0.033031
     },
     {
       "id": "crp_sei_1773430262",
@@ -52,9 +52,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.067114,
-      "pct_move": -0.007,
-      "pnl_usd_est": -0.002235
+      "current_price": 0.067,
+      "pct_move": -0.177,
+      "pnl_usd_est": -0.053189
     },
     {
       "id": "crp_op_1773430262",
@@ -80,9 +80,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.124291,
-      "pct_move": 0.056,
-      "pnl_usd_est": 0.016905
+      "current_price": 0.1241,
+      "pct_move": -0.097,
+      "pnl_usd_est": -0.029222
     },
     {
       "id": "crp_gala_1773430262",
@@ -108,9 +108,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003506,
-      "pct_move": 0.073,
-      "pnl_usd_est": 0.021922
+      "current_price": 0.0035,
+      "pct_move": -0.086,
+      "pnl_usd_est": -0.02569
     },
     {
       "id": "crp_aave_1773430262",
@@ -136,9 +136,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 112.79,
-      "pct_move": 0.035,
-      "pnl_usd_est": 0.010643
+      "current_price": 112.68,
+      "pct_move": -0.062,
+      "pnl_usd_est": -0.018625
     },
     {
       "id": "crp_algo_1773430262",
@@ -164,9 +164,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 0.093508,
-      "pct_move": -0.036,
-      "pnl_usd_est": -0.010904
+      "current_price": 0.0932,
+      "pct_move": -0.366,
+      "pnl_usd_est": -0.109683
     },
     {
       "id": "crp_sand_1773430262",
@@ -192,9 +192,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.084528,
-      "pct_move": 0.043,
-      "pnl_usd_est": 0.012782
+      "current_price": 0.0844,
+      "pct_move": -0.109,
+      "pnl_usd_est": -0.032666
     },
     {
       "id": "crp_apt_1773430262",
@@ -220,65 +220,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.93781,
-      "pct_move": 0.043,
-      "pnl_usd_est": 0.012929
-    },
-    {
-      "id": "crp_bonk_1773430504",
-      "ticker": "BONK",
-      "opened_at": "2026-03-13T19:35:04Z",
-      "entry_price": 6e-06,
-      "qty": 6077795.78606159,
-      "notional_usd": 37.5,
-      "target_price": 6e-06,
-      "stop_price": 6e-06,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 95,
-      "score": 95,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 4,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 1,
-        "flow": 1,
-        "whale": 1
-      },
-      "current_price": 6e-06,
-      "pct_move": 2.833,
-      "pnl_usd_est": 1.033225
-    },
-    {
-      "id": "crp_shib_1773430504",
-      "ticker": "SHIB",
-      "opened_at": "2026-03-13T19:35:04Z",
-      "entry_price": 6e-06,
-      "qty": 2521008.40336134,
-      "notional_usd": 15.0,
-      "target_price": 6e-06,
-      "stop_price": 6e-06,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 86,
-      "score": 86,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 1,
-        "flow": 0,
-        "whale": 0
-      },
-      "current_price": 6e-06,
-      "pct_move": -0.833,
-      "pnl_usd_est": -0.12605
+      "current_price": 0.936,
+      "pct_move": -0.15,
+      "pnl_usd_est": -0.044997
     }
   ],
   "completed": [
@@ -19715,6 +19659,70 @@
       "close_price": 6e-06,
       "result": "perdida",
       "pnl_usd": -0.315126
+    },
+    {
+      "id": "crp_bonk_1773430504",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T19:35:04Z",
+      "entry_price": 6e-06,
+      "qty": 6077795.78606159,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 95,
+      "score": 95,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 2.833,
+      "pnl_usd_est": 1.033225,
+      "closed_at": "2026-03-13T19:36:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.033225
+    },
+    {
+      "id": "crp_shib_1773430504",
+      "ticker": "SHIB",
+      "opened_at": "2026-03-13T19:35:04Z",
+      "entry_price": 6e-06,
+      "qty": 2521008.40336134,
+      "notional_usd": 15.0,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 86,
+      "score": 86,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 0,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": -0.833,
+      "pnl_usd_est": -0.12605,
+      "closed_at": "2026-03-13T19:36:01Z",
+      "close_price": 6e-06,
+      "result": "perdida",
+      "pnl_usd": -0.12605
     }
   ],
   "daily": {
@@ -19729,8 +19737,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 345.72,
-    "market_value_usd": 279.82,
-    "equity_usd": 625.54
+    "cash_usd": 399.12717486346247,
+    "market_value_usd": 226.9,
+    "equity_usd": 626.03
   }
 }
