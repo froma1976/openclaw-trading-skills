@@ -1,6 +1,61 @@
 {
-  "generated_at": "2026-03-12T07:15:53Z",
+  "generated_at": "2026-03-13T00:09:34Z",
   "results": [
+    {
+      "experiment": "Real-time Insider Buying Validation",
+      "target_module": "I-Watcher",
+      "status": "completed",
+      "runner": "source_ingest_free.py",
+      "baseline": {
+        "symbols_with_insider_buys": 17,
+        "max_insider_buys_per_symbol": 4,
+        "latency_s": 115.27
+      },
+      "candidate": {
+        "name": "insider_min_buys_2",
+        "min_buys": 2,
+        "filtered_symbols_with_insider_buys": 1,
+        "quality_ratio": 0.059,
+        "latency_s": 110.66,
+        "score": 0.39,
+        "variants_tested": [
+          {
+            "name": "insider_min_buys_2",
+            "min_buys": 2,
+            "filtered_symbols_with_insider_buys": 1,
+            "quality_ratio": 0.059,
+            "latency_s": 110.66,
+            "score": 0.39
+          },
+          {
+            "name": "insider_min_buys_3",
+            "min_buys": 3,
+            "filtered_symbols_with_insider_buys": 1,
+            "quality_ratio": 0.059,
+            "latency_s": 109.51,
+            "score": -0.21
+          },
+          {
+            "name": "insider_min_buys_4",
+            "min_buys": 4,
+            "filtered_symbols_with_insider_buys": 1,
+            "quality_ratio": 0.059,
+            "latency_s": 108.35,
+            "score": -0.81
+          }
+        ]
+      },
+      "notes": "Baseline automatica del bloque insider para decidir si conviene invertir en feed mas rapido o limpieza de eventos.",
+      "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
+      "stderr": "",
+      "decision": "hold",
+      "delta": {
+        "filtered_symbols_gain": 1,
+        "quality_ratio": 0.059,
+        "min_buys": 2
+      },
+      "rationale": "La mejora existe pero necesita más evidencia antes de promoción."
+    },
     {
       "experiment": "Liquidity Monitoring with Real-time Data",
       "target_module": "L-Scanner",
@@ -10,12 +65,41 @@
         "macro_adj": 0,
         "vix": null,
         "dxy": null,
-        "latency_s": 115.3
+        "latency_s": 115.28
       },
       "candidate": {
+        "name": "refresh_bias_0",
         "macro_signal_completeness": 1,
-        "macro_adj_candidate": 1,
-        "latency_s": 106.08
+        "timeout_count": 4,
+        "macro_adj_candidate": 0,
+        "latency_s": 109.52,
+        "score": -2.0,
+        "variants_tested": [
+          {
+            "name": "refresh_bias_0",
+            "macro_signal_completeness": 1,
+            "timeout_count": 4,
+            "macro_adj_candidate": 0,
+            "latency_s": 109.52,
+            "score": -2.0
+          },
+          {
+            "name": "refresh_bias_1",
+            "macro_signal_completeness": 1,
+            "timeout_count": 4,
+            "macro_adj_candidate": 1,
+            "latency_s": 106.06,
+            "score": -2.5
+          },
+          {
+            "name": "refresh_bias_2",
+            "macro_signal_completeness": 1,
+            "timeout_count": 4,
+            "macro_adj_candidate": 2,
+            "latency_s": 102.6,
+            "score": -3.0
+          }
+        ]
       },
       "notes": "Baseline automatica para evaluar si merece aumentar cadencia/frescura del bloque macro-liquidez.",
       "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
@@ -23,34 +107,9 @@
       "decision": "discard",
       "delta": {
         "signal_completeness": 1,
-        "latency_gain_s": 9.22
+        "latency_gain_s": 5.76
       },
       "rationale": "No mejora suficiente frente al baseline macro actual."
-    },
-    {
-      "experiment": "Real-time Insider Buying Validation",
-      "target_module": "I-Watcher",
-      "status": "completed",
-      "runner": "source_ingest_free.py",
-      "baseline": {
-        "symbols_with_insider_buys": 17,
-        "max_insider_buys_per_symbol": 10,
-        "latency_s": 115.86
-      },
-      "candidate": {
-        "filtered_symbols_with_insider_buys": 6,
-        "quality_ratio": 0.353,
-        "latency_s": 110.07
-      },
-      "notes": "Baseline automatica del bloque insider para decidir si conviene invertir en feed mas rapido o limpieza de eventos.",
-      "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
-      "stderr": "",
-      "decision": "promote",
-      "delta": {
-        "filtered_symbols_gain": 6,
-        "quality_ratio": 0.353
-      },
-      "rationale": "El filtrado por insider buys >=2 parece más limpio y defendible."
     },
     {
       "experiment": "Technical Analysis with Real-time Data",
@@ -58,14 +117,101 @@
       "status": "completed",
       "runner": "source_ingest_free.py",
       "baseline": {
-        "top5_avg_score_tech": 78.4,
+        "top5_avg_score_tech": 47.6,
         "ready_or_triggered": 0,
-        "latency_s": 114.94
+        "latency_s": 115.49
       },
       "candidate": {
+        "name": "tech_72_0.8",
+        "min_score_tech": 72,
+        "min_rel_volume": 0.8,
         "quality_setups": 0,
         "quality_top5_avg_score_tech": 0,
-        "latency_s": 111.49
+        "latency_s": 112.03,
+        "score": -2.1,
+        "variants_tested": [
+          {
+            "name": "tech_72_0.8",
+            "min_score_tech": 72,
+            "min_rel_volume": 0.8,
+            "quality_setups": 0,
+            "quality_top5_avg_score_tech": 0,
+            "latency_s": 112.03,
+            "score": -2.1
+          },
+          {
+            "name": "tech_72_0.9",
+            "min_score_tech": 72,
+            "min_rel_volume": 0.9,
+            "quality_setups": 0,
+            "quality_top5_avg_score_tech": 0,
+            "latency_s": 112.03,
+            "score": -2.1
+          },
+          {
+            "name": "tech_72_1.0",
+            "min_score_tech": 72,
+            "min_rel_volume": 1.0,
+            "quality_setups": 0,
+            "quality_top5_avg_score_tech": 0,
+            "latency_s": 112.03,
+            "score": -2.1
+          },
+          {
+            "name": "tech_76_0.8",
+            "min_score_tech": 76,
+            "min_rel_volume": 0.8,
+            "quality_setups": 0,
+            "quality_top5_avg_score_tech": 0,
+            "latency_s": 112.03,
+            "score": -2.1
+          },
+          {
+            "name": "tech_76_0.9",
+            "min_score_tech": 76,
+            "min_rel_volume": 0.9,
+            "quality_setups": 0,
+            "quality_top5_avg_score_tech": 0,
+            "latency_s": 112.03,
+            "score": -2.1
+          },
+          {
+            "name": "tech_76_1.0",
+            "min_score_tech": 76,
+            "min_rel_volume": 1.0,
+            "quality_setups": 0,
+            "quality_top5_avg_score_tech": 0,
+            "latency_s": 112.03,
+            "score": -2.1
+          },
+          {
+            "name": "tech_80_0.8",
+            "min_score_tech": 80,
+            "min_rel_volume": 0.8,
+            "quality_setups": 0,
+            "quality_top5_avg_score_tech": 0,
+            "latency_s": 112.03,
+            "score": -2.1
+          },
+          {
+            "name": "tech_80_0.9",
+            "min_score_tech": 80,
+            "min_rel_volume": 0.9,
+            "quality_setups": 0,
+            "quality_top5_avg_score_tech": 0,
+            "latency_s": 112.03,
+            "score": -2.1
+          },
+          {
+            "name": "tech_80_1.0",
+            "min_score_tech": 80,
+            "min_rel_volume": 1.0,
+            "quality_setups": 0,
+            "quality_top5_avg_score_tech": 0,
+            "latency_s": 112.03,
+            "score": -2.1
+          }
+        ]
       },
       "notes": "Baseline automatica del bloque tecnico antes de introducir feeds mas rapidos o nuevos indicadores.",
       "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
@@ -73,7 +219,9 @@
       "decision": "discard",
       "delta": {
         "quality_setups": 0,
-        "quality_vs_ready_gap": 0
+        "quality_vs_ready_gap": 0,
+        "min_score_tech": 72,
+        "min_rel_volume": 0.8
       },
       "rationale": "El candidato técnico no genera setups mejores que el baseline."
     }
@@ -84,8 +232,8 @@
       "deployment_key": "insider_min_buys",
       "deployment_value": 2,
       "applied_from_experiment": "Real-time Insider Buying Validation",
-      "applied_at": "2026-03-12T07:15:53Z",
-      "rationale": "El filtrado por insider buys >=2 parece más limpio y defendible."
+      "applied_at": "2026-03-12T07:35:30Z",
+      "rationale": "El filtrado de insiders con umbral adaptativo sale más limpio y defendible."
     }
   ]
 }
