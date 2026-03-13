@@ -1,62 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_inj_1773410342",
-      "ticker": "INJ",
-      "opened_at": "2026-03-13T13:59:02Z",
-      "entry_price": 3.16,
-      "qty": 9.49367089,
-      "notional_usd": 30.0,
-      "target_price": 3.18844,
-      "stop_price": 3.14262,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 88,
-      "score": 88,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 3,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 0,
-        "flow": 1,
-        "whale": 1
-      },
-      "current_price": 3.15,
-      "pct_move": -0.316,
-      "pnl_usd_est": -0.094937
-    },
-    {
-      "id": "crp_eth_1773410342",
-      "ticker": "ETH",
-      "opened_at": "2026-03-13T13:59:02Z",
-      "entry_price": 2189.5,
-      "qty": 0.01370176,
-      "notional_usd": 30.0,
-      "target_price": 2209.2055,
-      "stop_price": 2177.45775,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 90,
-      "score": 90,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 0,
-        "flow": 1,
-        "whale": 0
-      },
-      "current_price": 2189.11,
-      "pct_move": -0.018,
-      "pnl_usd_est": -0.005344
-    },
-    {
       "id": "crp_doge_1773410525",
       "ticker": "DOGE",
       "opened_at": "2026-03-13T14:02:05Z",
@@ -80,9 +24,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.100264,
-      "pct_move": -0.11,
-      "pnl_usd_est": -0.016439
+      "current_price": 0.100155,
+      "pct_move": -0.218,
+      "pnl_usd_est": -0.032728
     },
     {
       "id": "crp_op_1773410762",
@@ -108,9 +52,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.126555,
-      "pct_move": 0.043,
-      "pnl_usd_est": 0.006403
+      "current_price": 0.126511,
+      "pct_move": 0.008,
+      "pnl_usd_est": 0.001186
     },
     {
       "id": "crp_uni_1773411005",
@@ -136,9 +80,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 4.18,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 4.17,
+      "pct_move": -0.239,
+      "pnl_usd_est": -0.07177
     },
     {
       "id": "crp_sol_1773411005",
@@ -164,9 +108,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 92.14,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 92.21,
+      "pct_move": 0.076,
+      "pnl_usd_est": 0.022791
     },
     {
       "id": "crp_gala_1773411005",
@@ -192,9 +136,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003569,
-      "pct_move": -0.003,
-      "pnl_usd_est": -0.000462
+      "current_price": 0.003564,
+      "pct_move": -0.133,
+      "pnl_usd_est": -0.019922
     },
     {
       "id": "crp_avax_1773411005",
@@ -220,9 +164,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 10.21,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 10.2,
+      "pct_move": -0.098,
+      "pnl_usd_est": -0.014691
     },
     {
       "id": "crp_ltc_1773411005",
@@ -18343,22 +18287,86 @@
       "close_price": 56.56,
       "result": "timeout",
       "pnl_usd": 0.015921
+    },
+    {
+      "id": "crp_inj_1773410342",
+      "ticker": "INJ",
+      "opened_at": "2026-03-13T13:59:02Z",
+      "entry_price": 3.16,
+      "qty": 9.49367089,
+      "notional_usd": 30.0,
+      "target_price": 3.18844,
+      "stop_price": 3.14262,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 88,
+      "score": 88,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 3,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 3.15,
+      "pct_move": -0.316,
+      "pnl_usd_est": -0.094937,
+      "closed_at": "2026-03-13T14:12:01Z",
+      "close_price": 3.15,
+      "result": "timeout",
+      "pnl_usd": -0.094937
+    },
+    {
+      "id": "crp_eth_1773410342",
+      "ticker": "ETH",
+      "opened_at": "2026-03-13T13:59:02Z",
+      "entry_price": 2189.5,
+      "qty": 0.01370176,
+      "notional_usd": 30.0,
+      "target_price": 2209.2055,
+      "stop_price": 2177.45775,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 90,
+      "score": 90,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 2188.48,
+      "pct_move": -0.047,
+      "pnl_usd_est": -0.013976,
+      "closed_at": "2026-03-13T14:12:02Z",
+      "close_price": 2188.48,
+      "result": "timeout",
+      "pnl_usd": -0.013976
     }
   ],
   "daily": {
     "date": "2026-03-13",
     "trades": 91,
-    "loss_streak": 0,
+    "loss_streak": 2,
     "paused": false,
     "pause_reason": "",
-    "mode": "normal",
-    "mode_reason": "operativa normal",
+    "mode": "defensive",
+    "mode_reason": "racha negativa o pnl diario en deterioro",
     "paused_at": ""
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 395.92,
-    "market_value_usd": 209.89,
-    "equity_usd": 605.81
+    "cash_usd": 455.81108749590004,
+    "market_value_usd": 149.89,
+    "equity_usd": 605.7
   }
 }
