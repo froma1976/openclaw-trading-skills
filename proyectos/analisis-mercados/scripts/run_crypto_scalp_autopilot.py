@@ -6,6 +6,7 @@ import requests
 import os
 import urllib.parse
 import urllib.request
+import subprocess
 
 SNAP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")
@@ -503,6 +504,16 @@ def main():
         
         completed.append(order)
         closed_now += 1
+
+    # --- AUTOMATIZACION GITHUB (Usuario solicita push al cerrar) ---
+    if closed_now > 0:
+        try:
+            repo_root = Path(__file__).resolve().parent.parent.parent.parent
+            subprocess.run(["git", "add", "proyectos/analisis-mercados/data/crypto_orders_sim.json"], cwd=str(repo_root), capture_output=True)
+            subprocess.run(["git", "commit", "-m", f"Auto-update: {closed_now} crypto trades closed"], cwd=str(repo_root), capture_output=True)
+            subprocess.run(["git", "push", "origin", "main"], cwd=str(repo_root), capture_output=True)
+        except Exception:
+            pass
 
     active = still_active
     opened_now = 0
