@@ -24,14 +24,14 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 55.94,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 55.99,
+      "pct_move": 0.089,
+      "pnl_usd_est": 0.026814
     },
     {
-      "id": "crp_bonk_1773436865",
+      "id": "crp_bonk_1773436925",
       "ticker": "BONK",
-      "opened_at": "2026-03-13T21:21:05Z",
+      "opened_at": "2026-03-13T21:22:05Z",
       "entry_price": 6e-06,
       "qty": 6019261.63723917,
       "notional_usd": 37.5,
@@ -40,21 +40,49 @@
       "state": "ACTIVE",
       "mode": "scalp_intradia",
       "risk_mode": "normal",
-      "confidence": 60,
-      "score": 60,
+      "confidence": 100,
+      "score": 100,
       "research_sentiment": "unknown",
       "research_catalyst_score": 0,
       "research_size_scale": 1.0,
-      "spy_confluence": 1,
+      "spy_confluence": 4,
       "spy_breakdown": {
         "news": 1,
         "euphoria": 1,
-        "flow": -1,
-        "whale": 0
+        "flow": 1,
+        "whale": 1
       },
       "current_price": 6e-06,
       "pct_move": 3.833,
       "pnl_usd_est": 1.38443
+    },
+    {
+      "id": "crp_op_1773436925",
+      "ticker": "OP",
+      "opened_at": "2026-03-13T21:22:05Z",
+      "entry_price": 0.124931,
+      "qty": 240.13255317,
+      "notional_usd": 30.0,
+      "target_price": 0.126055,
+      "stop_price": 0.124244,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 82,
+      "score": 82,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 3,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 0.124931,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0
     }
   ],
   "completed": [
@@ -22147,11 +22175,43 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 1.38443
+    },
+    {
+      "id": "crp_bonk_1773436865",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T21:21:05Z",
+      "entry_price": 6e-06,
+      "qty": 6019261.63723917,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 60,
+      "score": 60,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 1,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": -1,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": 3.833,
+      "pnl_usd_est": 1.38443,
+      "closed_at": "2026-03-13T21:22:02Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.38443
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 209,
+    "trades": 211,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -22161,8 +22221,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 608.97,
-    "market_value_usd": 67.5,
-    "equity_usd": 676.47
+    "cash_usd": 580.35,
+    "market_value_usd": 97.53,
+    "equity_usd": 677.88
   }
 }
