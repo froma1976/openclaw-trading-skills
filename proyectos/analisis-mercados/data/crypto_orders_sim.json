@@ -225,9 +225,9 @@
       "pnl_usd_est": 0.012929
     },
     {
-      "id": "crp_bonk_1773430441",
+      "id": "crp_bonk_1773430504",
       "ticker": "BONK",
-      "opened_at": "2026-03-13T19:34:01Z",
+      "opened_at": "2026-03-13T19:35:04Z",
       "entry_price": 6e-06,
       "qty": 6077795.78606159,
       "notional_usd": 37.5,
@@ -253,12 +253,12 @@
       "pnl_usd_est": 1.033225
     },
     {
-      "id": "crp_shib_1773430441",
+      "id": "crp_shib_1773430504",
       "ticker": "SHIB",
-      "opened_at": "2026-03-13T19:34:01Z",
+      "opened_at": "2026-03-13T19:35:04Z",
       "entry_price": 6e-06,
-      "qty": 6302521.00840336,
-      "notional_usd": 37.5,
+      "qty": 2521008.40336134,
+      "notional_usd": 15.0,
       "target_price": 6e-06,
       "stop_price": 6e-06,
       "state": "ACTIVE",
@@ -278,7 +278,7 @@
       },
       "current_price": 6e-06,
       "pct_move": -0.833,
-      "pnl_usd_est": -0.315126
+      "pnl_usd_est": -0.12605
     }
   ],
   "completed": [
@@ -19651,11 +19651,75 @@
       "close_price": 6e-06,
       "result": "perdida",
       "pnl_usd": -0.315126
+    },
+    {
+      "id": "crp_bonk_1773430441",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T19:34:01Z",
+      "entry_price": 6e-06,
+      "qty": 6077795.78606159,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 95,
+      "score": 95,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 2.833,
+      "pnl_usd_est": 1.033225,
+      "closed_at": "2026-03-13T19:35:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.033225
+    },
+    {
+      "id": "crp_shib_1773430441",
+      "ticker": "SHIB",
+      "opened_at": "2026-03-13T19:34:01Z",
+      "entry_price": 6e-06,
+      "qty": 6302521.00840336,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 86,
+      "score": 86,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 0,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": -0.833,
+      "pnl_usd_est": -0.315126,
+      "closed_at": "2026-03-13T19:35:01Z",
+      "close_price": 6e-06,
+      "result": "perdida",
+      "pnl_usd": -0.315126
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 132,
+    "trades": 134,
     "loss_streak": 1,
     "paused": false,
     "pause_reason": "",
@@ -19665,8 +19729,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 322.5,
-    "market_value_usd": 302.32,
-    "equity_usd": 624.82
+    "cash_usd": 345.72,
+    "market_value_usd": 279.82,
+    "equity_usd": 625.54
   }
 }
