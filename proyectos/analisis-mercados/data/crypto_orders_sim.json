@@ -24,9 +24,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 90.27,
-      "pct_move": -0.089,
-      "pnl_usd_est": -0.026563
+      "current_price": 90.1,
+      "pct_move": -0.277,
+      "pnl_usd_est": -0.083011
     },
     {
       "id": "crp_uni_1773416521",
@@ -52,9 +52,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 4.1,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 4.09,
+      "pct_move": -0.244,
+      "pnl_usd_est": -0.036585
     },
     {
       "id": "crp_sand_1773416521",
@@ -80,9 +80,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.086002,
-      "pct_move": -0.117,
-      "pnl_usd_est": -0.03519
+      "current_price": 0.085946,
+      "pct_move": -0.182,
+      "pnl_usd_est": -0.054702
     },
     {
       "id": "crp_arb_1773416521",
@@ -108,9 +108,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.105758,
-      "pct_move": -0.094,
-      "pnl_usd_est": -0.01417
+      "current_price": 0.105728,
+      "pct_move": -0.123,
+      "pnl_usd_est": -0.018421
     },
     {
       "id": "crp_aave_1773416521",
@@ -136,9 +136,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 115.29,
-      "pct_move": -0.061,
-      "pnl_usd_est": -0.018204
+      "current_price": 115.11,
+      "pct_move": -0.217,
+      "pnl_usd_est": -0.065014
     },
     {
       "id": "crp_atom_1773416521",
@@ -192,9 +192,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003553,
-      "pct_move": -0.066,
-      "pnl_usd_est": -0.009915
+      "current_price": 0.003551,
+      "pct_move": -0.123,
+      "pnl_usd_est": -0.018437
     },
     {
       "id": "crp_op_1773416521",
@@ -220,16 +220,16 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.126166,
-      "pct_move": -0.068,
-      "pnl_usd_est": -0.020435
+      "current_price": 0.126099,
+      "pct_move": -0.121,
+      "pnl_usd_est": -0.036356
     },
     {
-      "id": "crp_bonk_1773416705",
+      "id": "crp_bonk_1773416765",
       "ticker": "BONK",
-      "opened_at": "2026-03-13T15:45:05Z",
+      "opened_at": "2026-03-13T15:46:05Z",
       "entry_price": 6e-06,
-      "qty": 5905511.81102362,
+      "qty": 5914826.49842271,
       "notional_usd": 37.5,
       "target_price": 6e-06,
       "stop_price": 6e-06,
@@ -249,15 +249,15 @@
         "whale": 1
       },
       "current_price": 6e-06,
-      "pct_move": 5.833,
-      "pnl_usd_est": 2.066929
+      "pct_move": 5.667,
+      "pnl_usd_est": 2.011041
     },
     {
-      "id": "crp_shib_1773416705",
+      "id": "crp_shib_1773416765",
       "ticker": "SHIB",
-      "opened_at": "2026-03-13T15:45:05Z",
+      "opened_at": "2026-03-13T15:46:05Z",
       "entry_price": 6e-06,
-      "qty": 6157635.4679803,
+      "qty": 6167763.15789474,
       "notional_usd": 37.5,
       "target_price": 6e-06,
       "stop_price": 6e-06,
@@ -277,8 +277,8 @@
         "whale": 0
       },
       "current_price": 6e-06,
-      "pct_move": 1.5,
-      "pnl_usd_est": 0.554187
+      "pct_move": 1.333,
+      "pnl_usd_est": 0.493421
     }
   ],
   "completed": [
@@ -19043,11 +19043,75 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 0.554187
+    },
+    {
+      "id": "crp_bonk_1773416705",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T15:45:05Z",
+      "entry_price": 6e-06,
+      "qty": 5905511.81102362,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 88,
+      "score": 88,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 3,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 5.667,
+      "pnl_usd_est": 2.007874,
+      "closed_at": "2026-03-13T15:46:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 2.007874
+    },
+    {
+      "id": "crp_shib_1773416705",
+      "ticker": "SHIB",
+      "opened_at": "2026-03-13T15:45:05Z",
+      "entry_price": 6e-06,
+      "qty": 6157635.4679803,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 91,
+      "score": 91,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 0,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": 1.333,
+      "pnl_usd_est": 0.492611,
+      "closed_at": "2026-03-13T15:46:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 0.492611
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 113,
+    "trades": 115,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -19057,8 +19121,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 342.62,
-    "market_value_usd": 269.87,
-    "equity_usd": 612.49
+    "cash_usd": 345.12,
+    "market_value_usd": 269.69,
+    "equity_usd": 614.81
   }
 }
