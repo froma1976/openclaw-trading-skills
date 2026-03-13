@@ -24,9 +24,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003513,
-      "pct_move": 0.002,
-      "pnl_usd_est": 0.000299
+      "current_price": 0.003527,
+      "pct_move": 0.397,
+      "pnl_usd_est": 0.059606
     },
     {
       "id": "crp_op_1773431641",
@@ -52,9 +52,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.124128,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.124256,
+      "pct_move": 0.103,
+      "pnl_usd_est": 0.015468
     },
     {
       "id": "crp_aave_1773431641",
@@ -80,9 +80,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 112.72,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 112.87,
+      "pct_move": 0.133,
+      "pnl_usd_est": 0.019961
     },
     {
       "id": "crp_algo_1773431641",
@@ -108,9 +108,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 0.093474,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.093784,
+      "pct_move": 0.332,
+      "pnl_usd_est": 0.099493
     },
     {
       "id": "crp_sand_1773431641",
@@ -136,9 +136,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.084505,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.084664,
+      "pct_move": 0.188,
+      "pnl_usd_est": 0.028223
     },
     {
       "id": "crp_apt_1773431641",
@@ -164,9 +164,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.937146,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.939507,
+      "pct_move": 0.252,
+      "pnl_usd_est": 0.03779
     },
     {
       "id": "crp_sei_1773431641",
@@ -192,9 +192,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.066905,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.066858,
+      "pct_move": -0.07,
+      "pnl_usd_est": -0.021075
     },
     {
       "id": "crp_ltc_1773431641",
@@ -220,9 +220,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 55.45,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 55.52,
+      "pct_move": 0.126,
+      "pnl_usd_est": 0.037872
     },
     {
       "id": "crp_etc_1773431641",
@@ -248,16 +248,16 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 8.5,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 8.51,
+      "pct_move": 0.118,
+      "pnl_usd_est": 0.035294
     },
     {
-      "id": "crp_bonk_1773431704",
+      "id": "crp_bonk_1773432001",
       "ticker": "BONK",
-      "opened_at": "2026-03-13T19:55:04Z",
+      "opened_at": "2026-03-13T20:00:01Z",
       "entry_price": 6e-06,
-      "qty": 6077795.78606159,
+      "qty": 6058158.31987076,
       "notional_usd": 37.5,
       "target_price": 6e-06,
       "stop_price": 6e-06,
@@ -277,8 +277,8 @@
         "whale": 1
       },
       "current_price": 6e-06,
-      "pct_move": 2.833,
-      "pnl_usd_est": 1.033225
+      "pct_move": 3.167,
+      "pnl_usd_est": 1.15105
     }
   ],
   "completed": [
@@ -20067,11 +20067,43 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 1.033225
+    },
+    {
+      "id": "crp_bonk_1773431704",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T19:55:04Z",
+      "entry_price": 6e-06,
+      "qty": 6077795.78606159,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 95,
+      "score": 95,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 3.333,
+      "pnl_usd_est": 1.215559,
+      "closed_at": "2026-03-13T19:56:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.215559
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 145,
+    "trades": 146,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -20081,8 +20113,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 394.45,
-    "market_value_usd": 232.5,
-    "equity_usd": 626.95
+    "cash_usd": 395.67,
+    "market_value_usd": 232.81,
+    "equity_usd": 628.48
   }
 }
