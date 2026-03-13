@@ -1,34 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_uni_1773410102",
-      "ticker": "UNI",
-      "opened_at": "2026-03-13T13:55:02Z",
-      "entry_price": 4.19,
-      "qty": 7.15990453,
-      "notional_usd": 30.0,
-      "target_price": 4.22771,
-      "stop_price": 4.166955,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 83,
-      "score": 83,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 0,
-        "flow": 1,
-        "whale": 0
-      },
-      "current_price": 4.18,
-      "pct_move": -0.239,
-      "pnl_usd_est": -0.071599
-    },
-    {
       "id": "crp_arb_1773410163",
       "ticker": "ARB",
       "opened_at": "2026-03-13T13:56:03Z",
@@ -52,9 +24,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.106218,
-      "pct_move": -0.066,
-      "pnl_usd_est": -0.019758
+      "current_price": 0.106236,
+      "pct_move": -0.049,
+      "pnl_usd_est": -0.014677
     },
     {
       "id": "crp_gala_1773410163",
@@ -80,9 +52,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003571,
-      "pct_move": -0.516,
-      "pnl_usd_est": -0.154864
+      "current_price": 0.003572,
+      "pct_move": -0.51,
+      "pnl_usd_est": -0.152941
     },
     {
       "id": "crp_sol_1773410223",
@@ -108,9 +80,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 92.03,
-      "pct_move": -0.043,
-      "pnl_usd_est": -0.013034
+      "current_price": 92.04,
+      "pct_move": -0.033,
+      "pnl_usd_est": -0.009775
     },
     {
       "id": "crp_avax_1773410223",
@@ -164,9 +136,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 56.54,
-      "pct_move": 0.018,
-      "pnl_usd_est": 0.005307
+      "current_price": 56.52,
+      "pct_move": -0.018,
+      "pnl_usd_est": -0.005307
     },
     {
       "id": "crp_inj_1773410342",
@@ -220,9 +192,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 2187.36,
-      "pct_move": -0.098,
-      "pnl_usd_est": -0.029322
+      "current_price": 2188.52,
+      "pct_move": -0.045,
+      "pnl_usd_est": -0.013428
     },
     {
       "id": "crp_doge_1773410525",
@@ -248,9 +220,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.100316,
-      "pct_move": -0.058,
-      "pnl_usd_est": -0.008668
+      "current_price": 0.100255,
+      "pct_move": -0.119,
+      "pnl_usd_est": -0.017783
     },
     {
       "id": "crp_op_1773410762",
@@ -276,9 +248,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.126501,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.126567,
+      "pct_move": 0.052,
+      "pnl_usd_est": 0.007826
     }
   ],
   "completed": [
@@ -18179,22 +18151,54 @@
       "close_price": 0.100374,
       "result": "timeout",
       "pnl_usd": -0.074238
+    },
+    {
+      "id": "crp_uni_1773410102",
+      "ticker": "UNI",
+      "opened_at": "2026-03-13T13:55:02Z",
+      "entry_price": 4.19,
+      "qty": 7.15990453,
+      "notional_usd": 30.0,
+      "target_price": 4.22771,
+      "stop_price": 4.166955,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 83,
+      "score": 83,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 4.18,
+      "pct_move": -0.239,
+      "pnl_usd_est": -0.071599,
+      "closed_at": "2026-03-13T14:07:02Z",
+      "close_price": 4.18,
+      "result": "timeout",
+      "pnl_usd": -0.071599
     }
   ],
   "daily": {
     "date": "2026-03-13",
     "trades": 86,
-    "loss_streak": 1,
+    "loss_streak": 2,
     "paused": false,
     "pause_reason": "",
-    "mode": "normal",
-    "mode_reason": "operativa normal",
+    "mode": "defensive",
+    "mode_reason": "racha negativa o pnl diario en deterioro",
     "paused_at": ""
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 336.18,
-    "market_value_usd": 269.53,
-    "equity_usd": 605.71
+    "cash_usd": 366.1084009547,
+    "market_value_usd": 239.61,
+    "equity_usd": 605.72
   }
 }
