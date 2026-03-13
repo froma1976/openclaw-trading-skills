@@ -1,34 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_doge_1773410525",
-      "ticker": "DOGE",
-      "opened_at": "2026-03-13T14:02:05Z",
-      "entry_price": 0.100374,
-      "qty": 149.44109032,
-      "notional_usd": 15.0,
-      "target_price": 0.101277,
-      "stop_price": 0.099822,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 89,
-      "score": 89,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 0,
-        "flow": 1,
-        "whale": 0
-      },
-      "current_price": 0.100155,
-      "pct_move": -0.218,
-      "pnl_usd_est": -0.032728
-    },
-    {
       "id": "crp_op_1773410762",
       "ticker": "OP",
       "opened_at": "2026-03-13T14:06:02Z",
@@ -52,9 +24,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.126511,
-      "pct_move": 0.008,
-      "pnl_usd_est": 0.001186
+      "current_price": 0.126549,
+      "pct_move": 0.038,
+      "pnl_usd_est": 0.005692
     },
     {
       "id": "crp_uni_1773411005",
@@ -108,9 +80,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 92.21,
-      "pct_move": 0.076,
-      "pnl_usd_est": 0.022791
+      "current_price": 92.38,
+      "pct_move": 0.26,
+      "pnl_usd_est": 0.078142
     },
     {
       "id": "crp_gala_1773411005",
@@ -136,9 +108,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003564,
-      "pct_move": -0.133,
-      "pnl_usd_est": -0.019922
+      "current_price": 0.003566,
+      "pct_move": -0.096,
+      "pnl_usd_est": -0.014332
     },
     {
       "id": "crp_avax_1773411005",
@@ -192,9 +164,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 56.56,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 56.57,
+      "pct_move": 0.018,
+      "pnl_usd_est": 0.005304
     }
   ],
   "completed": [
@@ -18351,22 +18323,54 @@
       "close_price": 2188.48,
       "result": "timeout",
       "pnl_usd": -0.013976
+    },
+    {
+      "id": "crp_doge_1773410525",
+      "ticker": "DOGE",
+      "opened_at": "2026-03-13T14:02:05Z",
+      "entry_price": 0.100374,
+      "qty": 149.44109032,
+      "notional_usd": 15.0,
+      "target_price": 0.101277,
+      "stop_price": 0.099822,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 89,
+      "score": 89,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 0.100155,
+      "pct_move": -0.218,
+      "pnl_usd_est": -0.032728,
+      "closed_at": "2026-03-13T14:15:02Z",
+      "close_price": 0.100155,
+      "result": "timeout",
+      "pnl_usd": -0.032728
     }
   ],
   "daily": {
     "date": "2026-03-13",
     "trades": 91,
-    "loss_streak": 2,
-    "paused": false,
-    "pause_reason": "",
-    "mode": "defensive",
-    "mode_reason": "racha negativa o pnl diario en deterioro",
-    "paused_at": ""
+    "loss_streak": 3,
+    "paused": true,
+    "pause_reason": "pausa activa (2/180 min)",
+    "mode": "paused",
+    "mode_reason": "pausa activa (2/180 min)",
+    "paused_at": "2026-03-13T14:15:05Z"
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 455.81108749590004,
-    "market_value_usd": 149.89,
-    "equity_usd": 605.7
+    "cash_usd": 470.77835989711997,
+    "market_value_usd": 134.99,
+    "equity_usd": 605.77
   }
 }
