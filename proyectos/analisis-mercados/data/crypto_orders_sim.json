@@ -1,9 +1,9 @@
 {
   "active": [
     {
-      "id": "crp_inj_1773411545",
+      "id": "crp_inj_1773412682",
       "ticker": "INJ",
-      "opened_at": "2026-03-13T14:19:05Z",
+      "opened_at": "2026-03-13T14:38:02Z",
       "entry_price": 3.15,
       "qty": 9.52380952,
       "notional_usd": 30.0,
@@ -12,21 +12,21 @@
       "state": "ACTIVE",
       "mode": "scalp_intradia",
       "risk_mode": "normal",
-      "confidence": 91,
-      "score": 91,
+      "confidence": 88,
+      "score": 88,
       "research_sentiment": "unknown",
       "research_catalyst_score": 0,
       "research_size_scale": 1.0,
-      "spy_confluence": 4,
+      "spy_confluence": 3,
       "spy_breakdown": {
         "news": 1,
-        "euphoria": 1,
+        "euphoria": 0,
         "flow": 1,
         "whale": 1
       },
-      "current_price": 3.15,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 3.14,
+      "pct_move": -0.317,
+      "pnl_usd_est": -0.095238
     }
   ],
   "completed": [
@@ -18407,22 +18407,54 @@
       "close_price": 56.53,
       "result": "timeout",
       "pnl_usd": -0.015912
+    },
+    {
+      "id": "crp_inj_1773411545",
+      "ticker": "INJ",
+      "opened_at": "2026-03-13T14:19:05Z",
+      "entry_price": 3.15,
+      "qty": 9.52380952,
+      "notional_usd": 30.0,
+      "target_price": 3.17835,
+      "stop_price": 3.132675,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 91,
+      "score": 91,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 3.15,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0,
+      "closed_at": "2026-03-13T14:32:01Z",
+      "close_price": 3.15,
+      "result": "timeout",
+      "pnl_usd": 0.0
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 92,
-    "loss_streak": 2,
+    "trades": 93,
+    "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
-    "mode": "defensive",
-    "mode_reason": "racha negativa o pnl diario en deterioro",
+    "mode": "normal",
+    "mode_reason": "operativa normal",
     "paused_at": ""
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 575.8490820570485,
-    "market_value_usd": 30.0,
-    "equity_usd": 605.85
+    "cash_usd": 575.85,
+    "market_value_usd": 29.9,
+    "equity_usd": 605.75
   }
 }
