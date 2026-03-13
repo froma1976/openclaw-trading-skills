@@ -1,34 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_op_1773410762",
-      "ticker": "OP",
-      "opened_at": "2026-03-13T14:06:02Z",
-      "entry_price": 0.126501,
-      "qty": 118.57613774,
-      "notional_usd": 15.0,
-      "target_price": 0.12764,
-      "stop_price": 0.125805,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 79,
-      "score": 79,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 3,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 0,
-        "flow": 1,
-        "whale": 1
-      },
-      "current_price": 0.126549,
-      "pct_move": 0.038,
-      "pnl_usd_est": 0.005692
-    },
-    {
       "id": "crp_uni_1773411005",
       "ticker": "UNI",
       "opened_at": "2026-03-13T14:10:05Z",
@@ -52,9 +24,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 4.17,
-      "pct_move": -0.239,
-      "pnl_usd_est": -0.07177
+      "current_price": 4.18,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0
     },
     {
       "id": "crp_sol_1773411005",
@@ -80,9 +52,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 92.38,
-      "pct_move": 0.26,
-      "pnl_usd_est": 0.078142
+      "current_price": 92.49,
+      "pct_move": 0.38,
+      "pnl_usd_est": 0.113957
     },
     {
       "id": "crp_gala_1773411005",
@@ -108,9 +80,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003566,
-      "pct_move": -0.096,
-      "pnl_usd_est": -0.014332
+      "current_price": 0.003569,
+      "pct_move": 0.003,
+      "pnl_usd_est": 0.00042
     },
     {
       "id": "crp_avax_1773411005",
@@ -136,9 +108,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 10.2,
-      "pct_move": -0.098,
-      "pnl_usd_est": -0.014691
+      "current_price": 10.19,
+      "pct_move": -0.196,
+      "pnl_usd_est": -0.029383
     },
     {
       "id": "crp_ltc_1773411005",
@@ -164,9 +136,37 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 56.57,
-      "pct_move": 0.018,
-      "pnl_usd_est": 0.005304
+      "current_price": 56.53,
+      "pct_move": -0.053,
+      "pnl_usd_est": -0.015912
+    },
+    {
+      "id": "crp_inj_1773411545",
+      "ticker": "INJ",
+      "opened_at": "2026-03-13T14:19:05Z",
+      "entry_price": 3.15,
+      "qty": 9.52380952,
+      "notional_usd": 30.0,
+      "target_price": 3.17835,
+      "stop_price": 3.132675,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 91,
+      "score": 91,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 3.16,
+      "pct_move": 0.317,
+      "pnl_usd_est": 0.095238
     }
   ],
   "completed": [
@@ -18355,22 +18355,54 @@
       "close_price": 0.100155,
       "result": "timeout",
       "pnl_usd": -0.032728
+    },
+    {
+      "id": "crp_op_1773410762",
+      "ticker": "OP",
+      "opened_at": "2026-03-13T14:06:02Z",
+      "entry_price": 0.126501,
+      "qty": 118.57613774,
+      "notional_usd": 15.0,
+      "target_price": 0.12764,
+      "stop_price": 0.125805,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 79,
+      "score": 79,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 3,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 0.126549,
+      "pct_move": 0.038,
+      "pnl_usd_est": 0.005692,
+      "closed_at": "2026-03-13T14:19:02Z",
+      "close_price": 0.126549,
+      "result": "timeout",
+      "pnl_usd": 0.005692
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 91,
-    "loss_streak": 3,
-    "paused": true,
-    "pause_reason": "pausa activa (2/180 min)",
-    "mode": "paused",
-    "mode_reason": "pausa activa (2/180 min)",
-    "paused_at": "2026-03-13T14:15:05Z"
+    "trades": 92,
+    "loss_streak": 0,
+    "paused": false,
+    "pause_reason": "",
+    "mode": "normal",
+    "mode_reason": "operativa normal",
+    "paused_at": ""
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 470.77835989711997,
-    "market_value_usd": 134.99,
-    "equity_usd": 605.77
+    "cash_usd": 455.78,
+    "market_value_usd": 150.16,
+    "equity_usd": 605.94
   }
 }
