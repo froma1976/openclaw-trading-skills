@@ -24,37 +24,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 55.75,
-      "pct_move": -0.34,
-      "pnl_usd_est": -0.101895
-    },
-    {
-      "id": "crp_algo_1773437342",
-      "ticker": "ALGO",
-      "opened_at": "2026-03-13T21:29:02Z",
-      "entry_price": 0.094604,
-      "qty": 317.11132722,
-      "notional_usd": 30.0,
-      "target_price": 0.095455,
-      "stop_price": 0.094084,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 75,
-      "score": 75,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 1,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 0,
-        "flow": 0,
-        "whale": 0
-      },
-      "current_price": 0.0942,
-      "pct_move": -0.427,
-      "pnl_usd_est": -0.128113
+      "current_price": 55.79,
+      "pct_move": -0.268,
+      "pnl_usd_est": -0.080443
     },
     {
       "id": "crp_sand_1773437342",
@@ -164,9 +136,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 1.86,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 1.861,
+      "pct_move": 0.054,
+      "pnl_usd_est": 0.016129
     }
   ],
   "completed": [
@@ -22451,22 +22423,54 @@
       "close_price": 0.0665,
       "result": "perdida",
       "pnl_usd": -0.085004
+    },
+    {
+      "id": "crp_algo_1773437342",
+      "ticker": "ALGO",
+      "opened_at": "2026-03-13T21:29:02Z",
+      "entry_price": 0.094604,
+      "qty": 317.11132722,
+      "notional_usd": 30.0,
+      "target_price": 0.095455,
+      "stop_price": 0.094084,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 75,
+      "score": 75,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 1,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 0,
+        "whale": 0
+      },
+      "current_price": 0.094,
+      "pct_move": -0.638,
+      "pnl_usd_est": -0.191535,
+      "closed_at": "2026-03-13T21:32:02Z",
+      "close_price": 0.094,
+      "result": "perdida",
+      "pnl_usd": -0.191535
     }
   ],
   "daily": {
     "date": "2026-03-13",
     "trades": 219,
-    "loss_streak": 1,
+    "loss_streak": 2,
     "paused": false,
     "pause_reason": "",
-    "mode": "normal",
-    "mode_reason": "operativa normal",
+    "mode": "defensive",
+    "mode_reason": "racha negativa o pnl diario en deterioro",
     "paused_at": ""
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 501.49331116965476,
-    "market_value_usd": 179.42,
-    "equity_usd": 680.92
+    "cash_usd": 531.301775928014,
+    "market_value_usd": 149.59,
+    "equity_usd": 680.89
   }
 }
