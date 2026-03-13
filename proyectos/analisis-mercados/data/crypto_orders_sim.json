@@ -253,9 +253,9 @@
       "pnl_usd_est": 0.035294
     },
     {
-      "id": "crp_bonk_1773432001",
+      "id": "crp_bonk_1773432064",
       "ticker": "BONK",
-      "opened_at": "2026-03-13T20:00:01Z",
+      "opened_at": "2026-03-13T20:01:04Z",
       "entry_price": 6e-06,
       "qty": 6058158.31987076,
       "notional_usd": 37.5,
@@ -20099,11 +20099,43 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 1.215559
+    },
+    {
+      "id": "crp_bonk_1773432001",
+      "ticker": "BONK",
+      "opened_at": "2026-03-13T20:00:01Z",
+      "entry_price": 6e-06,
+      "qty": 6058158.31987076,
+      "notional_usd": 37.5,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 95,
+      "score": 95,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 4,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 6e-06,
+      "pct_move": 3.167,
+      "pnl_usd_est": 1.15105,
+      "closed_at": "2026-03-13T20:01:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.15105
     }
   ],
   "daily": {
     "date": "2026-03-13",
-    "trades": 146,
+    "trades": 147,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -20113,8 +20145,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 395.67,
+    "cash_usd": 396.82,
     "market_value_usd": 232.81,
-    "equity_usd": 628.48
+    "equity_usd": 629.63
   }
 }
