@@ -57,6 +57,18 @@ def get_binance_price(ticker: str) -> float:
     return 0.0
 
 
+def get_binance_24h_stats_bulk() -> dict:
+    try:
+        # Fetch all tickers 24h stats in one call (very efficient)
+        url = "https://api.binance.com/api/v3/ticker/24hr"
+        data = get_json(url)
+        if isinstance(data, list):
+            return {item["symbol"]: item for item in data if "symbol" in item}
+    except:
+        pass
+    return {}
+
+
 def load_universe_status():
     if not UNIVERSE_STATUS.exists():
         return {"core": set(), "watch": set(), "excluded": set()}
@@ -441,6 +453,10 @@ def main():
         rows = previous.get("assets", []) or []
         source_label = "snapshot-cache"
         notes = "Fallback a ultimo snapshot local por rate limit/error externo"
+    
+    # Obtener stats de 24h de Binance para rellenar huecos
+    b24h = get_binance_24h_stats_bulk()
+    
     assets = []
 
     # Ahorro API: solo calcular espías de velas en los más líquidos del batch
@@ -454,15 +470,26 @@ def main():
     for r in rows:
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
         p = float(r.get("current_price") or 0)
+        ch24 = float(r.get("price_change_percentage_24h") or 0)
         
-        # Fallback: Si CoinGecko da 0 o falla, consultamos Binance en tiempo real
+        # Inyectar datos de Binance si CG falla
+        b_data = b24h.get(f"{ticker}USDT")
+        if b_data:
+            if p <= 0:
+                p = float(b_data.get("lastPrice") or 0)
+                r["current_price"] = p
+            if ch24 == 0:
+                ch24 = float(b_data.get("priceChangePercent") or 0)
+                r["price_change_percentage_24h"] = ch24
+                notes = f"Variación 24h recuperada vía Binance - {notes}"
+        
+        # Fallback individual de precio si el bulk falló o no estaba el ticker
         if p <= 0:
             p = get_binance_price(ticker)
             r["current_price"] = p
             if p > 0:
-                notes = f"Precios recuperados vía Binance (CoinGecko fallback) - {notes}"
+                notes = f"Precios recuperados vía Binance (individual) - {notes}"
         
-        ch24 = float(r.get("price_change_percentage_24h") or 0)
         ch7 = float(r.get("price_change_percentage_7d_in_currency") or 0)
         sc = score_crypto(r)
 
