@@ -24,9 +24,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.084185,
-      "pct_move": -0.018,
-      "pnl_usd_est": -0.002939
+      "current_price": 0.084,
+      "pct_move": -0.238,
+      "pnl_usd_est": -0.039192
     },
     {
       "id": "crp_etc_1773446401",
@@ -52,9 +52,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 8.48,
-      "pct_move": -0.118,
-      "pnl_usd_est": -0.038869
+      "current_price": 8.46,
+      "pct_move": -0.353,
+      "pnl_usd_est": -0.116608
     },
     {
       "id": "crp_op_1773446401",
@@ -80,9 +80,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.123544,
-      "pct_move": -0.126,
-      "pnl_usd_est": -0.020808
+      "current_price": 0.1231,
+      "pct_move": -0.485,
+      "pnl_usd_est": -0.080032
     },
     {
       "id": "crp_xlm_1773446401",
@@ -108,9 +108,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.163913,
-      "pct_move": -0.053,
-      "pnl_usd_est": -0.017506
+      "current_price": 0.1641,
+      "pct_move": 0.061,
+      "pnl_usd_est": 0.020122
     },
     {
       "id": "crp_trx_1773446401",
@@ -136,9 +136,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.293448,
-      "pct_move": 0.016,
-      "pnl_usd_est": 0.005399
+      "current_price": 0.2935,
+      "pct_move": 0.034,
+      "pnl_usd_est": 0.011247
     },
     {
       "id": "crp_apt_1773446524",
@@ -164,9 +164,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.934678,
-      "pct_move": 0.18,
-      "pnl_usd_est": 0.029675
+      "current_price": 0.93,
+      "pct_move": -0.322,
+      "pnl_usd_est": -0.053055
     },
     {
       "id": "crp_gala_1773446644",
@@ -192,9 +192,9 @@
         "flow": 1,
         "whale": 1
       },
-      "current_price": 0.003526,
-      "pct_move": 0.011,
-      "pnl_usd_est": 0.001872
+      "current_price": 0.00352,
+      "pct_move": -0.17,
+      "pnl_usd_est": -0.028074
     },
     {
       "id": "crp_algo_1773446644",
@@ -220,9 +220,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 0.093919,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.0937,
+      "pct_move": -0.233,
+      "pnl_usd_est": -0.076949
     },
     {
       "id": "crp_flow_1773446644",
@@ -248,37 +248,37 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.050176,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.05051,
+      "pct_move": 0.666,
+      "pnl_usd_est": 0.274583
     },
     {
-      "id": "crp_bonk_1773446704",
+      "id": "crp_bonk_1773446765",
       "ticker": "BONK",
-      "opened_at": "2026-03-14T00:05:04Z",
+      "opened_at": "2026-03-14T00:06:05Z",
       "entry_price": 6e-06,
-      "qty": 7725977.19869707,
+      "qty": 7751225.49019608,
       "notional_usd": 47.44,
       "target_price": 6e-06,
       "stop_price": 6e-06,
       "state": "ACTIVE",
       "mode": "scalp_intradia",
       "risk_mode": "normal",
-      "confidence": 90,
-      "score": 90,
+      "confidence": 64,
+      "score": 64,
       "research_sentiment": "positive",
       "research_catalyst_score": 2,
       "research_size_scale": 1.15,
-      "spy_confluence": 3,
+      "spy_confluence": 1,
       "spy_breakdown": {
         "news": 1,
         "euphoria": 1,
-        "flow": 1,
+        "flow": -1,
         "whale": 0
       },
       "current_price": 6e-06,
-      "pct_move": 2.333,
-      "pnl_usd_est": 1.081637
+      "pct_move": 2.0,
+      "pnl_usd_est": 0.930147
     }
   ],
   "completed": [
@@ -23267,11 +23267,43 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 1.081637
+    },
+    {
+      "id": "crp_bonk_1773446704",
+      "ticker": "BONK",
+      "opened_at": "2026-03-14T00:05:04Z",
+      "entry_price": 6e-06,
+      "qty": 7725977.19869707,
+      "notional_usd": 47.44,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 90,
+      "score": 90,
+      "research_sentiment": "positive",
+      "research_catalyst_score": 2,
+      "research_size_scale": 1.15,
+      "spy_confluence": 3,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": 2.0,
+      "pnl_usd_est": 0.927117,
+      "closed_at": "2026-03-14T00:06:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 0.927117
     }
   ],
   "daily": {
     "date": "2026-03-14",
-    "trades": 15,
+    "trades": 16,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -23281,8 +23313,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 404.78,
-    "market_value_usd": 286.64,
-    "equity_usd": 691.42
+    "cash_usd": 405.71,
+    "market_value_usd": 286.6,
+    "equity_usd": 692.31
   }
 }
