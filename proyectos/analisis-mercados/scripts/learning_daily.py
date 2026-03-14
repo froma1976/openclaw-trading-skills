@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 import json
+import csv
 from datetime import datetime, UTC, timedelta
 from pathlib import Path
 
+from runtime_utils import atomic_write_json, atomic_write_text
+
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")
+TRADES = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/trades_clean.csv")
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status.json")
 REP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/reports")
 STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE"}
@@ -22,29 +26,38 @@ def semaforo(metrics: dict):
 
     # Criterio simple y honesto
     if n < 20 or exp <= 0 or pf < 1.0:
-        return "ROJO", "Sin edge consistente todavía"
+        return "ROJO", "Sin edge consistente todavia"
     if n < 60 or pf < 1.2 or wr < 45:
         return "AMARILLO", "Edge preliminar, seguir validando"
     return "VERDE", "Edge consistente en ventana reciente"
 
 
 def main():
-    data = {"completed": [], "active": [], "daily": {}, "portfolio": {}}
-    if ORD.exists():
-        data = json.loads(ORD.read_text(encoding="utf-8"))
-
-    completed = data.get("completed", []) or []
     now = datetime.now(UTC)
     d7 = now - timedelta(days=7)
 
     rows = []
-    for o in completed:
-        try:
-            dt = parse_iso(o.get("closed_at"))
-            if dt >= d7:
-                rows.append(o)
-        except Exception:
-            continue
+    if TRADES.exists():
+        with TRADES.open(encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                try:
+                    dt = parse_iso(row.get("timestamp_exit") or row.get("closed_at") or "")
+                    if dt >= d7:
+                        rows.append(row)
+                except Exception:
+                    continue
+    elif ORD.exists():
+        data = json.loads(ORD.read_text(encoding="utf-8"))
+        for order in data.get("completed", []) or []:
+            try:
+                dt = parse_iso(order.get("closed_at"))
+                if dt >= d7:
+                    rows.append(order)
+            except Exception:
+                continue
+
+    rows.sort(key=lambda row: row.get("timestamp_exit") or row.get("closed_at") or "")
 
     pnl = []
     wins = 0
@@ -54,7 +67,7 @@ def main():
     by_ticker = {}
 
     for o in rows:
-        t = str(o.get("ticker") or "?")
+        t = str(o.get("ticker") or o.get("symbol") or "?")
         if t.upper() in STABLECOIN_TICKERS or t.upper() in EXCLUDED_TICKERS:
             continue
         p = float(o.get("pnl_usd") or 0)
@@ -102,11 +115,12 @@ def main():
     m["by_ticker"] = by_ticker
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(m, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(OUT, m)
 
     REP.mkdir(parents=True, exist_ok=True)
     rp = REP / f"daily_learning_{now.date().isoformat()}.md"
-    rp.write_text(
+    atomic_write_text(
+        rp,
         "\n".join([
             f"# Aprendizaje Diario ({now.date().isoformat()})",
             f"- Semáforo: **{color}** ({reason})",
@@ -115,8 +129,8 @@ def main():
             f"- Profit factor: {m['profit_factor']}",
             f"- PnL 7d: {m['pnl_7d_usd']} USD",
             f"- Max drawdown: {m['max_drawdown_usd']} USD",
+            "- Fuente prioritaria: trades_clean.csv (métricas depuradas)",
         ]),
-        encoding="utf-8",
     )
 
     print(json.dumps(m, ensure_ascii=False))

@@ -3,6 +3,8 @@ import csv, json
 from pathlib import Path
 from datetime import datetime, UTC
 
+from runtime_utils import atomic_write_json
+
 BASE = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados")
 SRC = BASE / "data" / "crypto_orders_sim.json"
 HIST = BASE / "data" / "history"
@@ -23,6 +25,8 @@ def main():
         "completed_state_active": 0,
         "missing_qty": 0,
         "stablecoin_symbol": 0,
+        "excluded_symbol": 0,
+        "target_equals_stop": 0,
     }
 
     # 1) Prioridad: Binance futures userTrades
@@ -99,7 +103,6 @@ def main():
                 anomalies["stablecoin_symbol"] += 1
                 continue
             if sym in EXCLUDED_TICKERS:
-                anomalies.setdefault("excluded_symbol", 0)
                 anomalies["excluded_symbol"] += 1
                 continue
             try:
@@ -107,6 +110,11 @@ def main():
             except Exception:
                 nulls += 1
                 continue
+            try:
+                if float(r.get("target_price") or 0) == float(r.get("stop_price") or 0):
+                    anomalies["target_equals_stop"] += 1
+            except Exception:
+                pass
 
             clean.append({
                 "order_id": oid,
@@ -119,6 +127,11 @@ def main():
                 "qty": float(qty or 0),
                 "fee_usd": float(fee or 0),
                 "pnl_usd": float(r.get("pnl_usd") or 0),
+                "confidence": int(r.get("confidence") or r.get("score") or 0),
+                "spy_confluence": int(r.get("spy_confluence") or 0),
+                "research_sentiment": str(r.get("research_sentiment") or "unknown"),
+                "opened_hour_utc": str(r.get("opened_hour_utc") or ""),
+                "setup_tag": str(r.get("setup_tag") or "base"),
                 "source": "sim_orders"
             })
 
@@ -139,7 +152,7 @@ def main():
         "anomalies": anomalies,
         "output": str(OUT)
     }
-    REP.write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(REP, rep)
     print(json.dumps(rep, ensure_ascii=False))
 
 

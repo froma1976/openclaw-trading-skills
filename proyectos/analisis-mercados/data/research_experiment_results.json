@@ -1,6 +1,61 @@
 {
-  "generated_at": "2026-03-13T02:17:00Z",
+  "generated_at": "2026-03-14T14:17:22Z",
   "results": [
+    {
+      "experiment": "Real-time Insider Buying Validation",
+      "target_module": "I-Watcher",
+      "status": "completed",
+      "runner": "source_ingest_free.py",
+      "baseline": {
+        "symbols_with_insider_buys": 19,
+        "max_insider_buys_per_symbol": 1,
+        "latency_s": 140.12
+      },
+      "candidate": {
+        "name": "insider_min_buys_2",
+        "min_buys": 2,
+        "filtered_symbols_with_insider_buys": 0,
+        "quality_ratio": 0.0,
+        "latency_s": 134.52,
+        "score": -1.2,
+        "variants_tested": [
+          {
+            "name": "insider_min_buys_2",
+            "min_buys": 2,
+            "filtered_symbols_with_insider_buys": 0,
+            "quality_ratio": 0.0,
+            "latency_s": 134.52,
+            "score": -1.2
+          },
+          {
+            "name": "insider_min_buys_3",
+            "min_buys": 3,
+            "filtered_symbols_with_insider_buys": 0,
+            "quality_ratio": 0.0,
+            "latency_s": 133.11,
+            "score": -1.8
+          },
+          {
+            "name": "insider_min_buys_4",
+            "min_buys": 4,
+            "filtered_symbols_with_insider_buys": 0,
+            "quality_ratio": 0.0,
+            "latency_s": 131.71,
+            "score": -2.4
+          }
+        ]
+      },
+      "notes": "Baseline automatica del bloque insider para decidir si conviene invertir en feed mas rapido o limpieza de eventos.",
+      "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
+      "stderr": "",
+      "decision": "hold",
+      "delta": {
+        "filtered_symbols_gain": 0,
+        "quality_ratio": 0.0,
+        "min_buys": 2
+      },
+      "rationale": "La mejora existe pero necesita más evidencia antes de promoción."
+    },
     {
       "experiment": "Liquidity Monitoring with Real-time Data",
       "target_module": "L-Scanner",
@@ -10,39 +65,39 @@
         "macro_adj": 0,
         "vix": null,
         "dxy": null,
-        "latency_s": 115.93
+        "latency_s": 140.18
       },
       "candidate": {
         "name": "refresh_bias_0",
-        "macro_signal_completeness": 1,
-        "timeout_count": 4,
+        "macro_signal_completeness": 0,
+        "timeout_count": 5,
         "macro_adj_candidate": 0,
-        "latency_s": 110.13,
-        "score": -2.0,
+        "latency_s": 133.17,
+        "score": -5.0,
         "variants_tested": [
           {
             "name": "refresh_bias_0",
-            "macro_signal_completeness": 1,
-            "timeout_count": 4,
+            "macro_signal_completeness": 0,
+            "timeout_count": 5,
             "macro_adj_candidate": 0,
-            "latency_s": 110.13,
-            "score": -2.0
+            "latency_s": 133.17,
+            "score": -5.0
           },
           {
             "name": "refresh_bias_1",
-            "macro_signal_completeness": 1,
-            "timeout_count": 4,
+            "macro_signal_completeness": 0,
+            "timeout_count": 5,
             "macro_adj_candidate": 1,
-            "latency_s": 106.66,
-            "score": -2.5
+            "latency_s": 128.97,
+            "score": -5.5
           },
           {
             "name": "refresh_bias_2",
-            "macro_signal_completeness": 1,
-            "timeout_count": 4,
+            "macro_signal_completeness": 0,
+            "timeout_count": 5,
             "macro_adj_candidate": 2,
-            "latency_s": 103.18,
-            "score": -3.0
+            "latency_s": 124.76,
+            "score": -6.0
           }
         ]
       },
@@ -51,65 +106,10 @@
       "stderr": "",
       "decision": "discard",
       "delta": {
-        "signal_completeness": 1,
-        "latency_gain_s": 5.8
+        "signal_completeness": 0,
+        "latency_gain_s": 7.01
       },
       "rationale": "No mejora suficiente frente al baseline macro actual."
-    },
-    {
-      "experiment": "Real-time Insider Buying Validation",
-      "target_module": "I-Watcher",
-      "status": "completed",
-      "runner": "source_ingest_free.py",
-      "baseline": {
-        "symbols_with_insider_buys": 17,
-        "max_insider_buys_per_symbol": 9,
-        "latency_s": 115.92
-      },
-      "candidate": {
-        "name": "insider_min_buys_2",
-        "min_buys": 2,
-        "filtered_symbols_with_insider_buys": 1,
-        "quality_ratio": 0.059,
-        "latency_s": 111.28,
-        "score": 0.39,
-        "variants_tested": [
-          {
-            "name": "insider_min_buys_2",
-            "min_buys": 2,
-            "filtered_symbols_with_insider_buys": 1,
-            "quality_ratio": 0.059,
-            "latency_s": 111.28,
-            "score": 0.39
-          },
-          {
-            "name": "insider_min_buys_3",
-            "min_buys": 3,
-            "filtered_symbols_with_insider_buys": 1,
-            "quality_ratio": 0.059,
-            "latency_s": 110.12,
-            "score": -0.21
-          },
-          {
-            "name": "insider_min_buys_4",
-            "min_buys": 4,
-            "filtered_symbols_with_insider_buys": 1,
-            "quality_ratio": 0.059,
-            "latency_s": 108.96,
-            "score": -0.81
-          }
-        ]
-      },
-      "notes": "Baseline automatica del bloque insider para decidir si conviene invertir en feed mas rapido o limpieza de eventos.",
-      "stdout": "OK snapshot -> C:\\Users\\Fernando\\.openclaw\\workspace\\proyectos\\analisis-mercados\\data\\latest_snapshot_free.json",
-      "stderr": "",
-      "decision": "hold",
-      "delta": {
-        "filtered_symbols_gain": 1,
-        "quality_ratio": 0.059,
-        "min_buys": 2
-      },
-      "rationale": "La mejora existe pero necesita más evidencia antes de promoción."
     },
     {
       "experiment": "Technical Analysis with Real-time Data",
@@ -117,9 +117,9 @@
       "status": "completed",
       "runner": "source_ingest_free.py",
       "baseline": {
-        "top5_avg_score_tech": 47.8,
+        "top5_avg_score_tech": 49.2,
         "ready_or_triggered": 0,
-        "latency_s": 116.29
+        "latency_s": 140.52
       },
       "candidate": {
         "name": "tech_72_0.8",
@@ -127,7 +127,7 @@
         "min_rel_volume": 0.8,
         "quality_setups": 0,
         "quality_top5_avg_score_tech": 0,
-        "latency_s": 112.8,
+        "latency_s": 136.3,
         "score": -2.1,
         "variants_tested": [
           {
@@ -136,7 +136,7 @@
             "min_rel_volume": 0.8,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.8,
+            "latency_s": 136.3,
             "score": -2.1
           },
           {
@@ -145,7 +145,7 @@
             "min_rel_volume": 0.9,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.8,
+            "latency_s": 136.3,
             "score": -2.1
           },
           {
@@ -154,7 +154,7 @@
             "min_rel_volume": 1.0,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.8,
+            "latency_s": 136.3,
             "score": -2.1
           },
           {
@@ -163,7 +163,7 @@
             "min_rel_volume": 0.8,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.8,
+            "latency_s": 136.3,
             "score": -2.1
           },
           {
@@ -172,7 +172,7 @@
             "min_rel_volume": 0.9,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.8,
+            "latency_s": 136.3,
             "score": -2.1
           },
           {
@@ -181,7 +181,7 @@
             "min_rel_volume": 1.0,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.8,
+            "latency_s": 136.3,
             "score": -2.1
           },
           {
@@ -190,7 +190,7 @@
             "min_rel_volume": 0.8,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.8,
+            "latency_s": 136.3,
             "score": -2.1
           },
           {
@@ -199,7 +199,7 @@
             "min_rel_volume": 0.9,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.8,
+            "latency_s": 136.3,
             "score": -2.1
           },
           {
@@ -208,7 +208,7 @@
             "min_rel_volume": 1.0,
             "quality_setups": 0,
             "quality_top5_avg_score_tech": 0,
-            "latency_s": 112.8,
+            "latency_s": 136.3,
             "score": -2.1
           }
         ]

@@ -1,21 +1,32 @@
 # Trade edge model
 
-- Generated at: 2026-03-13T11:30:02Z
-- Trades used: 413
+- Generated at: 2026-03-14T15:30:02Z
+- Trades used: 14
 
 ## Ticker edge
-- AVAX: edge 11 | count 12 | wr 66.67% | exp 0.2063
-- LTC: edge 9 | count 7 | wr 57.14% | exp 0.2029
-- SOL: edge 8 | count 28 | wr 71.43% | exp 0.1073
-- SUI: edge 6 | count 30 | wr 63.33% | exp 0.0967
-- ETH: edge 4 | count 46 | wr 54.35% | exp 0.0831
-- BTC: edge 3 | count 29 | wr 55.17% | exp 0.0544
-- DOGE: edge 2 | count 33 | wr 57.58% | exp 0.0194
-- AAVE: edge 2 | count 28 | wr 57.14% | exp 0.0255
-- TRX: edge 2 | count 5 | wr 60.0% | exp 0.0157
-- BNB: edge 1 | count 12 | wr 50.0% | exp 0.0292
-- SHIB: edge 1 | count 5 | wr 60.0% | exp -0.0105
-- FLOW: edge 0 | count 43 | wr 44.19% | exp 0.023
-- FET: edge 0 | count 4 | wr 50.0% | exp 0.0273
-- ARB: edge 0 | count 3 | wr 66.67% | exp 0.1462
-- ADA: edge 0 | count 2 | wr 50.0% | exp 0.0876
+- ALGO: edge 0 | count 2 | wr 0.0% | exp -0.0974
+- ETH: edge 0 | count 2 | wr 0.0% | exp -0.0529
+- MNT: edge 0 | count 2 | wr 0.0% | exp -0.134
+- ARB: edge 0 | count 1 | wr 0.0% | exp -0.0253
+- AVAX: edge 0 | count 1 | wr 100.0% | exp 0.0348
+- BONK: edge 0 | count 1 | wr 0.0% | exp -0.0522
+- DOGE: edge 0 | count 1 | wr 0.0% | exp -0.0428
+- FLOW: edge 0 | count 1 | wr 0.0% | exp -0.3742
+- GALA: edge 0 | count 1 | wr 100.0% | exp 0.0751
+- OP: edge 0 | count 1 | wr 100.0% | exp 0.0567
+- UNI: edge 0 | count 1 | wr 100.0% | exp 0.0748
+
+## Setup edge
+- base: edge 0 | count 3 | wr 0.0% | exp -0.1128
+- trend_flow: edge 0 | count 1 | wr 0.0% | exp -0.0528
+- whale_flow: edge 0 | count 1 | wr 100.0% | exp 0.0751
+- flow_momentum: edge -5 | count 9 | wr 33.33% | exp -0.0562
+
+## Hour edge
+- 03: edge 0 | count 2 | wr 0.0% | exp -0.0529
+- 14: edge 0 | count 2 | wr 0.0% | exp -0.134
+- 06: edge 0 | count 1 | wr 0.0% | exp -0.1243
+- 01: edge -2 | count 9 | wr 44.44% | exp -0.036
+
+- Fuente prioritaria: trades_clean.csv
+- Uso: research interno; no valida readiness para capital real por sí solo

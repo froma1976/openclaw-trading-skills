@@ -45,28 +45,6 @@
       "created_at": "2026-03-03T16:49:41Z"
     },
     {
-      "id": "ord_2158f0f570",
-      "ticker": "MSFT",
-      "status": "pending",
-      "state": "WATCH",
-      "score": 63,
-      "entry_price": 408.69,
-      "target_price": 433.2114,
-      "stop_price": 396.4293,
-      "created_at": "2026-03-04T17:50:16Z"
-    },
-    {
-      "id": "ord_b13ff76e25",
-      "ticker": "META",
-      "status": "pending",
-      "state": "WATCH",
-      "score": 56,
-      "entry_price": 646.525,
-      "target_price": 685.3165,
-      "stop_price": 627.1292,
-      "created_at": "2026-03-06T20:19:43Z"
-    },
-    {
       "id": "ord_5d8bbdd921",
       "ticker": "NVDA",
       "status": "pending",
@@ -76,39 +54,6 @@
       "target_price": 190.6092,
       "stop_price": 174.4254,
       "created_at": "2026-03-09T16:21:49Z"
-    },
-    {
-      "id": "ord_9c6795e2e6",
-      "ticker": "AMD",
-      "status": "pending",
-      "state": "READY",
-      "score": 73,
-      "entry_price": 202.68,
-      "target_price": 214.8408,
-      "stop_price": 196.5996,
-      "created_at": "2026-03-09T20:05:36Z"
-    },
-    {
-      "id": "ord_d2dcfaa595",
-      "ticker": "AMZN",
-      "status": "pending",
-      "state": "WATCH",
-      "score": 63,
-      "entry_price": 213.49,
-      "target_price": 226.2994,
-      "stop_price": 207.0853,
-      "created_at": "2026-03-09T22:34:41Z"
-    },
-    {
-      "id": "ord_8dcb43f0da",
-      "ticker": "AVGO",
-      "status": "pending",
-      "state": "WATCH",
-      "score": 57,
-      "entry_price": 340.705,
-      "target_price": 361.1473,
-      "stop_price": 330.4838,
-      "created_at": "2026-03-11T19:04:40Z"
     },
     {
       "id": "ord_50aeceb5d6",
@@ -164,6 +109,50 @@
       "target_price": 323.2449,
       "stop_price": 295.7996,
       "created_at": "2026-03-12T19:36:01Z"
+    },
+    {
+      "id": "ord_71da59f237",
+      "ticker": "UNH",
+      "status": "pending",
+      "state": "WATCH",
+      "score": 51,
+      "entry_price": 281.78,
+      "target_price": 298.6868,
+      "stop_price": 273.3266,
+      "created_at": "2026-03-13T19:06:24Z"
+    },
+    {
+      "id": "ord_eac46a42a0",
+      "ticker": "XLI",
+      "status": "pending",
+      "state": "WATCH",
+      "score": 50,
+      "entry_price": 165.035,
+      "target_price": 174.9371,
+      "stop_price": 160.0839,
+      "created_at": "2026-03-13T19:06:24Z"
+    },
+    {
+      "id": "ord_a022ed97ba",
+      "ticker": "MSFT",
+      "status": "pending",
+      "state": "WATCH",
+      "score": 49,
+      "entry_price": 395.19,
+      "target_price": 418.9014,
+      "stop_price": 383.3343,
+      "created_at": "2026-03-13T19:21:25Z"
+    },
+    {
+      "id": "ord_156b77eb8e",
+      "ticker": "META",
+      "status": "pending",
+      "state": "WATCH",
+      "score": 49,
+      "entry_price": 613.71,
+      "target_price": 650.5326,
+      "stop_price": 595.2987,
+      "created_at": "2026-03-14T02:51:18Z"
     }
   ],
   "completed": [
@@ -418,6 +407,76 @@
       "result": "perdida",
       "closed_at": "2026-03-12T19:51:01Z",
       "close_price": 277.195
+    },
+    {
+      "id": "ord_b13ff76e25",
+      "ticker": "META",
+      "status": "completed",
+      "state": "WATCH",
+      "score": 56,
+      "entry_price": 646.525,
+      "target_price": 685.3165,
+      "stop_price": 627.1292,
+      "created_at": "2026-03-06T20:19:43Z",
+      "result": "perdida",
+      "closed_at": "2026-03-13T13:35:19Z",
+      "close_price": 619.358
+    },
+    {
+      "id": "ord_9c6795e2e6",
+      "ticker": "AMD",
+      "status": "completed",
+      "state": "READY",
+      "score": 73,
+      "entry_price": 202.68,
+      "target_price": 214.8408,
+      "stop_price": 196.5996,
+      "created_at": "2026-03-09T20:05:36Z",
+      "result": "perdida",
+      "closed_at": "2026-03-13T14:49:44Z",
+      "close_price": 195.56
+    },
+    {
+      "id": "ord_8dcb43f0da",
+      "ticker": "AVGO",
+      "status": "completed",
+      "state": "WATCH",
+      "score": 57,
+      "entry_price": 340.705,
+      "target_price": 361.1473,
+      "stop_price": 330.4838,
+      "created_at": "2026-03-11T19:04:40Z",
+      "result": "perdida",
+      "closed_at": "2026-03-13T14:49:44Z",
+      "close_price": 330.48
+    },
+    {
+      "id": "ord_2158f0f570",
+      "ticker": "MSFT",
+      "status": "completed",
+      "state": "WATCH",
+      "score": 63,
+      "entry_price": 408.69,
+      "target_price": 433.2114,
+      "stop_price": 396.4293,
+      "created_at": "2026-03-04T17:50:16Z",
+      "result": "perdida",
+      "closed_at": "2026-03-13T15:50:03Z",
+      "close_price": 396.39
+    },
+    {
+      "id": "ord_d2dcfaa595",
+      "ticker": "AMZN",
+      "status": "completed",
+      "state": "WATCH",
+      "score": 63,
+      "entry_price": 213.49,
+      "target_price": 226.2994,
+      "stop_price": 207.0853,
+      "created_at": "2026-03-09T22:34:41Z",
+      "result": "perdida",
+      "closed_at": "2026-03-13T17:51:26Z",
+      "close_price": 206.4
     }
   ]
 }
