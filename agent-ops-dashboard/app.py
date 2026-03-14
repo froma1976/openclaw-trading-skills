@@ -192,7 +192,7 @@ def load_signals_snapshot():
 
 def load_crypto_snapshot():
     if not CRYPTO_SIGNALS_PATH.exists():
-        return {"generated_at": None, "assets": [], "top_opportunities": [], "freshness_min": None}
+        return {"generated_at": None, "assets": [], "top_opportunities": [], "freshness_min": None, "is_cache": False, "stale_reason": "sin snapshot"}
     try:
         data = json.loads(CRYPTO_SIGNALS_PATH.read_text(encoding="utf-8"))
         gen = data.get("generated_at")
@@ -204,9 +204,13 @@ def load_crypto_snapshot():
             except Exception:
                 freshness = None
         data["freshness_min"] = freshness
+        source = str(data.get("source") or "")
+        notes = str(data.get("notes") or "")
+        data["is_cache"] = source == "snapshot-cache" or "fallback" in notes.lower()
+        data["stale_reason"] = notes if data["is_cache"] else ""
         return data
     except Exception:
-        return {"generated_at": None, "assets": [], "top_opportunities": [], "freshness_min": None}
+        return {"generated_at": None, "assets": [], "top_opportunities": [], "freshness_min": None, "is_cache": False, "stale_reason": "error leyendo snapshot"}
 
 
 def load_learning_status():

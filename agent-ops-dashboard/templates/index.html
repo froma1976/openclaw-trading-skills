@@ -1606,7 +1606,10 @@
         <h2>Cripto Scout (simulado) — lenguaje natural</h2>
         <p class="muted">Fuente: {{ crypto_signals.source or 'N/D' }} · actualización: {{ crypto_signals.generated_at or
           'N/D' }}{% if crypto_signals.freshness_min is not none %} (hace {{ crypto_signals.freshness_min }} min){%
-          endif %}</p>
+          endif %} {% if crypto_signals.is_cache %}<span class="badge no">CACHE</span>{% else %}<span class="badge ok">LIVE</span>{% endif %}</p>
+        {% if crypto_signals.is_cache %}
+        <p class="muted">Snapshot en fallback/cache. Puede no reflejar la última compra o cierre del autopilot. Motivo: {{ crypto_signals.stale_reason or 'sin detalle' }}</p>
+        {% endif %}
         <table>
           <tr>
             <th>Activo</th>

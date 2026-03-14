@@ -6,6 +6,7 @@ import requests
 import os
 import urllib.parse
 import urllib.request
+import source_ingest_crypto_free
 
 from runtime_utils import atomic_write_json, file_lock, make_exit_levels, round_price
 
@@ -890,6 +891,11 @@ def _main_locked():
     portfolio["fees_paid_usd"] = round(sum(float(o.get("fee_usd") or o.get("fee_open_usd") or 0) for o in completed + active), 6)
     book["portfolio"] = portfolio
     atomic_write_json(ORD, book)
+
+    try:
+        source_ingest_crypto_free._main_locked()
+    except Exception:
+        pass
 
     print(
         json.dumps(
