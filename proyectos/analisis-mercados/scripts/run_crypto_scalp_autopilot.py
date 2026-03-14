@@ -42,6 +42,26 @@ def breakeven_exit_price(entry_price: float, qty: float, fee_open_usd: float, fe
     return ((entry * units) + max(0.0, float(fee_open_usd or 0))) / (units * close_fee_factor)
 
 
+def estimate_trade_economics(entry_price: float, target_price: float, notional: float, fee_bps: float, slippage_bps: float):
+    entry = float(entry_price or 0)
+    target = float(target_price or 0)
+    cash = float(notional or 0)
+    if entry <= 0 or target <= entry or cash <= 0:
+        return {"gross_profit_usd": 0.0, "net_profit_usd": 0.0, "net_return_pct": 0.0}
+    qty = cash / entry
+    exit_px = target * (1 - float(slippage_bps or 0) / 10000.0)
+    gross_profit = max(0.0, (exit_px - entry) * qty)
+    fee_open = cash * float(fee_bps or 0) / 10000.0
+    fee_close = max(0.0, exit_px * qty * float(fee_bps or 0) / 10000.0)
+    net_profit = gross_profit - fee_open - fee_close
+    net_return_pct = (net_profit / cash * 100.0) if cash > 0 else 0.0
+    return {
+        "gross_profit_usd": round(gross_profit, 6),
+        "net_profit_usd": round(net_profit, 6),
+        "net_return_pct": round(net_return_pct, 4),
+    }
+
+
 def infer_setup_tag(candidate: dict, breakout: int, chart: int) -> str:
     flow = int(candidate.get("spy_flow") or 0)
     news = int(candidate.get("spy_news") or 0)
@@ -219,6 +239,8 @@ def load_risk_config():
         "resume_min_core_candidates": 1,
         "target_pct": TARGET_PCT,
         "stop_pct": STOP_PCT,
+        "min_target_net_pct": 0.45,
+        "min_expected_net_profit_usd": 0.25,
         "timeout_min": TIMEOUT_MIN,
         "timeout_profit_grace_min": 10,
         "timeout_force_close_min": 30,
@@ -234,6 +256,7 @@ def load_risk_config():
         "max_trades_hour": MAX_TRADES_HOUR,
         "max_active_positions": MAX_ACTIVE_POSITIONS,
         "alloc_per_trade_usd": ALLOC_PER_TRADE_USD,
+        "max_alloc_per_trade_usd": 60.0,
         "min_notional_usd": 20.0,
         "defensive_scale": 0.5,
         "normal_min_score": 75,
@@ -491,6 +514,8 @@ def _main_locked():
 
     target_pct = float(cfg.get("target_pct", TARGET_PCT) or TARGET_PCT)
     stop_pct = float(cfg.get("stop_pct", STOP_PCT) or STOP_PCT)
+    min_target_net_pct = float(cfg.get("min_target_net_pct", 0.45) or 0.45)
+    min_expected_net_profit_usd = float(cfg.get("min_expected_net_profit_usd", 0.25) or 0.25)
     timeout_min = int(cfg.get("timeout_min", TIMEOUT_MIN) or TIMEOUT_MIN)
     timeout_profit_grace_min = int(cfg.get("timeout_profit_grace_min", 10) or 10)
     timeout_force_close_min = int(cfg.get("timeout_force_close_min", 30) or 30)
@@ -504,6 +529,7 @@ def _main_locked():
     max_trades_hour = int(cfg.get("max_trades_hour", MAX_TRADES_HOUR) or MAX_TRADES_HOUR)
     max_active_positions = int(cfg.get("max_active_positions", MAX_ACTIVE_POSITIONS) or MAX_ACTIVE_POSITIONS)
     alloc_per_trade_usd = float(cfg.get("alloc_per_trade_usd", ALLOC_PER_TRADE_USD) or ALLOC_PER_TRADE_USD)
+    max_alloc_per_trade_usd = float(cfg.get("max_alloc_per_trade_usd", 60.0) or 60.0)
     min_notional_usd = float(cfg.get("min_notional_usd", 20.0) or 20.0)
     defensive_scale = float(cfg.get("defensive_scale", 0.5) or 0.5)
     normal_min_score = int(cfg.get("normal_min_score", 75) or 75)
@@ -765,14 +791,28 @@ def _main_locked():
             research_scale = research_positive_size_scale
         elif research_sentiment in {"negative", "mixed"} and research_catalyst_score < 0:
             research_scale = research_negative_size_scale
-        notional = min(alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier, cash)
+        target_alloc = alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier
+        notional = min(target_alloc, cash, max_alloc_per_trade_usd)
         if notional < min_notional_usd:
             continue
         entry_px = float(price) * (1 + slippage_bps / 10000.0)
         if entry_px <= 0:
             continue
-        qty = notional / entry_px
         target_price, stop_price = make_exit_levels(entry_px, target_pct, stop_pct)
+        economics = estimate_trade_economics(entry_px, target_price, notional, fee_bps, slippage_bps)
+        if economics["net_return_pct"] <= 0:
+            continue
+        if economics["net_return_pct"] < min_target_net_pct:
+            continue
+        required_notional = max(min_notional_usd, min_expected_net_profit_usd / max(economics["net_return_pct"] / 100.0, 1e-9))
+        if required_notional > notional:
+            notional = min(required_notional, cash, max_alloc_per_trade_usd)
+            if notional < required_notional:
+                continue
+            economics = estimate_trade_economics(entry_px, target_price, notional, fee_bps, slippage_bps)
+            if economics["net_return_pct"] < min_target_net_pct or economics["net_profit_usd"] < min_expected_net_profit_usd:
+                continue
+        qty = notional / entry_px
         fee_open = notional * fee_bps / 10000.0
 
         order = {
@@ -795,6 +835,8 @@ def _main_locked():
             "slippage_bps": slippage_bps,
             "fee_bps": fee_bps,
             "fee_open_usd": round(fee_open, 6),
+            "expected_target_net_profit_usd": economics["net_profit_usd"],
+            "expected_target_net_pct": economics["net_return_pct"],
             "target_pct": target_pct,
             "stop_pct": stop_pct,
             "opened_hour_utc": datetime.now(UTC).strftime("%H"),

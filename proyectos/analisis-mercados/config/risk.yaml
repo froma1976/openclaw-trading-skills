@@ -13,6 +13,8 @@ slippage_bps: 5
 fee_bps: 10
 target_pct: 0.9
 stop_pct: 0.55
+min_target_net_pct: 0.45
+min_expected_net_profit_usd: 0.25
 timeout_min: 12
 timeout_profit_grace_min: 10
 timeout_force_close_min: 30
@@ -26,6 +28,7 @@ max_trades_day: 250
 max_trades_hour: 50
 max_active_positions: 10
 alloc_per_trade_usd: 30.0
+max_alloc_per_trade_usd: 60.0
 min_notional_usd: 10.0
 defensive_scale: 0.5
 normal_min_score: 75

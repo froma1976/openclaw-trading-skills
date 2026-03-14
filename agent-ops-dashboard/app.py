@@ -281,6 +281,9 @@ def load_crypto_risk_config():
         "defensive_min_score": 80,
         "defensive_min_confluence": 2,
         "min_notional_usd": 10.0,
+        "min_target_net_pct": 0.45,
+        "min_expected_net_profit_usd": 0.25,
+        "max_alloc_per_trade_usd": 60.0,
     }
     if not CRYPTO_RISK_PATH.exists():
         return default
@@ -339,6 +342,24 @@ def explain_crypto_execution_blockers(candidate: dict, crypto_orders: dict, acti
     min_notional = float(risk_cfg.get("min_notional_usd", 10.0) or 10.0)
     if cash < min_notional:
         reasons.append(f"cash {round(cash,2)} < {min_notional}")
+
+    price = float(candidate.get("price_usd") or 0)
+    target = candidate.get("senior_report", {}).get("setup", {}).get("tp1") if isinstance(candidate.get("senior_report"), dict) else None
+    try:
+        target = float(target)
+    except Exception:
+        target = 0.0
+    fee_bps = 10.0
+    slippage_bps = 5.0
+    if price > 0 and target > price:
+        net_return_pct = (((target * (1 - slippage_bps / 10000.0)) - price) / price * 100.0) - ((2 * fee_bps) / 100.0)
+        if net_return_pct < float(risk_cfg.get("min_target_net_pct", 0.45) or 0.45):
+            reasons.append(f"target neto {round(net_return_pct,2)}% < minimo")
+        required_notional = float(risk_cfg.get("min_expected_net_profit_usd", 0.25) or 0.25) / max(net_return_pct / 100.0, 1e-9)
+        if required_notional > cash:
+            reasons.append(f"cash {round(cash,2)} insuficiente para neto minimo")
+        elif required_notional > float(risk_cfg.get("max_alloc_per_trade_usd", 60.0) or 60.0):
+            reasons.append(f"necesita > {round(float(risk_cfg.get('max_alloc_per_trade_usd', 60.0) or 60.0),2)} usd")
 
     if reasons:
         return {"execution_state": "NO COMPRADA", "execution_reason": "; ".join(reasons), "risk_mode_live": mode}
