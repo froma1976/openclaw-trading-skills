@@ -85,34 +85,6 @@
       "pnl_usd_est": -0.000619
     },
     {
-      "id": "crp_bonk_1773451205",
-      "ticker": "BONK",
-      "opened_at": "2026-03-14T01:20:05Z",
-      "entry_price": 6e-06,
-      "qty": 7738580.75040783,
-      "notional_usd": 47.44,
-      "target_price": 6e-06,
-      "stop_price": 6e-06,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 86,
-      "score": 86,
-      "research_sentiment": "positive",
-      "research_catalyst_score": 2,
-      "research_size_scale": 1.15,
-      "spy_confluence": 2,
-      "spy_breakdown": {
-        "news": 0,
-        "euphoria": 1,
-        "flow": 1,
-        "whale": 0
-      },
-      "current_price": 6e-06,
-      "pct_move": 2.167,
-      "pnl_usd_est": 1.006015
-    },
-    {
       "id": "crp_aave_1773451205",
       "ticker": "AAVE",
       "opened_at": "2026-03-14T01:20:05Z",
@@ -195,6 +167,34 @@
       "current_price": 460.34,
       "pct_move": 0.0,
       "pnl_usd_est": 0.0
+    },
+    {
+      "id": "crp_bonk_1773451265",
+      "ticker": "BONK",
+      "opened_at": "2026-03-14T01:21:05Z",
+      "entry_price": 6e-06,
+      "qty": 7738580.75040783,
+      "notional_usd": 47.44,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 86,
+      "score": 86,
+      "research_sentiment": "positive",
+      "research_catalyst_score": 2,
+      "research_size_scale": 1.15,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": 2.167,
+      "pnl_usd_est": 1.006015
     }
   ],
   "completed": [
@@ -24975,11 +24975,43 @@
       "close_price": 460.34,
       "result": "timeout",
       "pnl_usd": 0.028699
+    },
+    {
+      "id": "crp_bonk_1773451205",
+      "ticker": "BONK",
+      "opened_at": "2026-03-14T01:20:05Z",
+      "entry_price": 6e-06,
+      "qty": 7738580.75040783,
+      "notional_usd": 47.44,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 86,
+      "score": 86,
+      "research_sentiment": "positive",
+      "research_catalyst_score": 2,
+      "research_size_scale": 1.15,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": 2.167,
+      "pnl_usd_est": 1.006015,
+      "closed_at": "2026-03-14T01:21:02Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.006015
     }
   ],
   "daily": {
     "date": "2026-03-14",
-    "trades": 68,
+    "trades": 69,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -24989,8 +25021,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 497.64,
+    "cash_usd": 498.65,
     "market_value_usd": 212.5,
-    "equity_usd": 710.14
+    "equity_usd": 711.15
   }
 }
