@@ -839,6 +839,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab-btn="inicio">Inicio</button>
       <button class="tab-btn" data-tab-btn="oportunidades">Oportunidades</button>
+      <button class="tab-btn" data-tab-btn="moonshot">Moonshot</button>
       <button class="tab-btn" data-tab-btn="cartera">Cartera</button>
       <button class="tab-btn" data-tab-btn="crypto">Cripto</button>
       <button class="tab-btn" data-tab-btn="oficina">Oficina</button>
@@ -2180,6 +2181,96 @@
           detallados.</div>
       </div>
 
+    </div>
+
+    <div class="grid tab-section" data-tab="moonshot">
+      <div class="card col-12">
+        <h2>Motor Moonshot</h2>
+        <p>
+          Última lectura: <strong>{{ moonshot.generated_at or 'N/D' }}</strong>
+          <span class="muted">{% if moonshot.freshness_min is not none %}· hace {{ moonshot.freshness_min }} min{% endif %}</span>
+        </p>
+        <p class="muted">Este motor no busca scalp. Busca activos con potencial de movimiento explosivo en días, semanas o meses.</p>
+      </div>
+
+      <div class="card col-12">
+        <h2>Top combinado Moonshot</h2>
+        <table>
+          <tr>
+            <th>Activo</th>
+            <th>Clase</th>
+            <th>Estado</th>
+            <th>Score</th>
+            <th>Horizonte</th>
+            <th>Por qué destaca</th>
+            <th>Riesgo</th>
+          </tr>
+          {% for row in moonshot.combined_top[:12] if moonshot.combined_top is defined %}
+          <tr>
+            <td><strong>{{ row.ticker }}</strong></td>
+            <td><span class="badge {{ 'ok' if row.asset_class == 'crypto' else 'warn' }}">{{ row.asset_class }}</span></td>
+            <td><span class="badge {{ 'ok' if row.state == 'PRIME' else ('warn' if row.state == 'EARLY' else 'no') }}">{{ row.state }}</span></td>
+            <td>{{ row.moonshot_score }}</td>
+            <td>{{ row.horizon }}</td>
+            <td>{{ ', '.join(row.why_now or []) }}</td>
+            <td>{{ row.risk or '-' }}</td>
+          </tr>
+          {% endfor %}
+          {% if moonshot.combined_top is not defined or moonshot.combined_top|length == 0 %}
+          <tr><td colspan="7">Sin candidatos moonshot todavía</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-6">
+        <h2>Moonshot Stocks</h2>
+        <table>
+          <tr>
+            <th>Ticker</th>
+            <th>Estado</th>
+            <th>Score</th>
+            <th>Volumen rel.</th>
+            <th>Catalizadores</th>
+          </tr>
+          {% for row in moonshot.stocks[:10] if moonshot.stocks is defined %}
+          <tr>
+            <td><strong>{{ row.ticker }}</strong></td>
+            <td><span class="badge {{ 'ok' if row.state == 'PRIME' else ('warn' if row.state == 'EARLY' else 'no') }}">{{ row.state }}</span></td>
+            <td>{{ row.moonshot_score }}</td>
+            <td>{{ row.drivers.rel_volume if row.drivers is defined else '-' }}</td>
+            <td>{{ row.drivers.catalyst_score if row.drivers is defined else '-' }}</td>
+          </tr>
+          {% endfor %}
+          {% if moonshot.stocks is not defined or moonshot.stocks|length == 0 %}
+          <tr><td colspan="5">Sin candidatos de acciones</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-6">
+        <h2>Moonshot Crypto</h2>
+        <table>
+          <tr>
+            <th>Ticker</th>
+            <th>Estado</th>
+            <th>Score</th>
+            <th>Confluencia</th>
+            <th>Flow</th>
+          </tr>
+          {% for row in moonshot.crypto[:10] if moonshot.crypto is defined %}
+          <tr>
+            <td><strong>{{ row.ticker }}</strong></td>
+            <td><span class="badge {{ 'ok' if row.state == 'PRIME' else ('warn' if row.state == 'EARLY' else 'no') }}">{{ row.state }}</span></td>
+            <td>{{ row.moonshot_score }}</td>
+            <td>{{ row.drivers.spy_confluence if row.drivers is defined else '-' }}</td>
+            <td>{{ row.drivers.flow_ratio if row.drivers is defined else '-' }}</td>
+          </tr>
+          {% endfor %}
+          {% if moonshot.crypto is not defined or moonshot.crypto|length == 0 %}
+          <tr><td colspan="5">Sin candidatos cripto</td></tr>
+          {% endif %}
+        </table>
+      </div>
     </div>
 
     <div class="grid tab-section" data-tab="tecnico">

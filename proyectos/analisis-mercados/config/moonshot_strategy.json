@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "stocks": {
+    "min_base_score": 55,
+    "prime_score": 72,
+    "early_score": 55,
+    "max_candidates": 12,
+    "weights": {
+      "base_score": 0.45,
+      "rel_volume_cap": 12,
+      "breakout_bonus": 12,
+      "options_bonus": 8,
+      "insider_bonus": 10,
+      "catalyst_bonus": 10,
+      "spinoff_bonus": 7,
+      "fundamental_bonus": 9,
+      "asymmetry_bonus": 10,
+      "convergence_bonus": 8,
+      "momentum_bonus": 6,
+      "intraday_bonus": 3,
+      "bubble_penalty": 14,
+      "avoid_penalty": 10
+    }
+  },
+  "crypto": {
+    "min_base_score": 58,
+    "prime_score": 68,
+    "early_score": 55,
+    "max_candidates": 12,
+    "weights": {
+      "base_score": 0.4,
+      "gem_score": 0.25,
+      "flow_cap": 12,
+      "confluence_bonus": 10,
+      "breakout_bonus": 12,
+      "chart_bonus": 6,
+      "research_bonus": 7,
+      "rank_sweetspot_bonus": 8,
+      "microcap_penalty": 12,
+      "bubble_penalty": 12,
+      "rug_penalty": 25,
+      "avoid_penalty": 10
+    }
+  }
+}

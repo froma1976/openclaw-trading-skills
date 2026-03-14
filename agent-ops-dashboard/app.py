@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import os
 import sqlite3
 import json
@@ -31,6 +31,7 @@ CRYPTO_SIGNALS_PATH = Path(os.getenv("CRYPTO_SIGNALS_PATH", "C:/Users/Fernando/.
 CRYPTO_ORDERS_PATH = Path(os.getenv("CRYPTO_ORDERS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json"))
 CRYPTO_STREAM_STATUS_PATH = Path(os.getenv("CRYPTO_STREAM_STATUS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_stream_status.json"))
 LEARNING_STATUS_PATH = Path(os.getenv("LEARNING_STATUS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status.json"))
+MOONSHOT_CANDIDATES_PATH = Path(os.getenv("MOONSHOT_CANDIDATES_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/moonshot_candidates.json"))
 RESEARCH_AGENTS_PATH = Path(os.getenv("RESEARCH_AGENTS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/research_agents_latest.json"))
 RESEARCH_QUEUE_PATH = Path(os.getenv("RESEARCH_QUEUE_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/research_experiment_queue.json"))
 RESEARCH_RESULTS_PATH = Path(os.getenv("RESEARCH_RESULTS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/research_experiment_results.json"))
@@ -38,6 +39,15 @@ RESEARCH_DEPLOYMENTS_PATH = Path(os.getenv("RESEARCH_DEPLOYMENTS_PATH", "C:/User
 GPT53_BUDGET_PATH = Path(os.getenv("GPT53_BUDGET_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/gpt53_budget.json"))
 STARTUP_LOG_PATH = Path(os.getenv("STARTUP_LOG_PATH", "C:/Users/Fernando/.openclaw/workspace/startup-stack.log"))
 GPT53_MODE = os.getenv("GPT53_MODE", "normal").strip().lower()
+
+
+def date_iso_to_es(iso_str: str) -> str:
+    if not iso_str: return "-"
+    try:
+        from datetime import datetime
+        dt = datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
+        return dt.strftime("%d/%m/%Y")
+    except: return iso_str
 
 app = FastAPI(title="Agent Ops Dashboard")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -205,6 +215,25 @@ def load_learning_status():
         return d if isinstance(d, dict) else {"semaforo": "ROJO", "reason": "Formato invÃ¡lido", "trades_7d": 0}
     except Exception:
         return {"semaforo": "ROJO", "reason": "No se pudo leer learning status", "trades_7d": 0}
+
+
+def load_moonshot_candidates():
+    if not MOONSHOT_CANDIDATES_PATH.exists():
+        return {"generated_at": None, "stocks": [], "crypto": [], "combined_top": [], "freshness_min": None}
+    try:
+        data = json.loads(MOONSHOT_CANDIDATES_PATH.read_text(encoding="utf-8"))
+        gen = data.get("generated_at")
+        freshness = None
+        if gen:
+            try:
+                dt = datetime.fromisoformat(gen.replace("Z", "+00:00"))
+                freshness = int((datetime.now(UTC) - dt).total_seconds() // 60)
+            except Exception:
+                freshness = None
+        data["freshness_min"] = freshness
+        return data if isinstance(data, dict) else {"generated_at": None, "stocks": [], "crypto": [], "combined_top": [], "freshness_min": None}
+    except Exception:
+        return {"generated_at": None, "stocks": [], "crypto": [], "combined_top": [], "freshness_min": None}
 
 
 def _load_json_file(path: Path, default):
@@ -1182,6 +1211,7 @@ def home(request: Request):
     crypto_signals = load_crypto_snapshot()
     crypto_stream = load_crypto_stream_status()
     learning_status = load_learning_status()
+    moonshot = load_moonshot_candidates()
     research_panel = load_research_panel()
     crypto_orders = load_crypto_orders()
     commits = latest_commits()
@@ -1345,24 +1375,15 @@ def home(request: Request):
     crypto_map = {str(a.get("ticker")): float(a.get("price_usd")) for a in (crypto_signals.get("assets", []) or []) if a.get("ticker") and a.get("price_usd")}
     crypto_unrealized = 0.0
     crypto_realized = 0.0
+
+    # Calculamos PnL realizado
     for c in crypto_completed:
         try:
             crypto_realized += float(c.get("pnl_usd") or 0)
         except Exception:
             pass
 
-    for o in crypto_active:
-        try:
-            ep = float(o.get("entry_price"))
-            cp = float(crypto_map.get(o.get("ticker"), ep))
-            o["current_price"] = round(cp, 6)
-            o["pct_move"] = round(((cp - ep) / ep) * 100, 2)
-            o["pnl_usd_est"] = round(cp - ep, 6)
-            crypto_unrealized += (cp - ep)
-        except Exception:
-            o["pct_move"] = None
-            o["pnl_usd_est"] = None
-
+    # Preparamos órdenes completadas unificadas (USANDO FECHAS ORIGINALES PARA ORDENAR)
     unified_completed_orders = []
     for o in completed_orders:
         unified_completed_orders.append({
@@ -1372,9 +1393,10 @@ def home(request: Request):
             "exit_price": o.get("close_price") or o.get("exit_price"),
             "result": o.get("result"),
             "pnl_usd": o.get("pnl_usd") if o.get("pnl_usd") is not None else o.get("pnl_usd_est"),
-            "opened_at": o.get("created_at") or o.get("opened_at"),
-            "closed_at": o.get("closed_at"),
+            "opened_at_raw": o.get("created_at") or o.get("opened_at"),
+            "closed_at_raw": o.get("closed_at"),
         })
+
     for o in crypto_completed:
         unified_completed_orders.append({
             "market": "Cripto",
@@ -1383,12 +1405,41 @@ def home(request: Request):
             "exit_price": o.get("close_price") or o.get("exit_price"),
             "result": o.get("result"),
             "pnl_usd": o.get("pnl_usd"),
-            "opened_at": o.get("opened_at"),
-            "closed_at": o.get("closed_at"),
+            "opened_at_raw": o.get("opened_at"),
+            "closed_at_raw": o.get("closed_at"),
         })
+
+    # Ordenar por fecha de cierre (descendente)
     def _sort_key(row):
-        return str(row.get("closed_at") or row.get("opened_at") or "")
+        return str(row.get("closed_at_raw") or row.get("opened_at_raw") or "")
     unified_completed_orders = sorted(unified_completed_orders, key=_sort_key, reverse=True)
+
+    # Ahora formateamos las fechas para el display
+    for o in unified_completed_orders:
+        o["opened_at"] = date_iso_to_es(o.get("opened_at_raw"))
+        o["closed_at"] = date_iso_to_es(o.get("closed_at_raw"))
+
+    # También formateamos las listas específicas de cripto (reversas para ver las últimas arriba)
+    crypto_completed_view = []
+    for c in crypto_completed[::-1]:
+        # Creamos una copia para no alterar el objeto original si se usa en otros sitios
+        c_view = dict(c)
+        c_view["opened_at"] = date_iso_to_es(c.get("opened_at"))
+        c_view["closed_at"] = date_iso_to_es(c.get("closed_at"))
+        crypto_completed_view.append(c_view)
+
+    for o in crypto_active:
+        try:
+            o["opened_at"] = date_iso_to_es(o.get("opened_at"))
+            ep = float(o.get("entry_price"))
+            cp = float(crypto_map.get(o.get("ticker"), ep))
+            o["current_price"] = round(cp, 6)
+            o["pct_move"] = round(((cp - ep) / ep) * 100, 2)
+            o["pnl_usd_est"] = round(cp - ep, 6)
+            crypto_unrealized += (cp - ep)
+        except Exception:
+            o["pct_move"] = None
+            o["pnl_usd_est"] = None
 
     quant_data = []
     quant_path = Path(os.getenv("PRICE_WAREHOUSE_PATH", "C:/Users/Fernando/.openclaw/workspace/memory/price_warehouse.csv"))
@@ -1448,9 +1499,10 @@ def home(request: Request):
             "crypto_signals": crypto_signals,
             "crypto_stream": crypto_stream,
             "learning_status": learning_status,
+            "moonshot": moonshot,
             "research_panel": research_panel,
             "crypto_orders_active": crypto_active,
-            "crypto_orders_completed": crypto_completed,
+            "crypto_orders_completed": crypto_completed_view,
             "crypto_daily": crypto_orders.get("daily", {}),
             "crypto_unrealized_usd_est": round(crypto_unrealized, 4),
             "crypto_realized_usd": round(crypto_realized, 4),

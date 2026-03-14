@@ -1,0 +1,1232 @@
+{
+  "generated_at": "2026-03-14T13:54:29Z",
+  "engine": "moonshot-v1",
+  "mission": "find_the_move_before_the_move",
+  "notes": [
+    "Separate engine from scalping runtime.",
+    "Uses a dedicated moonshot stock universe plus current crypto snapshot.",
+    "Focuses on asymmetry, catalysts, breakout potential, and room to run."
+  ],
+  "stocks": [
+    {
+      "asset_class": "stock",
+      "ticker": "NET",
+      "name": "NET",
+      "price": 212.45,
+      "moonshot_score": 58.0,
+      "state": "EARLY",
+      "decision_hint": "WATCHLIST_BUILD",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_fuerte",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "intraday_15m_alcista"
+      ],
+      "risk": "Divergencia bajista: precio sube con volumen débil",
+      "drivers": {
+        "score_final": 100.0,
+        "rel_volume": 0.57,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 2,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "HIMS",
+      "name": "HIMS",
+      "price": 24.77,
+      "moonshot_score": 45.9,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_fuerte",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "intraday_15m_alcista"
+      ],
+      "risk": "Divergencia bajista: precio sube con volumen débil",
+      "drivers": {
+        "score_final": 84.0,
+        "rel_volume": 0.83,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 2,
+        "bubble_level": "Medio"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "MARA",
+      "name": "MARA",
+      "price": 9.32,
+      "moonshot_score": 44.95,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_fuerte",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "rel_volume_ok"
+      ],
+      "risk": "Euforia detectada: momentum excesivo",
+      "drivers": {
+        "score_final": 83.0,
+        "rel_volume": 1.45,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 1,
+        "bubble_level": "Medio"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "MSTR",
+      "name": "MSTR",
+      "price": 139.67,
+      "moonshot_score": 44.2,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_positivo",
+        "tendencia_20d_positiva",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "intraday_15m_bajista"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 72.0,
+        "rel_volume": 1.18,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 2,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "CRWD",
+      "name": "CRWD",
+      "price": 441.78,
+      "moonshot_score": 40.7,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_positivo",
+        "tendencia_20d_positiva",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "intraday_15m_alcista"
+      ],
+      "risk": "Divergencia bajista: precio sube con volumen débil",
+      "drivers": {
+        "score_final": 66.0,
+        "rel_volume": 0.43,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 1,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "PLTR",
+      "name": "PLTR",
+      "price": 150.95,
+      "moonshot_score": 35.95,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_debil",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "social_bullish"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 71.0,
+        "rel_volume": 0.8,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 2,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "COIN",
+      "name": "COIN",
+      "price": 195.53,
+      "moonshot_score": 35.95,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_debil",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "social_bullish"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 71.0,
+        "rel_volume": 0.9,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 2,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "CAVA",
+      "name": "CAVA",
+      "price": 82.0,
+      "moonshot_score": 32.45,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_positivo",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "social_bullish"
+      ],
+      "risk": "Divergencia bajista: precio sube con volumen débil",
+      "drivers": {
+        "score_final": 81.0,
+        "rel_volume": 0.56,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 2,
+        "bubble_level": "Crítico"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "XLE",
+      "name": "XLE",
+      "price": 57.7,
+      "moonshot_score": 27.3,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_fuerte",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_above_ema50",
+        "bubble_critical",
+        "devil_advocate_active"
+      ],
+      "risk": "Divergencia bajista: precio sube con volumen débil",
+      "drivers": {
+        "score_final": 74.0,
+        "rel_volume": 0.63,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 1,
+        "bubble_level": "Crítico"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "PANW",
+      "name": "PANW",
+      "price": 167.015,
+      "moonshot_score": 25.45,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_positivo",
+        "tendencia_20d_positiva",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "devil_advocate_active"
+      ],
+      "risk": "Divergencia bajista: precio sube con volumen débil",
+      "drivers": {
+        "score_final": 61.0,
+        "rel_volume": 0.51,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 1,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "TTD",
+      "name": "TTD",
+      "price": 27.34,
+      "moonshot_score": 23.35,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_debil",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "intraday_15m_alcista"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 63.0,
+        "rel_volume": 0.57,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 1,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "APP",
+      "name": "APP",
+      "price": 458.67,
+      "moonshot_score": 21.55,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_debil",
+        "tendencia_20d_fuerte",
+        "price_below_ema20",
+        "ema20_below_ema50",
+        "intraday_15m_alcista",
+        "social_bullish"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 59.0,
+        "rel_volume": 0.63,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 1,
+        "bubble_level": "Bajo"
+      }
+    }
+  ],
+  "crypto": [
+    {
+      "asset_class": "crypto",
+      "ticker": "OP",
+      "name": "Optimism",
+      "price": 0.123355,
+      "moonshot_score": 71.6,
+      "state": "PRIME",
+      "decision_hint": "BUILD_POSITION",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "tendencia_7d_positiva",
+        "flujo_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 69.0,
+        "gem_score": 80.0,
+        "chg_24h_pct": -2.83,
+        "chg_7d_pct": 3.78,
+        "flow_ratio": 0.2121,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 150,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "SUI",
+      "name": "Sui",
+      "price": 0.991334,
+      "moonshot_score": 68.8,
+      "state": "PRIME",
+      "decision_hint": "BUILD_POSITION",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "tendencia_7d_fuerte",
+        "flujo_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 67.0,
+        "gem_score": 72.0,
+        "chg_24h_pct": -5.36,
+        "chg_7d_pct": 9.97,
+        "flow_ratio": 0.1267,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 29,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "NEAR",
+      "name": "NEAR Protocol",
+      "price": 1.3,
+      "moonshot_score": 63.8,
+      "state": "EARLY",
+      "decision_hint": "WATCHLIST_BUILD",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "tendencia_7d_fuerte",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 62.0,
+        "gem_score": 69.0,
+        "chg_24h_pct": -4.23,
+        "chg_7d_pct": 6.85,
+        "flow_ratio": 0.0975,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 50,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "ICP",
+      "name": "Internet Computer",
+      "price": 2.62,
+      "moonshot_score": 60.98,
+      "state": "EARLY",
+      "decision_hint": "WATCHLIST_BUILD",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "tendencia_7d_fuerte"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 70.0,
+        "gem_score": 76.0,
+        "chg_24h_pct": -1.72,
+        "chg_7d_pct": 6.25,
+        "flow_ratio": 0.0398,
+        "spy_confluence": 1,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 55,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "MNT",
+      "name": "Mantle",
+      "price": 0.766881,
+      "moonshot_score": 60.42,
+      "state": "EARLY",
+      "decision_hint": "WATCHLIST_BUILD",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "momento_24h_fuerte",
+        "tendencia_7d_fuerte"
+      ],
+      "risk": "Euforia parcial: entrar con tamaño pequeño",
+      "drivers": {
+        "score_final": 76.0,
+        "gem_score": 82.0,
+        "chg_24h_pct": 4.43,
+        "chg_7d_pct": 12.87,
+        "flow_ratio": 0.0372,
+        "spy_confluence": 1,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 37,
+        "bubble_level": "Medio"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "ATOM",
+      "name": "Cosmos Hub",
+      "price": 1.87,
+      "moonshot_score": 53.92,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "tendencia_7d_positiva"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 60.0,
+        "gem_score": 66.0,
+        "chg_24h_pct": -0.29,
+        "chg_7d_pct": 3.72,
+        "flow_ratio": 0.0342,
+        "spy_confluence": 1,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 70,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "XLM",
+      "name": "Stellar",
+      "price": 0.16457,
+      "moonshot_score": 51.42,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "tendencia_7d_fuerte",
+        "flujo_debil"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 64.0,
+        "gem_score": 64.0,
+        "chg_24h_pct": -1.77,
+        "chg_7d_pct": 8.34,
+        "flow_ratio": 0.0182,
+        "spy_confluence": 0,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 21,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "INJ",
+      "name": "Injective",
+      "price": 3.03,
+      "moonshot_score": 50.45,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "tendencia_7d_positiva",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 52.0,
+        "gem_score": 63.0,
+        "chg_24h_pct": -3.88,
+        "chg_7d_pct": 4.84,
+        "flow_ratio": 0.119,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 132,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "FLOW",
+      "name": "Flow",
+      "price": 0.04525521,
+      "moonshot_score": 50.3,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "momento_24h_debil",
+        "tendencia_7d_fuerte",
+        "flujo_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 67.0,
+        "gem_score": 78.0,
+        "chg_24h_pct": -10.25,
+        "chg_7d_pct": 8.14,
+        "flow_ratio": 0.4169,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 341,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "ARB",
+      "name": "Arbitrum",
+      "price": 0.10076,
+      "moonshot_score": 48.97,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "tendencia_7d_positiva",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 52.0,
+        "gem_score": 63.0,
+        "chg_24h_pct": -5.18,
+        "chg_7d_pct": 2.14,
+        "flow_ratio": 0.1042,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 90,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "SEI",
+      "name": "Sei",
+      "price": 0.066188,
+      "moonshot_score": 48.73,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 54.0,
+        "gem_score": 61.0,
+        "chg_24h_pct": -1.84,
+        "chg_7d_pct": 0.86,
+        "flow_ratio": 0.0988,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 106,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "TRX",
+      "name": "TRON",
+      "price": 0.296625,
+      "moonshot_score": 48.65,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "momento_24h_fuerte",
+        "tendencia_7d_positiva",
+        "flujo_debil",
+        "liquidez_alta"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 69.0,
+        "gem_score": 69.0,
+        "chg_24h_pct": 2.57,
+        "chg_7d_pct": 4.35,
+        "flow_ratio": 0.018,
+        "spy_confluence": 1,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 8,
+        "bubble_level": "Bajo"
+      }
+    }
+  ],
+  "combined_top": [
+    {
+      "asset_class": "crypto",
+      "ticker": "OP",
+      "name": "Optimism",
+      "price": 0.123355,
+      "moonshot_score": 71.6,
+      "state": "PRIME",
+      "decision_hint": "BUILD_POSITION",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "tendencia_7d_positiva",
+        "flujo_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 69.0,
+        "gem_score": 80.0,
+        "chg_24h_pct": -2.83,
+        "chg_7d_pct": 3.78,
+        "flow_ratio": 0.2121,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 150,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "SUI",
+      "name": "Sui",
+      "price": 0.991334,
+      "moonshot_score": 68.8,
+      "state": "PRIME",
+      "decision_hint": "BUILD_POSITION",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "tendencia_7d_fuerte",
+        "flujo_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 67.0,
+        "gem_score": 72.0,
+        "chg_24h_pct": -5.36,
+        "chg_7d_pct": 9.97,
+        "flow_ratio": 0.1267,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 29,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "NEAR",
+      "name": "NEAR Protocol",
+      "price": 1.3,
+      "moonshot_score": 63.8,
+      "state": "EARLY",
+      "decision_hint": "WATCHLIST_BUILD",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "tendencia_7d_fuerte",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 62.0,
+        "gem_score": 69.0,
+        "chg_24h_pct": -4.23,
+        "chg_7d_pct": 6.85,
+        "flow_ratio": 0.0975,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 50,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "ICP",
+      "name": "Internet Computer",
+      "price": 2.62,
+      "moonshot_score": 60.98,
+      "state": "EARLY",
+      "decision_hint": "WATCHLIST_BUILD",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "tendencia_7d_fuerte"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 70.0,
+        "gem_score": 76.0,
+        "chg_24h_pct": -1.72,
+        "chg_7d_pct": 6.25,
+        "flow_ratio": 0.0398,
+        "spy_confluence": 1,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 55,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "MNT",
+      "name": "Mantle",
+      "price": 0.766881,
+      "moonshot_score": 60.42,
+      "state": "EARLY",
+      "decision_hint": "WATCHLIST_BUILD",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "momento_24h_fuerte",
+        "tendencia_7d_fuerte"
+      ],
+      "risk": "Euforia parcial: entrar con tamaño pequeño",
+      "drivers": {
+        "score_final": 76.0,
+        "gem_score": 82.0,
+        "chg_24h_pct": 4.43,
+        "chg_7d_pct": 12.87,
+        "flow_ratio": 0.0372,
+        "spy_confluence": 1,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 37,
+        "bubble_level": "Medio"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "NET",
+      "name": "NET",
+      "price": 212.45,
+      "moonshot_score": 58.0,
+      "state": "EARLY",
+      "decision_hint": "WATCHLIST_BUILD",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_fuerte",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_above_ema50",
+        "rsi_constructivo",
+        "intraday_15m_alcista"
+      ],
+      "risk": "Divergencia bajista: precio sube con volumen débil",
+      "drivers": {
+        "score_final": 100.0,
+        "rel_volume": 0.57,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 2,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "ATOM",
+      "name": "Cosmos Hub",
+      "price": 1.87,
+      "moonshot_score": 53.92,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "tendencia_7d_positiva"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 60.0,
+        "gem_score": 66.0,
+        "chg_24h_pct": -0.29,
+        "chg_7d_pct": 3.72,
+        "flow_ratio": 0.0342,
+        "spy_confluence": 1,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 70,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "XLM",
+      "name": "Stellar",
+      "price": 0.16457,
+      "moonshot_score": 51.42,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "tendencia_7d_fuerte",
+        "flujo_debil"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 64.0,
+        "gem_score": 64.0,
+        "chg_24h_pct": -1.77,
+        "chg_7d_pct": 8.34,
+        "flow_ratio": 0.0182,
+        "spy_confluence": 0,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 21,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "INJ",
+      "name": "Injective",
+      "price": 3.03,
+      "moonshot_score": 50.45,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "tendencia_7d_positiva",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 52.0,
+        "gem_score": 63.0,
+        "chg_24h_pct": -3.88,
+        "chg_7d_pct": 4.84,
+        "flow_ratio": 0.119,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 132,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "FLOW",
+      "name": "Flow",
+      "price": 0.04525521,
+      "moonshot_score": 50.3,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "momento_24h_debil",
+        "tendencia_7d_fuerte",
+        "flujo_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 67.0,
+        "gem_score": 78.0,
+        "chg_24h_pct": -10.25,
+        "chg_7d_pct": 8.14,
+        "flow_ratio": 0.4169,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 341,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "ARB",
+      "name": "Arbitrum",
+      "price": 0.10076,
+      "moonshot_score": 48.97,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "tendencia_7d_positiva",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 52.0,
+        "gem_score": 63.0,
+        "chg_24h_pct": -5.18,
+        "chg_7d_pct": 2.14,
+        "flow_ratio": 0.1042,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 90,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "SEI",
+      "name": "Sei",
+      "price": 0.066188,
+      "moonshot_score": 48.73,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 54.0,
+        "gem_score": 61.0,
+        "chg_24h_pct": -1.84,
+        "chg_7d_pct": 0.86,
+        "flow_ratio": 0.0988,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 106,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "TRX",
+      "name": "TRON",
+      "price": 0.296625,
+      "moonshot_score": 48.65,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "momento_24h_fuerte",
+        "tendencia_7d_positiva",
+        "flujo_debil",
+        "liquidez_alta"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 69.0,
+        "gem_score": 69.0,
+        "chg_24h_pct": 2.57,
+        "chg_7d_pct": 4.35,
+        "flow_ratio": 0.018,
+        "spy_confluence": 1,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 8,
+        "bubble_level": "Bajo"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "HIMS",
+      "name": "HIMS",
+      "price": 24.77,
+      "moonshot_score": 45.9,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_fuerte",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "intraday_15m_alcista"
+      ],
+      "risk": "Divergencia bajista: precio sube con volumen débil",
+      "drivers": {
+        "score_final": 84.0,
+        "rel_volume": 0.83,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 2,
+        "bubble_level": "Medio"
+      }
+    },
+    {
+      "asset_class": "stock",
+      "ticker": "MARA",
+      "name": "MARA",
+      "price": 9.32,
+      "moonshot_score": 44.95,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "weeks_to_months",
+      "why_now": [
+        "momento_5d_fuerte",
+        "tendencia_20d_fuerte",
+        "price_above_ema20",
+        "ema20_below_ema50",
+        "rsi_constructivo",
+        "rel_volume_ok"
+      ],
+      "risk": "Euforia detectada: momentum excesivo",
+      "drivers": {
+        "score_final": 83.0,
+        "rel_volume": 1.45,
+        "breakout_20": false,
+        "catalyst_score": 0.0,
+        "insider_score": 0.0,
+        "options_flow_score": 0.0,
+        "fundamental_inflection_score": 0.0,
+        "score_asymmetry": 0.0,
+        "convergence_count": 1,
+        "bubble_level": "Medio"
+      }
+    }
+  ]
+}
