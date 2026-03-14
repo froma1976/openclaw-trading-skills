@@ -24,9 +24,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.0842,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.084185,
+      "pct_move": -0.018,
+      "pnl_usd_est": -0.002939
     },
     {
       "id": "crp_etc_1773446401",
@@ -80,9 +80,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.1235,
-      "pct_move": -0.162,
-      "pnl_usd_est": -0.026677
+      "current_price": 0.123544,
+      "pct_move": -0.126,
+      "pnl_usd_est": -0.020808
     },
     {
       "id": "crp_xlm_1773446401",
@@ -108,9 +108,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.164,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.163913,
+      "pct_move": -0.053,
+      "pnl_usd_est": -0.017506
     },
     {
       "id": "crp_trx_1773446401",
@@ -136,9 +136,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.2935,
-      "pct_move": 0.034,
-      "pnl_usd_est": 0.011247
+      "current_price": 0.293448,
+      "pct_move": 0.016,
+      "pnl_usd_est": 0.005399
     },
     {
       "id": "crp_apt_1773446524",
@@ -164,37 +164,121 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.933,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 0.934678,
+      "pct_move": 0.18,
+      "pnl_usd_est": 0.029675
     },
     {
-      "id": "crp_bonk_1773446584",
+      "id": "crp_gala_1773446644",
+      "ticker": "GALA",
+      "opened_at": "2026-03-14T00:04:04Z",
+      "entry_price": 0.003526,
+      "qty": 4678.99274047,
+      "notional_usd": 16.5,
+      "target_price": 0.003558,
+      "stop_price": 0.003507,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 84,
+      "score": 84,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 3,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 1,
+        "whale": 1
+      },
+      "current_price": 0.003526,
+      "pct_move": 0.011,
+      "pnl_usd_est": 0.001872
+    },
+    {
+      "id": "crp_bonk_1773446644",
       "ticker": "BONK",
-      "opened_at": "2026-03-14T00:03:04Z",
+      "opened_at": "2026-03-14T00:04:04Z",
       "entry_price": 6e-06,
-      "qty": 7751225.49019608,
+      "qty": 7725977.19869707,
       "notional_usd": 47.44,
       "target_price": 6e-06,
       "stop_price": 6e-06,
       "state": "ACTIVE",
       "mode": "scalp_intradia",
       "risk_mode": "normal",
-      "confidence": 64,
-      "score": 64,
+      "confidence": 90,
+      "score": 90,
       "research_sentiment": "positive",
       "research_catalyst_score": 2,
       "research_size_scale": 1.15,
-      "spy_confluence": 1,
+      "spy_confluence": 3,
       "spy_breakdown": {
         "news": 1,
         "euphoria": 1,
-        "flow": -1,
+        "flow": 1,
         "whale": 0
       },
       "current_price": 6e-06,
-      "pct_move": 2.0,
-      "pnl_usd_est": 0.930147
+      "pct_move": 2.333,
+      "pnl_usd_est": 1.081637
+    },
+    {
+      "id": "crp_algo_1773446644",
+      "ticker": "ALGO",
+      "opened_at": "2026-03-14T00:04:04Z",
+      "entry_price": 0.093919,
+      "qty": 351.36660314,
+      "notional_usd": 33.0,
+      "target_price": 0.094764,
+      "stop_price": 0.093402,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 88,
+      "score": 88,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 1,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 0,
+        "whale": 0
+      },
+      "current_price": 0.093919,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0
+    },
+    {
+      "id": "crp_flow_1773446644",
+      "ticker": "FLOW",
+      "opened_at": "2026-03-14T00:04:04Z",
+      "entry_price": 0.050176,
+      "qty": 822.10618622,
+      "notional_usd": 41.25,
+      "target_price": 0.050628,
+      "stop_price": 0.0499,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 77,
+      "score": 77,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 0.050176,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0
     }
   ],
   "completed": [
@@ -23119,11 +23203,43 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 0.930147
+    },
+    {
+      "id": "crp_bonk_1773446584",
+      "ticker": "BONK",
+      "opened_at": "2026-03-14T00:03:04Z",
+      "entry_price": 6e-06,
+      "qty": 7751225.49019608,
+      "notional_usd": 47.44,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 64,
+      "score": 64,
+      "research_sentiment": "positive",
+      "research_catalyst_score": 2,
+      "research_size_scale": 1.15,
+      "spy_confluence": 1,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": -1,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": 2.333,
+      "pnl_usd_est": 1.085172,
+      "closed_at": "2026-03-14T00:04:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.085172
     }
   ],
   "daily": {
     "date": "2026-03-14",
-    "trades": 10,
+    "trades": 14,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -23133,8 +23249,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 493.36,
-    "market_value_usd": 195.88,
-    "equity_usd": 689.24
+    "cash_usd": 403.7,
+    "market_value_usd": 286.64,
+    "equity_usd": 690.34
   }
 }
