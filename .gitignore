@@ -1,12 +1,78 @@
-# Runtime logs
-proyectos/analisis-mercados/logs/*.log
-proyectos/analisis-mercados/logs/*.lock
-startup-stack.log
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
 
-# Generated live snapshots and status
+# ============================================================
+# Binaries & Models (large files)
+# ============================================================
+*.pt
+*.pth
+*.onnx
+*.h5
+*.pkl
+*.db
+*.sqlite
+*.sqlite3
+*.mp3
+*.wav
+*.mp4
+
+# ============================================================
+# Backups (managed locally, not in git)
+# ============================================================
+backups/
+
+# ============================================================
+# Runtime logs
+# ============================================================
+proyectos/analisis-mercados/logs/
+startup-stack.log
+*.log
+
+# ============================================================
+# Generated live data (changes every cycle, not source code)
+# ============================================================
 proyectos/analisis-mercados/data/autopilot_log.json
 proyectos/analisis-mercados/data/crypto_snapshot_*.json
 proyectos/analisis-mercados/data/latest_snapshot_*.json
 proyectos/analisis-mercados/data/openclaw_system_snapshot.json
 proyectos/analisis-mercados/data/crypto_stream_status.json
 proyectos/analisis-mercados/data/ensure_ollama.log
+proyectos/analisis-mercados/data/market_regime.json
+proyectos/analisis-mercados/data/correlation_analysis.json
+proyectos/analisis-mercados/data/locks/
+
+# ============================================================
+# Generated reports (reproducible from code + data)
+# ============================================================
+proyectos/analisis-mercados/reports/*.json
+proyectos/analisis-mercados/reports/*.md
+proyectos/analisis-mercados/reports/*.csv
+
+# ============================================================
+# IDE & OS
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+.DS_Store
+
+# ============================================================
+# Environment & secrets (NEVER commit these)
+# ============================================================
+.env
+.env.*
+!.env.example
+credentials.json
+secrets.json
