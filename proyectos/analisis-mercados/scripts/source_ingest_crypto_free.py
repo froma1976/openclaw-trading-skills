@@ -5,6 +5,8 @@ from pathlib import Path
 from urllib import request
 import os
 
+from runtime_utils import atomic_write_json, file_lock
+
 OUT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 UNIVERSE_STATUS = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/universe_status.json")
 CORE_RESEARCH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/core_market_research.json")
@@ -14,6 +16,7 @@ MAX_SPY_ASSETS = int(os.getenv("MAX_SPY_ASSETS", "15"))
 STABLECOIN_IDS = {"tether", "usd-coin"}
 STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE"}
 EXCLUDED_TICKERS = {"PEPE"}
+RUNTIME_LOCK = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/locks/crypto_runtime.lock")
 COINS = [
     "bitcoin", "ethereum", "tether", "binancecoin", "solana", "ripple", "usd-coin", "dogecoin", "cardano", "tron",
     "chainlink", "avalanche-2", "stellar", "sui", "toncoin", "shiba-inu", "hedera-hashgraph", "polkadot", "litecoin", "bitcoin-cash",
@@ -100,12 +103,34 @@ def load_core_research():
 
 def load_trade_edge_model():
     if not TRADE_EDGE_MODEL.exists():
-        return {"ticker_edge": {}, "confidence_edge": {}, "confluence_edge": {}, "research_edge": {}}
+        return {"ticker_edge": {}, "confidence_edge": {}, "confluence_edge": {}, "research_edge": {}, "hour_edge": {}, "setup_edge": {}}
     try:
         data = json.loads(TRADE_EDGE_MODEL.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) else {"ticker_edge": {}, "confidence_edge": {}, "confluence_edge": {}, "research_edge": {}}
+        return data if isinstance(data, dict) else {"ticker_edge": {}, "confidence_edge": {}, "confluence_edge": {}, "research_edge": {}, "hour_edge": {}, "setup_edge": {}}
     except Exception:
-        return {"ticker_edge": {}, "confidence_edge": {}, "confluence_edge": {}, "research_edge": {}}
+        return {"ticker_edge": {}, "confidence_edge": {}, "confluence_edge": {}, "research_edge": {}, "hour_edge": {}, "setup_edge": {}}
+
+
+def infer_setup_tag(scored: dict) -> str:
+    breakout = int(scored.get("spy_breakout") or 0)
+    chart = int(scored.get("spy_chart") or 0)
+    flow = int(scored.get("spy_flow") or 0)
+    news = int(scored.get("spy_news") or 0)
+    whale = int(scored.get("spy_whale") or 0)
+    euphoria = int(scored.get("spy_euphoria") or 0)
+    if breakout > 0 and chart > 0:
+        return "breakout_trend"
+    if breakout > 0:
+        return "breakout"
+    if chart > 0 and flow > 0:
+        return "trend_flow"
+    if whale > 0 and flow > 0:
+        return "whale_flow"
+    if news > 0 and euphoria <= 0:
+        return "news_reversal"
+    if flow > 0:
+        return "flow_momentum"
+    return "base"
 
 
 def fetch_breakout_spy(ticker: str) -> int:
@@ -408,10 +433,22 @@ def apply_trade_edge_overlay(ticker: str, scored: dict, edge_model: dict):
     confluence_edge = (((edge_model or {}).get("confluence_edge") or {}).get(str(int(scored.get("spy_confluence") or 0))) or {}).get("edge_score", 0)
     research_key = str(scored.get("research_sentiment") or "unknown")
     research_edge = (((edge_model or {}).get("research_edge") or {}).get(research_key) or {}).get("edge_score", 0)
-    delta = int(round(ticker_edge * 0.7 + confidence_edge * 0.4 + confluence_edge * 0.5 + research_edge * 0.3))
-    delta = max(-8, min(12, delta))
+    current_hour = datetime.now(UTC).strftime("%H")
+    setup_tag = infer_setup_tag(scored)
+    hour_edge = (((edge_model or {}).get("hour_edge") or {}).get(current_hour) or {}).get("edge_score", 0)
+    setup_edge = (((edge_model or {}).get("setup_edge") or {}).get(setup_tag) or {}).get("edge_score", 0)
+    trades_used = int((edge_model or {}).get("trades_used") or 0)
+    maturity_scale = min(1.0, max(0.0, trades_used / 80.0))
+    raw_delta = ticker_edge * 0.55 + confidence_edge * 0.25 + confluence_edge * 0.35 + research_edge * 0.2 + hour_edge * 0.3 + setup_edge * 0.45
+    delta = int(round(raw_delta * maturity_scale))
+    delta = max(-10, min(10, delta))
 
     scored["trade_edge_score"] = ticker_edge
+    scored["trade_edge_hour"] = current_hour
+    scored["trade_edge_hour_score"] = hour_edge
+    scored["setup_tag"] = setup_tag
+    scored["setup_edge_score"] = setup_edge
+    scored["trade_edge_maturity"] = round(maturity_scale, 3)
     scored["trade_edge_delta"] = delta
     score_final = max(0, min(100, int(round(scored.get("score_final", scored.get("score", 0)) + delta))))
     scored["score_final"] = score_final
@@ -431,6 +468,14 @@ def apply_trade_edge_overlay(ticker: str, scored: dict, edge_model: dict):
 
 
 def main():
+    try:
+        with file_lock(RUNTIME_LOCK, stale_seconds=900, wait_seconds=0):
+            _main_locked()
+    except RuntimeError:
+        print("LOCK_BUSY crypto_runtime")
+
+
+def _main_locked():
     universe = load_universe_status()
     research_map = load_core_research()
     edge_model = load_trade_edge_model()
@@ -441,7 +486,7 @@ def main():
         f"?vs_currency=usd&ids={ids}&order=market_cap_desc&sparkline=false&price_change_percentage=24h,7d"
     )
     source_label = "coingecko-free"
-    notes = "Scoring cripto con ahorro API activo (espías de velas en subset líquido)"
+    note_flags = ["Scoring cripto con ahorro API activo (espias de velas en subset liquido)"]
     rows = get_json(url)
     if not isinstance(rows, list):
         previous = {"assets": []}
@@ -452,7 +497,7 @@ def main():
                 pass
         rows = previous.get("assets", []) or []
         source_label = "snapshot-cache"
-        notes = "Fallback a ultimo snapshot local por rate limit/error externo"
+        note_flags = ["Fallback a ultimo snapshot local por rate limit/error externo"]
     
     # Obtener stats de 24h de Binance para rellenar huecos
     b24h = get_binance_24h_stats_bulk()
@@ -481,14 +526,16 @@ def main():
             if ch24 == 0:
                 ch24 = float(b_data.get("priceChangePercent") or 0)
                 r["price_change_percentage_24h"] = ch24
-                notes = f"Variación 24h recuperada vía Binance - {notes}"
+                if "Variacion 24h recuperada via Binance" not in note_flags:
+                    note_flags.append("Variacion 24h recuperada via Binance")
         
         # Fallback individual de precio si el bulk falló o no estaba el ticker
         if p <= 0:
             p = get_binance_price(ticker)
             r["current_price"] = p
             if p > 0:
-                notes = f"Precios recuperados vía Binance (individual) - {notes}"
+                if "Precios recuperados via Binance (individual)" not in note_flags:
+                    note_flags.append("Precios recuperados via Binance (individual)")
         
         ch7 = float(r.get("price_change_percentage_7d_in_currency") or 0)
         sc = score_crypto(r)
@@ -544,6 +591,11 @@ def main():
             "research_score_delta": sc.get("research_score_delta", 0),
             "trade_edge_score": sc.get("trade_edge_score", 0),
             "trade_edge_delta": sc.get("trade_edge_delta", 0),
+            "trade_edge_hour": sc.get("trade_edge_hour"),
+            "trade_edge_hour_score": sc.get("trade_edge_hour_score", 0),
+            "setup_tag": sc.get("setup_tag", "base"),
+            "setup_edge_score": sc.get("setup_edge_score", 0),
+            "trade_edge_maturity": sc.get("trade_edge_maturity", 0),
             "senior_report": senior_report,
             "technical_report": technical_report,
             "sentiment_report": sentiment_report,
@@ -557,13 +609,13 @@ def main():
         "source": source_label,
         "api_saving_mode": API_SAVING_MODE,
         "spy_assets_limit": MAX_SPY_ASSETS,
-        "notes": notes,
+        "notes": " | ".join(note_flags),
         "universe_core": sorted(universe.get("core") or []),
         "universe_watch": sorted(universe.get("watch") or []),
         "universe_excluded": sorted(dynamic_excluded),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(OUT, out)
     print(f"OK crypto snapshot -> {OUT}")
 
 
