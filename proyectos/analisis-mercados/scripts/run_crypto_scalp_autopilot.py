@@ -20,6 +20,7 @@ try:
     HAS_SLIPPAGE_MODEL = True
 except ImportError:
     HAS_SLIPPAGE_MODEL = False
+    _estimate_slippage = None  # type: ignore[assignment]
 
 SNAP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")

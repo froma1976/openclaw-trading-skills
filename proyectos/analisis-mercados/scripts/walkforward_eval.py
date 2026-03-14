@@ -83,14 +83,18 @@ def load_model(symbol: str):
     return model, meta
 
 
-def predict_batch(model, X_np):
-    """Ejecuta prediccion LSTM real sobre un batch de ventanas."""
+def predict_batch(model, X_np, batch_size=512):
+    """Ejecuta prediccion LSTM real sobre un batch de ventanas (mini-batches para evitar OOM)."""
     if model is None or torch is None:
         return None
+    all_preds = []
     with torch.no_grad():
-        X_t = torch.tensor(X_np, dtype=torch.float32).unsqueeze(-1)
-        preds = model(X_t).squeeze(-1).numpy()
-    return preds
+        for i in range(0, len(X_np), batch_size):
+            chunk = X_np[i:i + batch_size]
+            X_t = torch.tensor(chunk, dtype=torch.float32).unsqueeze(-1)
+            preds = model(X_t).squeeze(-1).numpy()
+            all_preds.append(preds)
+    return np.concatenate(all_preds)
 
 
 def walk_eval_real(series, model, folds=5, lookback=32, gap=32):
@@ -171,6 +175,10 @@ def main():
         if len(closes) < 200:
             print(f"WARN: Historico muy corto para {sym} ({len(closes)} velas)")
             continue
+        # Limitar a las ultimas 5000 velas para evitar OOM y mejorar relevancia temporal
+        MAX_BARS = 5000
+        if len(closes) > MAX_BARS:
+            closes = closes[-MAX_BARS:]
 
         lookback = int(meta.get("lookback", 32))
         ev = walk_eval_real(closes, model, folds=5, lookback=lookback, gap=lookback)

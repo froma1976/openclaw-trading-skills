@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'SilentlyContinue'
+$ErrorActionPreference = 'Continue'
 $ts = Get-Date -Format 'yyyyMMdd_HHmmss'
 $backupRoot = 'C:\Users\Fernando\.openclaw\workspace\backups\state'
 $dest = Join-Path $backupRoot $ts
