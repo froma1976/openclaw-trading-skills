@@ -6,13 +6,15 @@ import requests
 import os
 import urllib.parse
 import urllib.request
-import subprocess
+
+from runtime_utils import atomic_write_json, file_lock, make_exit_levels, round_price
 
 SNAP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")
 RISK_CFG = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/config/risk.yaml")
 UNIVERSE_STATUS = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/universe_status.json")
 MACRO_SENTINEL_PATH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/macro_sentinel.json")
+RUNTIME_LOCK = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/locks/crypto_runtime.lock")
 
 TARGET_PCT = 0.9
 STOP_PCT = 0.55
@@ -22,6 +24,42 @@ MAX_TRADES_HOUR = 30
 CRYPTO_CAPITAL_INITIAL_USD = 300.0
 MAX_ACTIVE_POSITIONS = 10
 ALLOC_PER_TRADE_USD = 30.0
+
+
+def safe_float(value, default=0.0):
+    try:
+        return float(value)
+    except Exception:
+        return float(default)
+
+
+def breakeven_exit_price(entry_price: float, qty: float, fee_open_usd: float, fee_bps: float) -> float:
+    entry = float(entry_price or 0)
+    units = float(qty or 0)
+    if entry <= 0 or units <= 0:
+        return entry
+    close_fee_factor = max(1e-9, 1.0 - (float(fee_bps or 0) / 10000.0))
+    return ((entry * units) + max(0.0, float(fee_open_usd or 0))) / (units * close_fee_factor)
+
+
+def infer_setup_tag(candidate: dict, breakout: int, chart: int) -> str:
+    flow = int(candidate.get("spy_flow") or 0)
+    news = int(candidate.get("spy_news") or 0)
+    whale = int(candidate.get("spy_whale") or 0)
+    euphoria = int(candidate.get("spy_euphoria") or 0)
+    if breakout > 0 and chart > 0:
+        return "breakout_trend"
+    if breakout > 0:
+        return "breakout"
+    if chart > 0 and flow > 0:
+        return "trend_flow"
+    if whale > 0 and flow > 0:
+        return "whale_flow"
+    if news > 0 and euphoria <= 0:
+        return "news_reversal"
+    if flow > 0:
+        return "flow_momentum"
+    return "base"
 
 
 def now_iso():
@@ -182,12 +220,23 @@ def load_risk_config():
         "target_pct": TARGET_PCT,
         "stop_pct": STOP_PCT,
         "timeout_min": TIMEOUT_MIN,
+        "timeout_profit_grace_min": 10,
+        "timeout_force_close_min": 30,
+        "min_timeout_profit_usd": 0.06,
+        "near_target_ratio": 0.6,
+        "trail_activation_ratio": 0.55,
+        "trail_stop_profit_share": 0.4,
+        "target_extension_ratio": 0.35,
+        "target_extension_min_score": 85,
+        "slippage_bps": 5,
+        "fee_bps": 10,
         "max_trades_day": MAX_TRADES_DAY,
         "max_trades_hour": MAX_TRADES_HOUR,
         "max_active_positions": MAX_ACTIVE_POSITIONS,
         "alloc_per_trade_usd": ALLOC_PER_TRADE_USD,
         "min_notional_usd": 20.0,
         "defensive_scale": 0.5,
+        "normal_min_score": 75,
         "defensive_min_score": 82,
         "defensive_min_confluence": 2,
         "research_negative_block_threshold": -2,
@@ -275,7 +324,9 @@ def compute_mode(daily: dict, daily_pnl: float, cfg: dict, capital_base_usd: flo
     pause_after = int(cfg.get("pause_after_consecutive_losses", 3) or 3)
     defensive_after = int(cfg.get("defensive_after_consecutive_losses", max(1, pause_after - 1)) or max(1, pause_after - 1))
     max_daily_loss_pct = float(cfg.get("max_daily_loss_pct", 5.0) or 5.0)
+    defensive_daily_loss_pct = float(cfg.get("defensive_daily_loss_pct", 1.0) or 1.0)
     daily_loss_limit_usd = round(capital_base_usd * max_daily_loss_pct / 100.0, 4)
+    defensive_daily_loss_usd = round(capital_base_usd * defensive_daily_loss_pct / 100.0, 4)
     risk_blocked = daily_pnl <= (-daily_loss_limit_usd)
 
     mode = "normal"
@@ -293,9 +344,12 @@ def compute_mode(daily: dict, daily_pnl: float, cfg: dict, capital_base_usd: flo
         mode_reason = f"{pause_after} perdidas seguidas"
         paused = True
         pause_reason = mode_reason
-    elif loss_streak >= defensive_after or daily_pnl < 0:
+    elif loss_streak >= defensive_after:
         mode = "defensive"
-        mode_reason = "racha negativa o pnl diario en deterioro"
+        mode_reason = f"{loss_streak} perdidas seguidas"
+    elif daily_pnl <= (-defensive_daily_loss_usd):
+        mode = "defensive"
+        mode_reason = f"pnl diario por debajo de -{defensive_daily_loss_usd} usd"
 
     return {
         "mode": mode,
@@ -304,6 +358,7 @@ def compute_mode(daily: dict, daily_pnl: float, cfg: dict, capital_base_usd: flo
         "pause_reason": pause_reason,
         "risk_blocked": risk_blocked,
         "daily_loss_limit_usd": daily_loss_limit_usd,
+        "defensive_daily_loss_usd": defensive_daily_loss_usd,
     }
 
 
@@ -335,7 +390,7 @@ def count_resume_candidates(top: list, px: dict, cfg: dict, mode: str, allowed_s
         score = int(candidate.get("score_final") or candidate.get("score") or 0)
         if mode == "defensive" and score < defensive_min_score:
             continue
-        if max(int(candidate.get("spy_breakout") or 0), int(candidate.get("spy_chart") or 0)) <= 0 and score < 78:
+        if max(int(candidate.get("spy_breakout") or 0), int(candidate.get("spy_chart") or 0)) <= 0 and score < 50:
             continue
         count += 1
     return count
@@ -381,6 +436,14 @@ def maybe_resume_from_pause(daily: dict, mode_state: dict, cfg: dict, now: datet
 
 
 def main():
+    try:
+        with file_lock(RUNTIME_LOCK, stale_seconds=900, wait_seconds=0):
+            _main_locked()
+    except RuntimeError:
+        print("LOCK_BUSY crypto_runtime")
+
+
+def _main_locked():
     cfg = load_risk_config()
     snap = load_json(SNAP, {})
     if not isinstance(snap, dict):
@@ -398,6 +461,8 @@ def main():
     portfolio = book.get("portfolio", {}) or {}
 
     capital_base_usd = float(cfg.get("capital_base_usd", CRYPTO_CAPITAL_INITIAL_USD) or CRYPTO_CAPITAL_INITIAL_USD)
+    slippage_bps = float(cfg.get("slippage_bps", 0) or 0)
+    fee_bps = float(cfg.get("fee_bps", 0) or 0)
     if not portfolio:
         portfolio = {
             "capital_initial_usd": capital_base_usd,
@@ -427,12 +492,21 @@ def main():
     target_pct = float(cfg.get("target_pct", TARGET_PCT) or TARGET_PCT)
     stop_pct = float(cfg.get("stop_pct", STOP_PCT) or STOP_PCT)
     timeout_min = int(cfg.get("timeout_min", TIMEOUT_MIN) or TIMEOUT_MIN)
+    timeout_profit_grace_min = int(cfg.get("timeout_profit_grace_min", 10) or 10)
+    timeout_force_close_min = int(cfg.get("timeout_force_close_min", 30) or 30)
+    min_timeout_profit_usd = float(cfg.get("min_timeout_profit_usd", 0.06) or 0.06)
+    near_target_ratio = float(cfg.get("near_target_ratio", 0.6) or 0.6)
+    trail_activation_ratio = float(cfg.get("trail_activation_ratio", 0.55) or 0.55)
+    trail_stop_profit_share = float(cfg.get("trail_stop_profit_share", 0.4) or 0.4)
+    target_extension_ratio = float(cfg.get("target_extension_ratio", 0.35) or 0.35)
+    target_extension_min_score = int(cfg.get("target_extension_min_score", 85) or 85)
     max_trades_day = int(cfg.get("max_trades_day", MAX_TRADES_DAY) or MAX_TRADES_DAY)
     max_trades_hour = int(cfg.get("max_trades_hour", MAX_TRADES_HOUR) or MAX_TRADES_HOUR)
     max_active_positions = int(cfg.get("max_active_positions", MAX_ACTIVE_POSITIONS) or MAX_ACTIVE_POSITIONS)
     alloc_per_trade_usd = float(cfg.get("alloc_per_trade_usd", ALLOC_PER_TRADE_USD) or ALLOC_PER_TRADE_USD)
     min_notional_usd = float(cfg.get("min_notional_usd", 20.0) or 20.0)
     defensive_scale = float(cfg.get("defensive_scale", 0.5) or 0.5)
+    normal_min_score = int(cfg.get("normal_min_score", 75) or 75)
     defensive_min_score = int(cfg.get("defensive_min_score", 82) or 82)
     defensive_min_confluence = int(cfg.get("defensive_min_confluence", 2) or 2)
     research_negative_block_threshold = int(cfg.get("research_negative_block_threshold", -2) or -2)
@@ -458,9 +532,39 @@ def main():
         try:
             entry = float(order.get("entry_price") or 0)
             qty_live = float(order.get("qty") or 0)
+            entry_fee = safe_float(order.get("fee_open_usd") or order.get("fee_usd"), 0)
+            exit_fee_est = abs(float(cur) * qty_live) * fee_bps / 10000.0
+            target_price = safe_float(order.get("target_price"), 0)
             if entry > 0:
                 order["pct_move"] = round(((cur - entry) / entry) * 100, 3)
-            order["pnl_usd_est"] = round((cur - entry) * qty_live, 6)
+            order["pnl_usd_est"] = round(((cur - entry) * qty_live) - entry_fee - exit_fee_est, 6)
+            breakeven_px = breakeven_exit_price(entry, qty_live, entry_fee, fee_bps)
+            order["breakeven_price"] = round_price(breakeven_px)
+            current_stop = safe_float(order.get("stop_price"), 0)
+            if cur >= breakeven_px and breakeven_px > current_stop:
+                order["stop_price"] = round_price(breakeven_px)
+                order["breakeven_armed"] = True
+            target_progress = 0.0
+            if target_price > entry > 0:
+                target_progress = (cur - entry) / max(target_price - entry, 1e-9)
+            order["target_progress"] = round(target_progress, 3)
+            if target_progress >= trail_activation_ratio and order.get("pnl_usd_est", 0) > 0:
+                locked_price = entry + max(0.0, (cur - entry) * trail_stop_profit_share)
+                locked_price = max(locked_price, breakeven_px)
+                if locked_price > safe_float(order.get("stop_price"), 0):
+                    order["stop_price"] = round_price(locked_price)
+                    order["trailing_armed"] = True
+            if cur >= target_price > 0 and not bool(order.get("target_extended")):
+                score_live = int(order.get("confidence") or order.get("score") or 0)
+                if score_live >= target_extension_min_score or int(order.get("spy_confluence") or 0) >= 4:
+                    original_target = target_price
+                    extended_target = entry + ((target_price - entry) * (1.0 + target_extension_ratio))
+                    order["target_price"] = round_price(extended_target)
+                    order["target_extended"] = True
+                    order["target_extension_from"] = round_price(original_target)
+                    protect_price = max(breakeven_px, entry + ((original_target - entry) * 0.6))
+                    if protect_price > safe_float(order.get("stop_price"), 0):
+                        order["stop_price"] = round_price(protect_price)
         except Exception:
             order["pct_move"] = None
             order["pnl_usd_est"] = None
@@ -474,7 +578,26 @@ def main():
             try:
                 age = datetime.now(UTC) - parse_iso(order.get("opened_at"))
                 if age >= timedelta(minutes=timeout_min):
-                    result = "timeout"
+                    pnl_est = safe_float(order.get("pnl_usd_est"), 0)
+                    target_price = safe_float(order.get("target_price"), 0)
+                    entry_price = safe_float(order.get("entry_price"), 0)
+                    target_progress = 0.0
+                    if target_price > entry_price > 0:
+                        target_progress = (cur - entry_price) / max(target_price - entry_price, 1e-9)
+                    extend_timeout = (
+                        age < timedelta(minutes=timeout_force_close_min)
+                        and (
+                            pnl_est >= min_timeout_profit_usd
+                            or target_progress >= near_target_ratio
+                        )
+                    )
+                    if extend_timeout:
+                        order["timeout_extended"] = True
+                        order["timeout_extended_until"] = (
+                            parse_iso(order.get("opened_at")) + timedelta(minutes=timeout_force_close_min)
+                        ).isoformat().replace("+00:00", "Z")
+                    elif age >= timedelta(minutes=timeout_min + timeout_profit_grace_min) or pnl_est <= 0:
+                        result = "timeout"
             except Exception:
                 pass
 
@@ -483,17 +606,30 @@ def main():
             continue
 
         order["closed_at"] = now_iso()
-        order["close_price"] = round(cur, 6)
+        exit_px = float(cur) * (1 - slippage_bps / 10000.0)
+        order["close_price"] = round_price(exit_px)
+        order["exit_price"] = order["close_price"]
         order["result"] = result
         try:
             qty = float(order.get("qty") or 0)
             entry = float(order.get("entry_price") or 0)
-            pnl = (cur - entry) * qty
+            gross_pnl = (exit_px - entry) * qty
+            exit_notional = exit_px * qty
+            fee_open = safe_float(order.get("fee_open_usd") or order.get("fee_usd"), 0)
+            fee_close = exit_notional * fee_bps / 10000.0 if qty > 0 else 0.0
+            fee_total = max(0.0, fee_open) + max(0.0, fee_close)
+            pnl = gross_pnl - fee_total
+            returned_cash = exit_notional - fee_close
         except Exception:
+            gross_pnl = 0.0
+            fee_total = 0.0
+            returned_cash = float(order.get("notional_usd", 0) or 0)
             pnl = 0.0
+        order["gross_pnl_usd"] = round(gross_pnl, 6)
+        order["fee_usd"] = round(fee_total, 6)
         order["pnl_usd"] = round(pnl, 6)
         order["state"] = "CLOSED"
-        portfolio["cash_usd"] = float(portfolio.get("cash_usd", 0)) + float(order.get("notional_usd", 0)) + pnl
+        portfolio["cash_usd"] = round(float(portfolio.get("cash_usd", 0)) + returned_cash, 6)
         if result == "perdida" or pnl < 0:
             daily["loss_streak"] = int(daily.get("loss_streak", 0)) + 1
         else:
@@ -504,16 +640,6 @@ def main():
         
         completed.append(order)
         closed_now += 1
-
-    # --- AUTOMATIZACION GITHUB (Usuario solicita push al cerrar) ---
-    if closed_now > 0:
-        try:
-            repo_root = Path(__file__).resolve().parent.parent.parent.parent
-            subprocess.run(["git", "add", "proyectos/analisis-mercados/data/crypto_orders_sim.json"], cwd=str(repo_root), capture_output=True)
-            subprocess.run(["git", "commit", "-m", f"Auto-update: {closed_now} crypto trades closed"], cwd=str(repo_root), capture_output=True)
-            subprocess.run(["git", "push", "origin", "main"], cwd=str(repo_root), capture_output=True)
-        except Exception:
-            pass
 
     active = still_active
     opened_now = 0
@@ -564,7 +690,7 @@ def main():
     mode = daily.get("mode", "normal")
     
     # --- NIVEL EXPERTO: SENTINELA MACRO (Alpha Vantage Protected) ---
-    av_key = os.getenv("ALPHA_VANTAGE_API_KEY", "FR1V3DW34QCGBDK3")
+    av_key = os.getenv("ALPHA_VANTAGE_API_KEY", "")
     macro_score, macro_label = get_macro_sentiment(av_key)
     macro_multiplier = 1.0
     if macro_label == "Bearish":
@@ -612,6 +738,7 @@ def main():
         confluence = int(candidate.get("spy_confluence") or 0)
         breakout = int(candidate.get("spy_breakout") or 0)
         chart = int(candidate.get("spy_chart") or 0)
+        setup_tag = infer_setup_tag(candidate, breakout, chart)
         min_confluence = defensive_min_confluence if mode == "defensive" else 1
         if confluence < min_confluence:
             continue
@@ -619,9 +746,11 @@ def main():
         score = int(candidate.get("score_final") or candidate.get("score") or 0)
         research_sentiment = str(candidate.get("research_sentiment") or "unknown").lower()
         research_catalyst_score = int(candidate.get("research_catalyst_score") or 0)
+        if score < normal_min_score:
+            continue
         if mode == "defensive" and score < defensive_min_score:
             continue
-        if max(breakout, chart) <= 0 and score < 78:
+        if max(breakout, chart) <= 0 and score < 50:
             continue
         if research_catalyst_score <= research_negative_block_threshold and research_sentiment in {"negative", "mixed"}:
             continue
@@ -639,17 +768,22 @@ def main():
         notional = min(alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier, cash)
         if notional < min_notional_usd:
             continue
-        qty = notional / price
+        entry_px = float(price) * (1 + slippage_bps / 10000.0)
+        if entry_px <= 0:
+            continue
+        qty = notional / entry_px
+        target_price, stop_price = make_exit_levels(entry_px, target_pct, stop_pct)
+        fee_open = notional * fee_bps / 10000.0
 
         order = {
             "id": f"crp_{ticker.lower()}_{int(datetime.now().timestamp())}",
             "ticker": ticker,
             "opened_at": now_iso(),
-            "entry_price": round(price, 6),
+            "entry_price": round_price(entry_px),
             "qty": round(qty, 8),
             "notional_usd": round(notional, 2),
-            "target_price": round(price * (1 + target_pct / 100), 6),
-            "stop_price": round(price * (1 - stop_pct / 100), 6),
+            "target_price": target_price,
+            "stop_price": stop_price,
             "state": "ACTIVE",
             "mode": "scalp_intradia",
             "risk_mode": mode,
@@ -658,7 +792,16 @@ def main():
             "research_sentiment": candidate.get("research_sentiment"),
             "research_catalyst_score": candidate.get("research_catalyst_score"),
             "research_size_scale": round(research_scale, 3),
+            "slippage_bps": slippage_bps,
+            "fee_bps": fee_bps,
+            "fee_open_usd": round(fee_open, 6),
+            "target_pct": target_pct,
+            "stop_pct": stop_pct,
+            "opened_hour_utc": datetime.now(UTC).strftime("%H"),
+            "setup_tag": setup_tag,
             "spy_confluence": confluence,
+            "spy_chart": chart,
+            "spy_breakout": breakout,
             "spy_breakdown": {
                 "news": candidate.get("spy_news"),
                 "euphoria": candidate.get("spy_euphoria"),
@@ -667,7 +810,7 @@ def main():
             },
         }
         active.append(order)
-        portfolio["cash_usd"] = round(float(portfolio.get("cash_usd", 0)) - notional, 2)
+        portfolio["cash_usd"] = round(float(portfolio.get("cash_usd", 0)) - notional - fee_open, 6)
         active_tickers.add(ticker)
         opened_now += 1
         hour_trades += 1
@@ -683,9 +826,11 @@ def main():
         try:
             entry = float(order.get("entry_price") or 0)
             qty_live = float(order.get("qty") or 0)
+            entry_fee = safe_float(order.get("fee_open_usd") or order.get("fee_usd"), 0)
+            exit_fee_est = abs(float(cur) * qty_live) * fee_bps / 10000.0
             if entry > 0:
                 order["pct_move"] = round(((float(cur) - entry) / entry) * 100, 3)
-                order["pnl_usd_est"] = round((float(cur) - entry) * qty_live, 6)
+                order["pnl_usd_est"] = round(((float(cur) - entry) * qty_live) - entry_fee - exit_fee_est, 6)
             else:
                 order["pct_move"] = None
                 order["pnl_usd_est"] = None
@@ -700,9 +845,9 @@ def main():
     book["active"] = active
     book["completed"] = completed[-1000:]
     book["daily"] = daily
+    portfolio["fees_paid_usd"] = round(sum(float(o.get("fee_usd") or o.get("fee_open_usd") or 0) for o in completed + active), 6)
     book["portfolio"] = portfolio
-    ORD.parent.mkdir(parents=True, exist_ok=True)
-    ORD.write_text(json.dumps(book, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(ORD, book)
 
     print(
         json.dumps(

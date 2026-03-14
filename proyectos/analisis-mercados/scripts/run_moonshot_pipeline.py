@@ -10,6 +10,7 @@ PIPELINE = [
     "run_moonshot_stock_ingest.py",
     "run_moonshot_crypto_ingest.py",
     "run_moonshot_engine.py",
+    "build_openclaw_snapshot.py",
 ]
 
 

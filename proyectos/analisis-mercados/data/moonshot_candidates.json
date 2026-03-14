@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-14T13:54:29Z",
+  "generated_at": "2026-03-14T14:18:28Z",
   "engine": "moonshot-v1",
   "mission": "find_the_move_before_the_move",
   "notes": [
@@ -7,6 +7,14 @@
     "Uses a dedicated moonshot stock universe plus current crypto snapshot.",
     "Focuses on asymmetry, catalysts, breakout potential, and room to run."
   ],
+  "summary": {
+    "total_candidates": 24,
+    "prime_count": 3,
+    "early_count": 4,
+    "watch_count": 17,
+    "top_stock": "NET",
+    "top_crypto": "OP"
+  },
   "stocks": [
     {
       "asset_class": "stock",
@@ -37,7 +45,11 @@
         "score_asymmetry": 0.0,
         "convergence_count": 2,
         "bubble_level": "Bajo"
-      }
+      },
+      "narrative_tags": [
+        "AI",
+        "CYBER_CLOUD"
+      ]
     },
     {
       "asset_class": "stock",
@@ -68,7 +80,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 2,
         "bubble_level": "Medio"
-      }
+      },
+      "narrative_tags": [
+        "HEALTH_GROWTH"
+      ]
     },
     {
       "asset_class": "stock",
@@ -99,7 +114,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 1,
         "bubble_level": "Medio"
-      }
+      },
+      "narrative_tags": [
+        "CRYPTO_BETA"
+      ]
     },
     {
       "asset_class": "stock",
@@ -130,7 +148,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 2,
         "bubble_level": "Bajo"
-      }
+      },
+      "narrative_tags": [
+        "CRYPTO_BETA"
+      ]
     },
     {
       "asset_class": "stock",
@@ -161,7 +182,11 @@
         "score_asymmetry": 0.0,
         "convergence_count": 1,
         "bubble_level": "Bajo"
-      }
+      },
+      "narrative_tags": [
+        "AI",
+        "CYBER_CLOUD"
+      ]
     },
     {
       "asset_class": "stock",
@@ -192,7 +217,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 2,
         "bubble_level": "Bajo"
-      }
+      },
+      "narrative_tags": [
+        "AI"
+      ]
     },
     {
       "asset_class": "stock",
@@ -223,7 +251,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 2,
         "bubble_level": "Bajo"
-      }
+      },
+      "narrative_tags": [
+        "CRYPTO_BETA"
+      ]
     },
     {
       "asset_class": "stock",
@@ -254,7 +285,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 2,
         "bubble_level": "Crítico"
-      }
+      },
+      "narrative_tags": [
+        "GENERAL"
+      ]
     },
     {
       "asset_class": "stock",
@@ -285,7 +319,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 1,
         "bubble_level": "Crítico"
-      }
+      },
+      "narrative_tags": [
+        "GENERAL"
+      ]
     },
     {
       "asset_class": "stock",
@@ -316,7 +353,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 1,
         "bubble_level": "Bajo"
-      }
+      },
+      "narrative_tags": [
+        "CYBER_CLOUD"
+      ]
     },
     {
       "asset_class": "stock",
@@ -346,7 +386,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 1,
         "bubble_level": "Bajo"
-      }
+      },
+      "narrative_tags": [
+        "GENERAL"
+      ]
     },
     {
       "asset_class": "stock",
@@ -377,7 +420,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 1,
         "bubble_level": "Bajo"
-      }
+      },
+      "narrative_tags": [
+        "AI"
+      ]
     }
   ],
   "crypto": [
@@ -385,7 +431,7 @@
       "asset_class": "crypto",
       "ticker": "OP",
       "name": "Optimism",
-      "price": 0.123355,
+      "price": 0.123793,
       "moonshot_score": 71.6,
       "state": "PRIME",
       "decision_hint": "BUILD_POSITION",
@@ -401,23 +447,29 @@
       "drivers": {
         "score_final": 69.0,
         "gem_score": 80.0,
-        "chg_24h_pct": -2.83,
-        "chg_7d_pct": 3.78,
-        "flow_ratio": 0.2121,
+        "chg_24h_pct": -2.18,
+        "chg_7d_pct": 4.05,
+        "flow_ratio": 0.2123,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 150,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L2",
+        "FLOW"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "SUI",
       "name": "Sui",
-      "price": 0.991334,
+      "price": 0.991441,
       "moonshot_score": 68.8,
       "state": "PRIME",
       "decision_hint": "BUILD_POSITION",
@@ -434,24 +486,66 @@
       "drivers": {
         "score_final": 67.0,
         "gem_score": 72.0,
-        "chg_24h_pct": -5.36,
-        "chg_7d_pct": 9.97,
-        "flow_ratio": 0.1267,
+        "chg_24h_pct": -5.3,
+        "chg_7d_pct": 9.82,
+        "flow_ratio": 0.1207,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 29,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1",
+        "FLOW"
+      ]
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "MNT",
+      "name": "Mantle",
+      "price": 0.757818,
+      "moonshot_score": 68.54,
+      "state": "PRIME",
+      "decision_hint": "BUILD_POSITION",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "momento_24h_fuerte",
+        "tendencia_7d_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 79.0,
+        "gem_score": 86.0,
+        "chg_24h_pct": 3.2,
+        "chg_7d_pct": 11.72,
+        "flow_ratio": 0.0344,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 39,
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L2"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "NEAR",
       "name": "NEAR Protocol",
-      "price": 1.3,
-      "moonshot_score": 63.8,
+      "price": 1.31,
+      "moonshot_score": 63.47,
       "state": "EARLY",
       "decision_hint": "WATCHLIST_BUILD",
       "horizon": "days_to_weeks",
@@ -467,83 +561,101 @@
       "drivers": {
         "score_final": 62.0,
         "gem_score": 69.0,
-        "chg_24h_pct": -4.23,
-        "chg_7d_pct": 6.85,
-        "flow_ratio": 0.0975,
+        "chg_24h_pct": -3.55,
+        "chg_7d_pct": 6.75,
+        "flow_ratio": 0.0942,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 50,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1",
+        "FLOW"
+      ]
     },
     {
       "asset_class": "crypto",
-      "ticker": "ICP",
-      "name": "Internet Computer",
-      "price": 2.62,
-      "moonshot_score": 60.98,
+      "ticker": "XLM",
+      "name": "Stellar",
+      "price": 0.165174,
+      "moonshot_score": 59.37,
       "state": "EARLY",
       "decision_hint": "WATCHLIST_BUILD",
       "horizon": "days_to_weeks",
       "why_now": [
         "zona_capitalizacion_explosiva",
-        "tendencia_7d_fuerte"
+        "tendencia_7d_fuerte",
+        "flujo_debil"
       ],
       "risk": "Sin objeción crítica detectada",
       "drivers": {
-        "score_final": 70.0,
-        "gem_score": 76.0,
-        "chg_24h_pct": -1.72,
-        "chg_7d_pct": 6.25,
-        "flow_ratio": 0.0398,
+        "score_final": 64.0,
+        "gem_score": 64.0,
+        "chg_24h_pct": -1.21,
+        "chg_7d_pct": 9.06,
+        "flow_ratio": 0.0177,
         "spy_confluence": 1,
         "spy_breakout": 0,
-        "spy_chart": 0,
+        "spy_chart": 1,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
-        "market_cap_rank": 55,
-        "bubble_level": "Bajo"
-      }
-    },
-    {
-      "asset_class": "crypto",
-      "ticker": "MNT",
-      "name": "Mantle",
-      "price": 0.766881,
-      "moonshot_score": 60.42,
-      "state": "EARLY",
-      "decision_hint": "WATCHLIST_BUILD",
-      "horizon": "days_to_weeks",
-      "why_now": [
-        "zona_capitalizacion_explosiva",
-        "momento_24h_fuerte",
-        "tendencia_7d_fuerte"
-      ],
-      "risk": "Euforia parcial: entrar con tamaño pequeño",
-      "drivers": {
-        "score_final": 76.0,
-        "gem_score": 82.0,
-        "chg_24h_pct": 4.43,
-        "chg_7d_pct": 12.87,
-        "flow_ratio": 0.0372,
-        "spy_confluence": 1,
-        "spy_breakout": 0,
-        "spy_chart": 0,
-        "research_sentiment": "unknown",
-        "research_catalyst_score": 0,
-        "market_cap_rank": 37,
-        "bubble_level": "Medio"
-      }
+        "market_cap_rank": 21,
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "ATOM",
       "name": "Cosmos Hub",
-      "price": 1.87,
-      "moonshot_score": 53.92,
+      "price": 1.88,
+      "moonshot_score": 58.07,
+      "state": "EARLY",
+      "decision_hint": "WATCHLIST_BUILD",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "momento_24h_positivo",
+        "tendencia_7d_positiva",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 63.0,
+        "gem_score": 70.0,
+        "chg_24h_pct": 0.39,
+        "chg_7d_pct": 4.2,
+        "flow_ratio": 0.0337,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 70,
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1"
+      ]
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "ICP",
+      "name": "Internet Computer",
+      "price": 2.63,
+      "moonshot_score": 54.38,
       "state": "WATCH",
       "decision_hint": "WATCH_ONLY",
       "horizon": "days_to_weeks",
@@ -555,54 +667,30 @@
       "drivers": {
         "score_final": 60.0,
         "gem_score": 66.0,
-        "chg_24h_pct": -0.29,
-        "chg_7d_pct": 3.72,
-        "flow_ratio": 0.0342,
+        "chg_24h_pct": -1.51,
+        "chg_7d_pct": 5.66,
+        "flow_ratio": 0.0388,
         "spy_confluence": 1,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
-        "market_cap_rank": 70,
-        "bubble_level": "Bajo"
-      }
-    },
-    {
-      "asset_class": "crypto",
-      "ticker": "XLM",
-      "name": "Stellar",
-      "price": 0.16457,
-      "moonshot_score": 51.42,
-      "state": "WATCH",
-      "decision_hint": "WATCH_ONLY",
-      "horizon": "days_to_weeks",
-      "why_now": [
-        "zona_capitalizacion_explosiva",
-        "tendencia_7d_fuerte",
-        "flujo_debil"
-      ],
-      "risk": "Sin objeción crítica detectada",
-      "drivers": {
-        "score_final": 64.0,
-        "gem_score": 64.0,
-        "chg_24h_pct": -1.77,
-        "chg_7d_pct": 8.34,
-        "flow_ratio": 0.0182,
-        "spy_confluence": 0,
-        "spy_breakout": 0,
-        "spy_chart": 0,
-        "research_sentiment": "unknown",
-        "research_catalyst_score": 0,
-        "market_cap_rank": 21,
-        "bubble_level": "Bajo"
-      }
+        "market_cap_rank": 55,
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "AI",
+        "INFRA"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "INJ",
       "name": "Injective",
-      "price": 3.03,
-      "moonshot_score": 50.45,
+      "price": 3.04,
+      "moonshot_score": 53.8,
       "state": "WATCH",
       "decision_hint": "WATCH_ONLY",
       "horizon": "days_to_weeks",
@@ -611,30 +699,36 @@
         "zona_capitalizacion_explosiva",
         "momento_24h_debil",
         "tendencia_7d_positiva",
-        "flujo_ok",
+        "flujo_fuerte",
         "trade_edge_negative"
       ],
       "risk": "Sin objeción crítica detectada",
       "drivers": {
-        "score_final": 52.0,
-        "gem_score": 63.0,
-        "chg_24h_pct": -3.88,
-        "chg_7d_pct": 4.84,
-        "flow_ratio": 0.119,
+        "score_final": 57.0,
+        "gem_score": 68.0,
+        "chg_24h_pct": -3.7,
+        "chg_7d_pct": 4.93,
+        "flow_ratio": 0.1205,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 132,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "DEFI",
+        "FLOW"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "FLOW",
       "name": "Flow",
-      "price": 0.04525521,
+      "price": 0.04440506,
       "moonshot_score": 50.3,
       "state": "WATCH",
       "decision_hint": "WATCH_ONLY",
@@ -650,87 +744,29 @@
       "drivers": {
         "score_final": 67.0,
         "gem_score": 78.0,
-        "chg_24h_pct": -10.25,
-        "chg_7d_pct": 8.14,
-        "flow_ratio": 0.4169,
+        "chg_24h_pct": -11.77,
+        "chg_7d_pct": 6.66,
+        "flow_ratio": 0.4261,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
-        "market_cap_rank": 341,
-        "bubble_level": "Bajo"
-      }
-    },
-    {
-      "asset_class": "crypto",
-      "ticker": "ARB",
-      "name": "Arbitrum",
-      "price": 0.10076,
-      "moonshot_score": 48.97,
-      "state": "WATCH",
-      "decision_hint": "WATCH_ONLY",
-      "horizon": "days_to_weeks",
-      "why_now": [
-        "flujo_relativo_fuerte",
-        "zona_capitalizacion_explosiva",
-        "momento_24h_debil",
-        "tendencia_7d_positiva",
-        "flujo_ok",
-        "trade_edge_negative"
-      ],
-      "risk": "Sin objeción crítica detectada",
-      "drivers": {
-        "score_final": 52.0,
-        "gem_score": 63.0,
-        "chg_24h_pct": -5.18,
-        "chg_7d_pct": 2.14,
-        "flow_ratio": 0.1042,
-        "spy_confluence": 2,
-        "spy_breakout": 0,
-        "spy_chart": 0,
-        "research_sentiment": "unknown",
-        "research_catalyst_score": 0,
-        "market_cap_rank": 90,
-        "bubble_level": "Bajo"
-      }
-    },
-    {
-      "asset_class": "crypto",
-      "ticker": "SEI",
-      "name": "Sei",
-      "price": 0.066188,
-      "moonshot_score": 48.73,
-      "state": "WATCH",
-      "decision_hint": "WATCH_ONLY",
-      "horizon": "days_to_weeks",
-      "why_now": [
-        "flujo_relativo_fuerte",
-        "zona_capitalizacion_explosiva",
-        "flujo_ok",
-        "trade_edge_negative"
-      ],
-      "risk": "Sin objeción crítica detectada",
-      "drivers": {
-        "score_final": 54.0,
-        "gem_score": 61.0,
-        "chg_24h_pct": -1.84,
-        "chg_7d_pct": 0.86,
-        "flow_ratio": 0.0988,
-        "spy_confluence": 2,
-        "spy_breakout": 0,
-        "spy_chart": 0,
-        "research_sentiment": "unknown",
-        "research_catalyst_score": 0,
-        "market_cap_rank": 106,
-        "bubble_level": "Bajo"
-      }
+        "market_cap_rank": 350,
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1",
+        "FLOW"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "TRX",
       "name": "TRON",
-      "price": 0.296625,
+      "price": 0.296917,
       "moonshot_score": 48.65,
       "state": "WATCH",
       "decision_hint": "WATCH_ONLY",
@@ -745,8 +781,8 @@
       "drivers": {
         "score_final": 69.0,
         "gem_score": 69.0,
-        "chg_24h_pct": 2.57,
-        "chg_7d_pct": 4.35,
+        "chg_24h_pct": 2.35,
+        "chg_7d_pct": 4.45,
         "flow_ratio": 0.018,
         "spy_confluence": 1,
         "spy_breakout": 0,
@@ -754,8 +790,88 @@
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 8,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "GENERAL"
+      ]
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "SEI",
+      "name": "Sei",
+      "price": 0.066327,
+      "moonshot_score": 48.17,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 54.0,
+        "gem_score": 61.0,
+        "chg_24h_pct": -2.42,
+        "chg_7d_pct": 0.75,
+        "flow_ratio": 0.0932,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 106,
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1",
+        "FLOW"
+      ]
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "AAVE",
+      "name": "Aave",
+      "price": 110.61,
+      "moonshot_score": 47.3,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "flujo_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 47.0,
+        "gem_score": 58.0,
+        "chg_24h_pct": -6.45,
+        "chg_7d_pct": 0.78,
+        "flow_ratio": 0.1928,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 51,
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "DEFI",
+        "FLOW"
+      ]
     }
   ],
   "combined_top": [
@@ -763,7 +879,7 @@
       "asset_class": "crypto",
       "ticker": "OP",
       "name": "Optimism",
-      "price": 0.123355,
+      "price": 0.123793,
       "moonshot_score": 71.6,
       "state": "PRIME",
       "decision_hint": "BUILD_POSITION",
@@ -779,23 +895,29 @@
       "drivers": {
         "score_final": 69.0,
         "gem_score": 80.0,
-        "chg_24h_pct": -2.83,
-        "chg_7d_pct": 3.78,
-        "flow_ratio": 0.2121,
+        "chg_24h_pct": -2.18,
+        "chg_7d_pct": 4.05,
+        "flow_ratio": 0.2123,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 150,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L2",
+        "FLOW"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "SUI",
       "name": "Sui",
-      "price": 0.991334,
+      "price": 0.991441,
       "moonshot_score": 68.8,
       "state": "PRIME",
       "decision_hint": "BUILD_POSITION",
@@ -812,24 +934,66 @@
       "drivers": {
         "score_final": 67.0,
         "gem_score": 72.0,
-        "chg_24h_pct": -5.36,
-        "chg_7d_pct": 9.97,
-        "flow_ratio": 0.1267,
+        "chg_24h_pct": -5.3,
+        "chg_7d_pct": 9.82,
+        "flow_ratio": 0.1207,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 29,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1",
+        "FLOW"
+      ]
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "MNT",
+      "name": "Mantle",
+      "price": 0.757818,
+      "moonshot_score": 68.54,
+      "state": "PRIME",
+      "decision_hint": "BUILD_POSITION",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "zona_capitalizacion_explosiva",
+        "momento_24h_fuerte",
+        "tendencia_7d_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 79.0,
+        "gem_score": 86.0,
+        "chg_24h_pct": 3.2,
+        "chg_7d_pct": 11.72,
+        "flow_ratio": 0.0344,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 39,
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L2"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "NEAR",
       "name": "NEAR Protocol",
-      "price": 1.3,
-      "moonshot_score": 63.8,
+      "price": 1.31,
+      "moonshot_score": 63.47,
       "state": "EARLY",
       "decision_hint": "WATCHLIST_BUILD",
       "horizon": "days_to_weeks",
@@ -845,76 +1009,94 @@
       "drivers": {
         "score_final": 62.0,
         "gem_score": 69.0,
-        "chg_24h_pct": -4.23,
-        "chg_7d_pct": 6.85,
-        "flow_ratio": 0.0975,
+        "chg_24h_pct": -3.55,
+        "chg_7d_pct": 6.75,
+        "flow_ratio": 0.0942,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 50,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1",
+        "FLOW"
+      ]
     },
     {
       "asset_class": "crypto",
-      "ticker": "ICP",
-      "name": "Internet Computer",
-      "price": 2.62,
-      "moonshot_score": 60.98,
+      "ticker": "XLM",
+      "name": "Stellar",
+      "price": 0.165174,
+      "moonshot_score": 59.37,
       "state": "EARLY",
       "decision_hint": "WATCHLIST_BUILD",
       "horizon": "days_to_weeks",
       "why_now": [
         "zona_capitalizacion_explosiva",
-        "tendencia_7d_fuerte"
+        "tendencia_7d_fuerte",
+        "flujo_debil"
       ],
       "risk": "Sin objeción crítica detectada",
       "drivers": {
-        "score_final": 70.0,
-        "gem_score": 76.0,
-        "chg_24h_pct": -1.72,
-        "chg_7d_pct": 6.25,
-        "flow_ratio": 0.0398,
+        "score_final": 64.0,
+        "gem_score": 64.0,
+        "chg_24h_pct": -1.21,
+        "chg_7d_pct": 9.06,
+        "flow_ratio": 0.0177,
         "spy_confluence": 1,
         "spy_breakout": 0,
-        "spy_chart": 0,
+        "spy_chart": 1,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
-        "market_cap_rank": 55,
-        "bubble_level": "Bajo"
-      }
+        "market_cap_rank": 21,
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1"
+      ]
     },
     {
       "asset_class": "crypto",
-      "ticker": "MNT",
-      "name": "Mantle",
-      "price": 0.766881,
-      "moonshot_score": 60.42,
+      "ticker": "ATOM",
+      "name": "Cosmos Hub",
+      "price": 1.88,
+      "moonshot_score": 58.07,
       "state": "EARLY",
       "decision_hint": "WATCHLIST_BUILD",
       "horizon": "days_to_weeks",
       "why_now": [
         "zona_capitalizacion_explosiva",
-        "momento_24h_fuerte",
-        "tendencia_7d_fuerte"
+        "momento_24h_positivo",
+        "tendencia_7d_positiva",
+        "trade_edge_negative"
       ],
-      "risk": "Euforia parcial: entrar con tamaño pequeño",
+      "risk": "Sin objeción crítica detectada",
       "drivers": {
-        "score_final": 76.0,
-        "gem_score": 82.0,
-        "chg_24h_pct": 4.43,
-        "chg_7d_pct": 12.87,
-        "flow_ratio": 0.0372,
-        "spy_confluence": 1,
+        "score_final": 63.0,
+        "gem_score": 70.0,
+        "chg_24h_pct": 0.39,
+        "chg_7d_pct": 4.2,
+        "flow_ratio": 0.0337,
+        "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
-        "market_cap_rank": 37,
-        "bubble_level": "Medio"
-      }
+        "market_cap_rank": 70,
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1"
+      ]
     },
     {
       "asset_class": "stock",
@@ -945,14 +1127,18 @@
         "score_asymmetry": 0.0,
         "convergence_count": 2,
         "bubble_level": "Bajo"
-      }
+      },
+      "narrative_tags": [
+        "AI",
+        "CYBER_CLOUD"
+      ]
     },
     {
       "asset_class": "crypto",
-      "ticker": "ATOM",
-      "name": "Cosmos Hub",
-      "price": 1.87,
-      "moonshot_score": 53.92,
+      "ticker": "ICP",
+      "name": "Internet Computer",
+      "price": 2.63,
+      "moonshot_score": 54.38,
       "state": "WATCH",
       "decision_hint": "WATCH_ONLY",
       "horizon": "days_to_weeks",
@@ -964,54 +1150,30 @@
       "drivers": {
         "score_final": 60.0,
         "gem_score": 66.0,
-        "chg_24h_pct": -0.29,
-        "chg_7d_pct": 3.72,
-        "flow_ratio": 0.0342,
+        "chg_24h_pct": -1.51,
+        "chg_7d_pct": 5.66,
+        "flow_ratio": 0.0388,
         "spy_confluence": 1,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
-        "market_cap_rank": 70,
-        "bubble_level": "Bajo"
-      }
-    },
-    {
-      "asset_class": "crypto",
-      "ticker": "XLM",
-      "name": "Stellar",
-      "price": 0.16457,
-      "moonshot_score": 51.42,
-      "state": "WATCH",
-      "decision_hint": "WATCH_ONLY",
-      "horizon": "days_to_weeks",
-      "why_now": [
-        "zona_capitalizacion_explosiva",
-        "tendencia_7d_fuerte",
-        "flujo_debil"
-      ],
-      "risk": "Sin objeción crítica detectada",
-      "drivers": {
-        "score_final": 64.0,
-        "gem_score": 64.0,
-        "chg_24h_pct": -1.77,
-        "chg_7d_pct": 8.34,
-        "flow_ratio": 0.0182,
-        "spy_confluence": 0,
-        "spy_breakout": 0,
-        "spy_chart": 0,
-        "research_sentiment": "unknown",
-        "research_catalyst_score": 0,
-        "market_cap_rank": 21,
-        "bubble_level": "Bajo"
-      }
+        "market_cap_rank": 55,
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "AI",
+        "INFRA"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "INJ",
       "name": "Injective",
-      "price": 3.03,
-      "moonshot_score": 50.45,
+      "price": 3.04,
+      "moonshot_score": 53.8,
       "state": "WATCH",
       "decision_hint": "WATCH_ONLY",
       "horizon": "days_to_weeks",
@@ -1020,30 +1182,36 @@
         "zona_capitalizacion_explosiva",
         "momento_24h_debil",
         "tendencia_7d_positiva",
-        "flujo_ok",
+        "flujo_fuerte",
         "trade_edge_negative"
       ],
       "risk": "Sin objeción crítica detectada",
       "drivers": {
-        "score_final": 52.0,
-        "gem_score": 63.0,
-        "chg_24h_pct": -3.88,
-        "chg_7d_pct": 4.84,
-        "flow_ratio": 0.119,
+        "score_final": 57.0,
+        "gem_score": 68.0,
+        "chg_24h_pct": -3.7,
+        "chg_7d_pct": 4.93,
+        "flow_ratio": 0.1205,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 132,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "DEFI",
+        "FLOW"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "FLOW",
       "name": "Flow",
-      "price": 0.04525521,
+      "price": 0.04440506,
       "moonshot_score": 50.3,
       "state": "WATCH",
       "decision_hint": "WATCH_ONLY",
@@ -1059,87 +1227,29 @@
       "drivers": {
         "score_final": 67.0,
         "gem_score": 78.0,
-        "chg_24h_pct": -10.25,
-        "chg_7d_pct": 8.14,
-        "flow_ratio": 0.4169,
+        "chg_24h_pct": -11.77,
+        "chg_7d_pct": 6.66,
+        "flow_ratio": 0.4261,
         "spy_confluence": 2,
         "spy_breakout": 0,
         "spy_chart": 0,
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
-        "market_cap_rank": 341,
-        "bubble_level": "Bajo"
-      }
-    },
-    {
-      "asset_class": "crypto",
-      "ticker": "ARB",
-      "name": "Arbitrum",
-      "price": 0.10076,
-      "moonshot_score": 48.97,
-      "state": "WATCH",
-      "decision_hint": "WATCH_ONLY",
-      "horizon": "days_to_weeks",
-      "why_now": [
-        "flujo_relativo_fuerte",
-        "zona_capitalizacion_explosiva",
-        "momento_24h_debil",
-        "tendencia_7d_positiva",
-        "flujo_ok",
-        "trade_edge_negative"
-      ],
-      "risk": "Sin objeción crítica detectada",
-      "drivers": {
-        "score_final": 52.0,
-        "gem_score": 63.0,
-        "chg_24h_pct": -5.18,
-        "chg_7d_pct": 2.14,
-        "flow_ratio": 0.1042,
-        "spy_confluence": 2,
-        "spy_breakout": 0,
-        "spy_chart": 0,
-        "research_sentiment": "unknown",
-        "research_catalyst_score": 0,
-        "market_cap_rank": 90,
-        "bubble_level": "Bajo"
-      }
-    },
-    {
-      "asset_class": "crypto",
-      "ticker": "SEI",
-      "name": "Sei",
-      "price": 0.066188,
-      "moonshot_score": 48.73,
-      "state": "WATCH",
-      "decision_hint": "WATCH_ONLY",
-      "horizon": "days_to_weeks",
-      "why_now": [
-        "flujo_relativo_fuerte",
-        "zona_capitalizacion_explosiva",
-        "flujo_ok",
-        "trade_edge_negative"
-      ],
-      "risk": "Sin objeción crítica detectada",
-      "drivers": {
-        "score_final": 54.0,
-        "gem_score": 61.0,
-        "chg_24h_pct": -1.84,
-        "chg_7d_pct": 0.86,
-        "flow_ratio": 0.0988,
-        "spy_confluence": 2,
-        "spy_breakout": 0,
-        "spy_chart": 0,
-        "research_sentiment": "unknown",
-        "research_catalyst_score": 0,
-        "market_cap_rank": 106,
-        "bubble_level": "Bajo"
-      }
+        "market_cap_rank": 350,
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1",
+        "FLOW"
+      ]
     },
     {
       "asset_class": "crypto",
       "ticker": "TRX",
       "name": "TRON",
-      "price": 0.296625,
+      "price": 0.296917,
       "moonshot_score": 48.65,
       "state": "WATCH",
       "decision_hint": "WATCH_ONLY",
@@ -1154,8 +1264,8 @@
       "drivers": {
         "score_final": 69.0,
         "gem_score": 69.0,
-        "chg_24h_pct": 2.57,
-        "chg_7d_pct": 4.35,
+        "chg_24h_pct": 2.35,
+        "chg_7d_pct": 4.45,
         "flow_ratio": 0.018,
         "spy_confluence": 1,
         "spy_breakout": 0,
@@ -1163,8 +1273,88 @@
         "research_sentiment": "unknown",
         "research_catalyst_score": 0,
         "market_cap_rank": 8,
-        "bubble_level": "Bajo"
-      }
+        "bubble_level": "Bajo",
+        "setup_tag": "base",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "GENERAL"
+      ]
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "SEI",
+      "name": "Sei",
+      "price": 0.066327,
+      "moonshot_score": 48.17,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "flujo_ok",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 54.0,
+        "gem_score": 61.0,
+        "chg_24h_pct": -2.42,
+        "chg_7d_pct": 0.75,
+        "flow_ratio": 0.0932,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 106,
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "L1",
+        "FLOW"
+      ]
+    },
+    {
+      "asset_class": "crypto",
+      "ticker": "AAVE",
+      "name": "Aave",
+      "price": 110.61,
+      "moonshot_score": 47.3,
+      "state": "WATCH",
+      "decision_hint": "WATCH_ONLY",
+      "horizon": "days_to_weeks",
+      "why_now": [
+        "flujo_relativo_fuerte",
+        "zona_capitalizacion_explosiva",
+        "momento_24h_debil",
+        "flujo_fuerte",
+        "trade_edge_negative"
+      ],
+      "risk": "Sin objeción crítica detectada",
+      "drivers": {
+        "score_final": 47.0,
+        "gem_score": 58.0,
+        "chg_24h_pct": -6.45,
+        "chg_7d_pct": 0.78,
+        "flow_ratio": 0.1928,
+        "spy_confluence": 2,
+        "spy_breakout": 0,
+        "spy_chart": 0,
+        "research_sentiment": "unknown",
+        "research_catalyst_score": 0,
+        "market_cap_rank": 51,
+        "bubble_level": "Bajo",
+        "setup_tag": "flow_momentum",
+        "trade_edge_hour": "14"
+      },
+      "narrative_tags": [
+        "DEFI",
+        "FLOW"
+      ]
     },
     {
       "asset_class": "stock",
@@ -1195,7 +1385,10 @@
         "score_asymmetry": 0.0,
         "convergence_count": 2,
         "bubble_level": "Medio"
-      }
+      },
+      "narrative_tags": [
+        "HEALTH_GROWTH"
+      ]
     },
     {
       "asset_class": "stock",
@@ -1226,7 +1419,318 @@
         "score_asymmetry": 0.0,
         "convergence_count": 1,
         "bubble_level": "Medio"
-      }
+      },
+      "narrative_tags": [
+        "CRYPTO_BETA"
+      ]
     }
-  ]
+  ],
+  "leaderboards": {
+    "by_asset_class": [
+      {
+        "label": "crypto",
+        "count": 12,
+        "avg_score": 57.7,
+        "top_ticker": "OP",
+        "top_score": 71.6
+      },
+      {
+        "label": "stock",
+        "count": 12,
+        "avg_score": 36.31,
+        "top_ticker": "NET",
+        "top_score": 58.0
+      }
+    ],
+    "by_state": [
+      {
+        "label": "PRIME",
+        "count": 3,
+        "avg_score": 69.65,
+        "top_ticker": "OP",
+        "top_score": 71.6
+      },
+      {
+        "label": "EARLY",
+        "count": 4,
+        "avg_score": 59.73,
+        "top_ticker": "NEAR",
+        "top_score": 63.47
+      },
+      {
+        "label": "WATCH",
+        "count": 17,
+        "avg_score": 40.02,
+        "top_ticker": "ICP",
+        "top_score": 54.38
+      }
+    ],
+    "by_narrative": [
+      {
+        "label": "L2",
+        "count": 2,
+        "avg_score": 70.07,
+        "top_ticker": "OP",
+        "top_score": 71.6
+      },
+      {
+        "label": "L1",
+        "count": 6,
+        "avg_score": 58.03,
+        "top_ticker": "SUI",
+        "top_score": 68.8
+      },
+      {
+        "label": "FLOW",
+        "count": 7,
+        "avg_score": 57.63,
+        "top_ticker": "OP",
+        "top_score": 71.6
+      },
+      {
+        "label": "INFRA",
+        "count": 1,
+        "avg_score": 54.38,
+        "top_ticker": "ICP",
+        "top_score": 54.38
+      },
+      {
+        "label": "DEFI",
+        "count": 2,
+        "avg_score": 50.55,
+        "top_ticker": "INJ",
+        "top_score": 53.8
+      },
+      {
+        "label": "HEALTH_GROWTH",
+        "count": 1,
+        "avg_score": 45.9,
+        "top_ticker": "HIMS",
+        "top_score": 45.9
+      },
+      {
+        "label": "AI",
+        "count": 5,
+        "avg_score": 42.12,
+        "top_ticker": "NET",
+        "top_score": 58.0
+      },
+      {
+        "label": "CRYPTO_BETA",
+        "count": 3,
+        "avg_score": 41.7,
+        "top_ticker": "MARA",
+        "top_score": 44.95
+      },
+      {
+        "label": "CYBER_CLOUD",
+        "count": 3,
+        "avg_score": 41.38,
+        "top_ticker": "NET",
+        "top_score": 58.0
+      },
+      {
+        "label": "GENERAL",
+        "count": 4,
+        "avg_score": 32.94,
+        "top_ticker": "TRX",
+        "top_score": 48.65
+      }
+    ],
+    "by_ticker": [
+      {
+        "label": "OP",
+        "count": 1,
+        "avg_score": 71.6,
+        "top_ticker": "OP",
+        "top_score": 71.6
+      },
+      {
+        "label": "SUI",
+        "count": 1,
+        "avg_score": 68.8,
+        "top_ticker": "SUI",
+        "top_score": 68.8
+      },
+      {
+        "label": "MNT",
+        "count": 1,
+        "avg_score": 68.54,
+        "top_ticker": "MNT",
+        "top_score": 68.54
+      },
+      {
+        "label": "NEAR",
+        "count": 1,
+        "avg_score": 63.47,
+        "top_ticker": "NEAR",
+        "top_score": 63.47
+      },
+      {
+        "label": "XLM",
+        "count": 1,
+        "avg_score": 59.37,
+        "top_ticker": "XLM",
+        "top_score": 59.37
+      },
+      {
+        "label": "ATOM",
+        "count": 1,
+        "avg_score": 58.07,
+        "top_ticker": "ATOM",
+        "top_score": 58.07
+      },
+      {
+        "label": "NET",
+        "count": 1,
+        "avg_score": 58.0,
+        "top_ticker": "NET",
+        "top_score": 58.0
+      },
+      {
+        "label": "ICP",
+        "count": 1,
+        "avg_score": 54.38,
+        "top_ticker": "ICP",
+        "top_score": 54.38
+      },
+      {
+        "label": "INJ",
+        "count": 1,
+        "avg_score": 53.8,
+        "top_ticker": "INJ",
+        "top_score": 53.8
+      },
+      {
+        "label": "FLOW",
+        "count": 1,
+        "avg_score": 50.3,
+        "top_ticker": "FLOW",
+        "top_score": 50.3
+      },
+      {
+        "label": "TRX",
+        "count": 1,
+        "avg_score": 48.65,
+        "top_ticker": "TRX",
+        "top_score": 48.65
+      },
+      {
+        "label": "SEI",
+        "count": 1,
+        "avg_score": 48.17,
+        "top_ticker": "SEI",
+        "top_score": 48.17
+      },
+      {
+        "label": "AAVE",
+        "count": 1,
+        "avg_score": 47.3,
+        "top_ticker": "AAVE",
+        "top_score": 47.3
+      },
+      {
+        "label": "HIMS",
+        "count": 1,
+        "avg_score": 45.9,
+        "top_ticker": "HIMS",
+        "top_score": 45.9
+      },
+      {
+        "label": "MARA",
+        "count": 1,
+        "avg_score": 44.95,
+        "top_ticker": "MARA",
+        "top_score": 44.95
+      },
+      {
+        "label": "MSTR",
+        "count": 1,
+        "avg_score": 44.2,
+        "top_ticker": "MSTR",
+        "top_score": 44.2
+      },
+      {
+        "label": "CRWD",
+        "count": 1,
+        "avg_score": 40.7,
+        "top_ticker": "CRWD",
+        "top_score": 40.7
+      },
+      {
+        "label": "PLTR",
+        "count": 1,
+        "avg_score": 35.95,
+        "top_ticker": "PLTR",
+        "top_score": 35.95
+      },
+      {
+        "label": "COIN",
+        "count": 1,
+        "avg_score": 35.95,
+        "top_ticker": "COIN",
+        "top_score": 35.95
+      },
+      {
+        "label": "CAVA",
+        "count": 1,
+        "avg_score": 32.45,
+        "top_ticker": "CAVA",
+        "top_score": 32.45
+      },
+      {
+        "label": "XLE",
+        "count": 1,
+        "avg_score": 27.3,
+        "top_ticker": "XLE",
+        "top_score": 27.3
+      },
+      {
+        "label": "PANW",
+        "count": 1,
+        "avg_score": 25.45,
+        "top_ticker": "PANW",
+        "top_score": 25.45
+      },
+      {
+        "label": "TTD",
+        "count": 1,
+        "avg_score": 23.35,
+        "top_ticker": "TTD",
+        "top_score": 23.35
+      },
+      {
+        "label": "APP",
+        "count": 1,
+        "avg_score": 21.55,
+        "top_ticker": "APP",
+        "top_score": 21.55
+      }
+    ],
+    "moonshot_crypto_setup": [
+      {
+        "label": "base",
+        "count": 5,
+        "avg_score": 57.8,
+        "top_ticker": "MNT",
+        "top_score": 68.54
+      },
+      {
+        "label": "flow_momentum",
+        "count": 7,
+        "avg_score": 57.63,
+        "top_ticker": "OP",
+        "top_score": 71.6
+      }
+    ],
+    "moonshot_crypto_hour": [
+      {
+        "label": "14",
+        "count": 12,
+        "avg_score": 57.7,
+        "top_ticker": "OP",
+        "top_score": 71.6
+      }
+    ]
+  }
 }

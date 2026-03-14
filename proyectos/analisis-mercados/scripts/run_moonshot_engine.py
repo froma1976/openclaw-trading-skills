@@ -15,6 +15,27 @@ MOONSHOT_CRYPTO_SNAPSHOT = BASE / "data" / "crypto_snapshot_moonshot.json"
 OUT_JSON = BASE / "data" / "moonshot_candidates.json"
 OUT_MD = BASE / "reports" / "moonshot_candidates.md"
 
+STOCK_NARRATIVES = {
+    "AI": {"NVDA", "AMD", "PLTR", "SOUN", "BBAI", "PATH", "APP", "CRWD", "SNOW", "NET", "ARM", "SMCI", "TEM"},
+    "SPACE": {"RKLB", "ASTS", "LUNR"},
+    "CRYPTO_BETA": {"MSTR", "COIN", "MARA", "RIOT"},
+    "FINTECH": {"HOOD", "SOFI", "UPST", "AFRM"},
+    "EV": {"TSLA", "RIVN", "QS"},
+    "HEALTH_GROWTH": {"HIMS", "TEM"},
+    "NUCLEAR_ENERGY": {"OKLO"},
+    "CYBER_CLOUD": {"NET", "CRWD", "PANW"},
+}
+
+CRYPTO_NARRATIVES = {
+    "L1": {"SOL", "SUI", "ADA", "XRP", "XLM", "ATOM", "APT", "SEI", "FLOW", "NEAR", "TON", "ETC", "XTZ", "EOS", "ALGO"},
+    "L2": {"OP", "ARB", "MNT"},
+    "AI": {"FET", "RENDER", "WLD", "ICP"},
+    "MEME": {"DOGE", "SHIB", "BONK", "PEPE", "GALA"},
+    "DEFI": {"AAVE", "MKR", "UNI", "INJ", "LINK", "GRT"},
+    "METAVERSE": {"SAND", "MANA", "THETA"},
+    "INFRA": {"FIL", "ICP", "LINK", "GRT"},
+}
+
 
 def load_json(path: Path, default):
     if not path.exists():
@@ -44,6 +65,78 @@ def top_reasons(reasons: list[str], extra: list[str]) -> list[str]:
         if text and text not in merged:
             merged.append(text)
     return merged[:6]
+
+
+def infer_narratives(asset_class: str, ticker: str, why_now: list[str], drivers: dict) -> list[str]:
+    ticker = str(ticker or "").upper()
+    found = []
+    mapping = STOCK_NARRATIVES if asset_class == "stock" else CRYPTO_NARRATIVES
+    for label, symbols in mapping.items():
+        if ticker in symbols:
+            found.append(label)
+    why_blob = " ".join(str(x or "") for x in (why_now or [])).lower()
+    if asset_class == "stock":
+        if float((drivers or {}).get("catalyst_score") or 0) > 0:
+            found.append("CATALYST")
+        if float((drivers or {}).get("insider_score") or 0) > 0:
+            found.append("INSIDER")
+        if float((drivers or {}).get("options_flow_score") or 0) > 0:
+            found.append("OPTIONS_FLOW")
+    else:
+        if int((drivers or {}).get("spy_breakout") or 0) > 0:
+            found.append("BREAKOUT")
+        if float((drivers or {}).get("flow_ratio") or 0) >= 0.07:
+            found.append("FLOW")
+        if "research_catalyst_positive" in why_blob:
+            found.append("CATALYST")
+    ordered = []
+    for item in found:
+        if item not in ordered:
+            ordered.append(item)
+    return ordered or ["GENERAL"]
+
+
+def build_leaderboards(candidates: list[dict]) -> dict:
+    def aggregate(rows: list[dict], label_fn):
+        groups = {}
+        for row in rows:
+            key = label_fn(row)
+            if not key:
+                continue
+            slot = groups.setdefault(key, {"count": 0, "avg_score": 0.0, "top_ticker": None, "top_score": -1.0})
+            slot["count"] += 1
+            slot["avg_score"] += float(row.get("moonshot_score") or 0)
+            score = float(row.get("moonshot_score") or 0)
+            if score > slot["top_score"]:
+                slot["top_score"] = score
+                slot["top_ticker"] = row.get("ticker")
+        out = []
+        for key, value in groups.items():
+            out.append({
+                "label": key,
+                "count": value["count"],
+                "avg_score": round(value["avg_score"] / max(1, value["count"]), 2),
+                "top_ticker": value["top_ticker"],
+                "top_score": round(value["top_score"], 2),
+            })
+        out.sort(key=lambda item: (item["avg_score"], item["count"]), reverse=True)
+        return out
+
+    narrative_rows = []
+    for row in candidates:
+        for narrative in row.get("narrative_tags", []):
+            narrative_rows.append({**row, "narrative": narrative})
+
+    crypto_rows = [row for row in candidates if row.get("asset_class") == "crypto"]
+
+    return {
+        "by_asset_class": aggregate(candidates, lambda row: row.get("asset_class")),
+        "by_state": aggregate(candidates, lambda row: row.get("state")),
+        "by_narrative": aggregate(narrative_rows, lambda row: row.get("narrative")),
+        "by_ticker": aggregate(candidates, lambda row: row.get("ticker")),
+        "moonshot_crypto_setup": aggregate(crypto_rows, lambda row: ((row.get("drivers") or {}).get("setup_tag") or "base")),
+        "moonshot_crypto_hour": aggregate(crypto_rows, lambda row: ((row.get("drivers") or {}).get("trade_edge_hour") or "unknown")),
+    }
 
 
 def build_stock_candidate(asset: dict, cfg: dict):
@@ -107,7 +200,7 @@ def build_stock_candidate(asset: dict, cfg: dict):
     if fundamental_score > 0:
         thesis.append("inflexion_fundamental")
 
-    return {
+    row = {
         "asset_class": "stock",
         "ticker": asset.get("ticker"),
         "name": asset.get("ticker"),
@@ -131,6 +224,8 @@ def build_stock_candidate(asset: dict, cfg: dict):
             "bubble_level": bubble,
         },
     }
+    row["narrative_tags"] = infer_narratives("stock", str(row.get("ticker") or ""), row.get("why_now") or [], row.get("drivers") or {})
+    return row
 
 
 def build_crypto_candidate(asset: dict, cfg: dict):
@@ -157,6 +252,8 @@ def build_crypto_candidate(asset: dict, cfg: dict):
     decision = str(asset.get("decision_final") or "WATCH")
     chg_24h = float(asset.get("chg_24h_pct") or 0)
     chg_7d = float(asset.get("chg_7d_pct") or 0)
+    setup_tag = str(asset.get("setup_tag") or "base")
+    trade_edge_hour = str(asset.get("trade_edge_hour") or "unknown")
 
     score = base_score * float(weights.get("base_score", 0.4))
     score += gem_score * float(weights.get("gem_score", 0.25))
@@ -197,7 +294,7 @@ def build_crypto_candidate(asset: dict, cfg: dict):
     if 15 <= rank <= 150:
         thesis.append("zona_capitalizacion_explosiva")
 
-    return {
+    row = {
         "asset_class": "crypto",
         "ticker": ticker,
         "name": asset.get("name") or ticker,
@@ -221,8 +318,12 @@ def build_crypto_candidate(asset: dict, cfg: dict):
             "research_catalyst_score": research_catalyst_score,
             "market_cap_rank": rank,
             "bubble_level": bubble,
+            "setup_tag": setup_tag,
+            "trade_edge_hour": trade_edge_hour,
         },
     }
+    row["narrative_tags"] = infer_narratives("crypto", str(row.get("ticker") or ""), row.get("why_now") or [], row.get("drivers") or {})
+    return row
 
 
 def build_markdown(payload: dict) -> str:
@@ -238,8 +339,11 @@ def build_markdown(payload: dict) -> str:
     ]
     for row in payload.get("combined_top", []):
         lines.append(
-            f"- [{row['asset_class']}] {row['ticker']} | score {row['moonshot_score']} | {row['state']} | {row['decision_hint']} | {', '.join(row.get('why_now') or [])}"
+            f"- [{row['asset_class']}] {row['ticker']} | score {row['moonshot_score']} | {row['state']} | {row['decision_hint']} | narratives {', '.join(row.get('narrative_tags') or [])} | {', '.join(row.get('why_now') or [])}"
         )
+    lines.extend(["", "## Narrative leaderboard"])
+    for row in (payload.get("leaderboards") or {}).get("by_narrative", [])[:10]:
+        lines.append(f"- {row['label']}: avg {row['avg_score']} | count {row['count']} | top {row['top_ticker']} ({row['top_score']})")
     lines.extend(["", "## Stocks"])
     for row in payload.get("stocks", []):
         lines.append(
@@ -299,6 +403,14 @@ def main():
     crypto_candidates = crypto_candidates[: int((cfg.get("crypto") or {}).get("max_candidates", 12))]
 
     combined = sorted(stock_candidates + crypto_candidates, key=lambda item: item.get("moonshot_score", 0), reverse=True)
+    summary = {
+        "total_candidates": len(combined),
+        "prime_count": sum(1 for row in combined if row.get("state") == "PRIME"),
+        "early_count": sum(1 for row in combined if row.get("state") == "EARLY"),
+        "watch_count": sum(1 for row in combined if row.get("state") == "WATCH"),
+        "top_stock": stock_candidates[0]["ticker"] if stock_candidates else None,
+        "top_crypto": crypto_candidates[0]["ticker"] if crypto_candidates else None,
+    }
     payload = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "engine": "moonshot-v1",
@@ -308,9 +420,11 @@ def main():
             "Uses a dedicated moonshot stock universe plus current crypto snapshot.",
             "Focuses on asymmetry, catalysts, breakout potential, and room to run.",
         ],
+        "summary": summary,
         "stocks": stock_candidates,
         "crypto": crypto_candidates,
         "combined_top": combined[:15],
+        "leaderboards": build_leaderboards(combined),
     }
 
     atomic_write_json(OUT_JSON, payload)

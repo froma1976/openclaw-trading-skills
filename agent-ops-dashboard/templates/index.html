@@ -1624,6 +1624,7 @@
             <th>Estado</th>
             <th>Decisión</th>
             <th>Ejecución</th>
+            <th>Bloqueo real</th>
             <th>Lectura en cristiano</th>
           </tr>
           {% for c in crypto_signals.top_opportunities[:10] if crypto_signals.top_opportunities is defined %}
@@ -1648,18 +1649,21 @@
             <td>{{ c.state }}</td>
             <td><span class="badge {{ 'ok' if c.decision_final=='BUY' else 'no' }}">{{ c.decision_final }}</span></td>
             <td>
-              {% if c.ticker in active_crypto_tickers %}
+              {% if c.execution_state == 'COMPRADA' or c.ticker in active_crypto_tickers %}
               <span class="badge ok">COMPRADA</span>
+              {% elif c.execution_state == 'LISTA' %}
+              <span class="badge warn">LISTA</span>
               {% else %}
               <span class="badge no">NO COMPRADA</span>
               {% endif %}
             </td>
+            <td>{{ c.execution_reason or '-' }}</td>
             <td>{{ c.argumento_en_contra }}</td>
           </tr>
           {% endfor %}
           {% if crypto_signals.top_opportunities is not defined or crypto_signals.top_opportunities|length == 0 %}
           <tr>
-            <td colspan="16">Sin datos cripto todavía (ejecuta ingest cripto).</td>
+            <td colspan="17">Sin datos cripto todavía (ejecuta ingest cripto).</td>
           </tr>
           {% endif %}
         </table>
@@ -2194,6 +2198,54 @@
       </div>
 
       <div class="card col-12">
+        <h2>Compound Snapshot</h2>
+        <table>
+          <tr>
+            <th>Modo de riesgo</th>
+            <th>Motivo</th>
+            <th>Equity</th>
+            <th>Cash</th>
+            <th>Freshness stocks</th>
+            <th>Freshness moonshot</th>
+          </tr>
+          <tr>
+            <td><span class="badge {{ 'ok' if openclaw_snapshot.summary.risk_mode == 'OFFENSIVE' else ('warn' if openclaw_snapshot.summary.risk_mode == 'SELECTIVE' else 'no') }}">{{ openclaw_snapshot.summary.risk_mode or '-' }}</span></td>
+            <td>{{ openclaw_snapshot.summary.risk_reason or '-' }}</td>
+            <td>{{ openclaw_snapshot.summary.equity_usd if openclaw_snapshot.summary is defined else '-' }}</td>
+            <td>{{ openclaw_snapshot.summary.cash_usd if openclaw_snapshot.summary is defined else '-' }}</td>
+            <td>{{ openclaw_snapshot.freshness.stocks_min if openclaw_snapshot.freshness is defined else '-' }} min</td>
+            <td>{{ openclaw_snapshot.freshness.moonshot_min if openclaw_snapshot.freshness is defined else '-' }} min</td>
+          </tr>
+        </table>
+        <div class="muted" style="margin-top:8px">Archivo: {{ openclaw_snapshot.archive_path or '-' }}</div>
+      </div>
+
+      <div class="card col-12">
+        <h2>Alertas de Narrativa</h2>
+        <table>
+          <tr>
+            <th>Narrativa</th>
+            <th>Dirección</th>
+            <th>Diff score</th>
+            <th>Diff activos</th>
+            <th>Top actual</th>
+          </tr>
+          {% for row in openclaw_snapshot.alerts.narrative_shifts[:10] if openclaw_snapshot.alerts is defined and openclaw_snapshot.alerts.narrative_shifts is defined %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td><span class="badge {{ 'ok' if row.direction == 'UP' else ('warn' if row.direction == 'BROADENING' else 'no') }}">{{ row.direction }}</span></td>
+            <td>{{ row.avg_score_diff }}</td>
+            <td>{{ row.count_diff }}</td>
+            <td>{{ row.top_ticker }}</td>
+          </tr>
+          {% endfor %}
+          {% if openclaw_snapshot.alerts is not defined or openclaw_snapshot.alerts.narrative_shifts is not defined or openclaw_snapshot.alerts.narrative_shifts|length == 0 %}
+          <tr><td colspan="5">Sin alertas fuertes todavía</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-12">
         <h2>Top combinado Moonshot</h2>
         <table>
           <tr>
@@ -2268,6 +2320,148 @@
           {% endfor %}
           {% if moonshot.crypto is not defined or moonshot.crypto|length == 0 %}
           <tr><td colspan="5">Sin candidatos cripto</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-6">
+        <h2>Leaderboard Narrativas</h2>
+        <table>
+          <tr>
+            <th>Narrativa</th>
+            <th>Score medio</th>
+            <th>Activos</th>
+            <th>Top</th>
+          </tr>
+          {% for row in moonshot.leaderboards.by_narrative[:10] if moonshot.leaderboards is defined and moonshot.leaderboards.by_narrative is defined %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.avg_score }}</td>
+            <td>{{ row.count }}</td>
+            <td>{{ row.top_ticker }} ({{ row.top_score }})</td>
+          </tr>
+          {% endfor %}
+          {% if moonshot.leaderboards is not defined or moonshot.leaderboards.by_narrative is not defined or moonshot.leaderboards.by_narrative|length == 0 %}
+          <tr><td colspan="4">Sin leaderboard de narrativas todavía</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-6">
+        <h2>Leaderboard Estados</h2>
+        <table>
+          <tr>
+            <th>Estado</th>
+            <th>Score medio</th>
+            <th>Activos</th>
+            <th>Top</th>
+          </tr>
+          {% for row in moonshot.leaderboards.by_state[:10] if moonshot.leaderboards is defined and moonshot.leaderboards.by_state is defined %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.avg_score }}</td>
+            <td>{{ row.count }}</td>
+            <td>{{ row.top_ticker }} ({{ row.top_score }})</td>
+          </tr>
+          {% endfor %}
+          {% if moonshot.leaderboards is not defined or moonshot.leaderboards.by_state is not defined or moonshot.leaderboards.by_state|length == 0 %}
+          <tr><td colspan="4">Sin leaderboard de estados todavía</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-6">
+        <h2>Leaderboard Setups Crypto</h2>
+        <table>
+          <tr>
+            <th>Setup</th>
+            <th>Score medio</th>
+            <th>Activos</th>
+            <th>Top</th>
+          </tr>
+          {% for row in moonshot.leaderboards.moonshot_crypto_setup[:10] if moonshot.leaderboards is defined and moonshot.leaderboards.moonshot_crypto_setup is defined %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.avg_score }}</td>
+            <td>{{ row.count }}</td>
+            <td>{{ row.top_ticker }} ({{ row.top_score }})</td>
+          </tr>
+          {% endfor %}
+          {% if moonshot.leaderboards is not defined or moonshot.leaderboards.moonshot_crypto_setup is not defined or moonshot.leaderboards.moonshot_crypto_setup|length == 0 %}
+          <tr><td colspan="4">Sin leaderboard de setups todavía</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-6">
+        <h2>Leaderboard Horas Crypto</h2>
+        <table>
+          <tr>
+            <th>Hora UTC</th>
+            <th>Score medio</th>
+            <th>Activos</th>
+            <th>Top</th>
+          </tr>
+          {% for row in moonshot.leaderboards.moonshot_crypto_hour[:10] if moonshot.leaderboards is defined and moonshot.leaderboards.moonshot_crypto_hour is defined %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.avg_score }}</td>
+            <td>{{ row.count }}</td>
+            <td>{{ row.top_ticker }} ({{ row.top_score }})</td>
+          </tr>
+          {% endfor %}
+          {% if moonshot.leaderboards is not defined or moonshot.leaderboards.moonshot_crypto_hour is not defined or moonshot.leaderboards.moonshot_crypto_hour|length == 0 %}
+          <tr><td colspan="4">Sin leaderboard de horas todavía</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-6">
+        <h2>Leaderboard Tickers</h2>
+        <table>
+          <tr>
+            <th>Ticker</th>
+            <th>Score medio</th>
+            <th>Activos</th>
+            <th>Top</th>
+          </tr>
+          {% for row in moonshot.leaderboards.by_ticker[:10] if moonshot.leaderboards is defined and moonshot.leaderboards.by_ticker is defined %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.avg_score }}</td>
+            <td>{{ row.count }}</td>
+            <td>{{ row.top_ticker }} ({{ row.top_score }})</td>
+          </tr>
+          {% endfor %}
+          {% if moonshot.leaderboards is not defined or moonshot.leaderboards.by_ticker is not defined or moonshot.leaderboards.by_ticker|length == 0 %}
+          <tr><td colspan="4">Sin leaderboard de tickers todavía</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-12">
+        <h2>Historial de Snapshots</h2>
+        <table>
+          <tr>
+            <th>Generado</th>
+            <th>Modo riesgo</th>
+            <th>Equity</th>
+            <th>Moonshots</th>
+            <th>Prime</th>
+            <th>Ruta</th>
+          </tr>
+          {% for row in openclaw_snapshot.history[:10] if openclaw_snapshot.history is defined %}
+          <tr>
+            <td>{{ row.generated_at }}</td>
+            <td>{{ row.risk_mode or '-' }}</td>
+            <td>{{ row.equity_usd }}</td>
+            <td>{{ row.moonshot_top_count }}</td>
+            <td>{{ row.prime_count }}</td>
+            <td>{{ row.path }}</td>
+          </tr>
+          {% endfor %}
+          {% if openclaw_snapshot.history is not defined or openclaw_snapshot.history|length == 0 %}
+          <tr><td colspan="6">Sin historial todavía</td></tr>
           {% endif %}
         </table>
       </div>

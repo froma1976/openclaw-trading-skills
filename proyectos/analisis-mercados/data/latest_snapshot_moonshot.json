@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-14T13:50:56Z",
+  "generated_at": "2026-03-14T14:15:06Z",
   "engine": "moonshot-stock-ingest",
   "macro": [
     {
@@ -8,7 +8,7 @@
     },
     {
       "series": "DGS10",
-      "error": "The read operation timed out"
+      "error": "[WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto"
     },
     {
       "series": "DGS2",
@@ -53,7 +53,7 @@
         "intraday_15m_bajista",
         "social_bullish"
       ],
-      "score_social": 100.0,
+      "score_social": 83.3,
       "earnings_label": "No Data",
       "score_macro_adj": 0,
       "score_asymmetry": 0,
@@ -263,7 +263,7 @@
         "bubble_critical",
         "devil_advocate_active"
       ],
-      "score_social": 36.4,
+      "score_social": 33.3,
       "earnings_label": "No Data",
       "score_macro_adj": 0,
       "score_asymmetry": 0,
@@ -474,7 +474,7 @@
         "social_bullish",
         "devil_advocate_active"
       ],
-      "score_social": 61.9,
+      "score_social": 60.0,
       "earnings_label": "No Data",
       "score_macro_adj": 0,
       "score_asymmetry": 0,
@@ -989,7 +989,7 @@
         "intraday_15m_bajista",
         "social_bearish"
       ],
-      "score_social": -70.0,
+      "score_social": -66.7,
       "earnings_label": "No Data",
       "score_macro_adj": 0,
       "score_asymmetry": 0,
@@ -1648,20 +1648,18 @@
       "breakout_20": false,
       "intraday_15m_bias": "neutro",
       "score_tech": 36,
-      "score": 50,
+      "score": 36,
       "reasons": [
         "momento_5d_debil",
         "tendencia_20d_positiva",
         "price_below_ema20",
-        "ema20_below_ema50",
-        "fundamental_inflection",
-        "earnings_calendar_signal"
+        "ema20_below_ema50"
       ],
       "score_social": null,
-      "earnings_label": "Earnings Beat",
+      "earnings_label": "No Data",
       "score_macro_adj": 0,
-      "score_asymmetry": 14,
-      "fundamental_inflection_score": 14,
+      "score_asymmetry": 0,
+      "fundamental_inflection_score": 0,
       "catalyst_score": 0,
       "spinoff_score": 0,
       "insider_score": 0,
@@ -1671,10 +1669,10 @@
       "insider_min_buys_active": 2,
       "tech_filter_min_score_active": 55,
       "tech_filter_min_rel_volume_active": 0.0,
-      "convergence_count": 1,
+      "convergence_count": 0,
       "state": "WATCH",
-      "score_final": 50,
-      "confidence_pct": 50,
+      "score_final": 36,
+      "confidence_pct": 36,
       "bubble_level": "Bajo",
       "argumento_en_contra": "Sin objeción crítica detectada",
       "decision_final": "AVOID"
@@ -1911,11 +1909,10 @@
         "tendencia_20d_debil",
         "price_below_ema20",
         "ema20_below_ema50",
-        "intraday_15m_bajista",
-        "earnings_calendar_signal"
+        "intraday_15m_bajista"
       ],
       "score_social": null,
-      "earnings_label": "Earnings Pending",
+      "earnings_label": "No Data",
       "score_macro_adj": 0,
       "score_asymmetry": 0,
       "fundamental_inflection_score": 0,
@@ -1957,20 +1954,18 @@
       "breakout_20": false,
       "intraday_15m_bias": "bajista",
       "score_tech": 23,
-      "score": 37,
+      "score": 23,
       "reasons": [
         "momento_5d_debil",
         "price_below_ema20",
         "ema20_below_ema50",
-        "intraday_15m_bajista",
-        "fundamental_inflection",
-        "earnings_calendar_signal"
+        "intraday_15m_bajista"
       ],
       "score_social": null,
-      "earnings_label": "Earnings Beat",
+      "earnings_label": "No Data",
       "score_macro_adj": 0,
-      "score_asymmetry": 14,
-      "fundamental_inflection_score": 14,
+      "score_asymmetry": 0,
+      "fundamental_inflection_score": 0,
       "catalyst_score": 0,
       "spinoff_score": 0,
       "insider_score": 0,
@@ -1980,10 +1975,10 @@
       "insider_min_buys_active": 2,
       "tech_filter_min_score_active": 55,
       "tech_filter_min_rel_volume_active": 0.0,
-      "convergence_count": 1,
+      "convergence_count": 0,
       "state": "WATCH",
-      "score_final": 37,
-      "confidence_pct": 37,
+      "score_final": 23,
+      "confidence_pct": 23,
       "bubble_level": "Bajo",
       "argumento_en_contra": "Sin objeción crítica detectada",
       "decision_final": "AVOID"
@@ -2093,9 +2088,9 @@
     {
       "symbol": "NVDA",
       "messages_checked": 30,
-      "bullish": 13,
-      "bearish": 0,
-      "sentiment_score": 100.0
+      "bullish": 11,
+      "bearish": 1,
+      "sentiment_score": 83.3
     },
     {
       "symbol": "PLTR",
@@ -2114,9 +2109,9 @@
     {
       "symbol": "ASTS",
       "messages_checked": 30,
-      "bullish": 15,
+      "bullish": 14,
       "bearish": 7,
-      "sentiment_score": 36.4
+      "sentiment_score": 33.3
     },
     {
       "symbol": "LUNR",
@@ -2142,9 +2137,9 @@
     {
       "symbol": "HIMS",
       "messages_checked": 30,
-      "bullish": 17,
+      "bullish": 16,
       "bearish": 4,
-      "sentiment_score": 61.9
+      "sentiment_score": 60.0
     },
     {
       "symbol": "APP",
@@ -2191,7 +2186,7 @@
     {
       "symbol": "SMCI",
       "messages_checked": 30,
-      "bullish": 16,
+      "bullish": 15,
       "bearish": 0,
       "sentiment_score": 100.0
     },
@@ -2199,8 +2194,8 @@
       "symbol": "TSLA",
       "messages_checked": 30,
       "bullish": 3,
-      "bearish": 17,
-      "sentiment_score": -70.0
+      "bearish": 15,
+      "sentiment_score": -66.7
     },
     {
       "symbol": "COIN",
@@ -2240,33 +2235,6 @@
       "eps_actual": null,
       "revenue_estimate": 54670725,
       "revenue_actual": null
-    },
-    {
-      "symbol": "PATH",
-      "source": "finnhub",
-      "date": "2026-03-11",
-      "eps_estimate": 0.2597,
-      "eps_actual": 0.3,
-      "revenue_estimate": 473781442,
-      "revenue_actual": 481110000
-    },
-    {
-      "symbol": "OKLO",
-      "source": "finnhub",
-      "date": "2026-03-17",
-      "eps_estimate": -0.1729,
-      "eps_actual": null,
-      "revenue_estimate": 0,
-      "revenue_actual": null
-    },
-    {
-      "symbol": "SERV",
-      "source": "finnhub",
-      "date": "2026-03-11",
-      "eps_estimate": -0.5406,
-      "eps_actual": -0.46,
-      "revenue_estimate": 777750,
-      "revenue_actual": 880000
     }
   ],
   "options": [
@@ -3467,7 +3435,7 @@
         "social_bullish",
         "devil_advocate_active"
       ],
-      "score_social": 61.9,
+      "score_social": 60.0,
       "earnings_label": "No Data",
       "score_macro_adj": 0,
       "score_asymmetry": 0,
@@ -4017,58 +3985,6 @@
       "decision_final": "AVOID"
     },
     {
-      "ticker": "PATH",
-      "ok": true,
-      "currency": "USD",
-      "exchange": "NYQ",
-      "regularMarketPrice": 11.58,
-      "previousClose": null,
-      "lastCloseSeries": 11.579999923706055,
-      "chg_5d_pct": -3.26,
-      "chg_20d_pct": 2.3,
-      "ema20": 11.595,
-      "ema50": 12.588,
-      "sma200": 13.417,
-      "overextension_200d_pct": -13.69,
-      "rsi14": 47.56,
-      "bb_upper": 12.363,
-      "bb_lower": 9.876,
-      "rel_volume": 0.97,
-      "breakout_20": false,
-      "intraday_15m_bias": "neutro",
-      "score_tech": 36,
-      "score": 50,
-      "reasons": [
-        "momento_5d_debil",
-        "tendencia_20d_positiva",
-        "price_below_ema20",
-        "ema20_below_ema50",
-        "fundamental_inflection",
-        "earnings_calendar_signal"
-      ],
-      "score_social": null,
-      "earnings_label": "Earnings Beat",
-      "score_macro_adj": 0,
-      "score_asymmetry": 14,
-      "fundamental_inflection_score": 14,
-      "catalyst_score": 0,
-      "spinoff_score": 0,
-      "insider_score": 0,
-      "options_flow_score": 0,
-      "options_cp_ratio": null,
-      "insider_buys": 0,
-      "insider_min_buys_active": 2,
-      "tech_filter_min_score_active": 55,
-      "tech_filter_min_rel_volume_active": 0.0,
-      "convergence_count": 1,
-      "state": "WATCH",
-      "score_final": 50,
-      "confidence_pct": 50,
-      "bubble_level": "Bajo",
-      "argumento_en_contra": "Sin objeción crítica detectada",
-      "decision_final": "AVOID"
-    },
-    {
       "ticker": "SMCI",
       "ok": true,
       "currency": "USD",
@@ -4169,6 +4085,56 @@
       "confidence_pct": 47,
       "bubble_level": "Bajo",
       "argumento_en_contra": "Divergencia bajista: precio sube con volumen débil",
+      "decision_final": "AVOID"
+    },
+    {
+      "ticker": "SHOP",
+      "ok": true,
+      "currency": "USD",
+      "exchange": "NMS",
+      "regularMarketPrice": 122.96,
+      "previousClose": null,
+      "lastCloseSeries": 122.95999908447266,
+      "chg_5d_pct": -7.9,
+      "chg_20d_pct": 9.1,
+      "ema20": 126.092,
+      "ema50": 132.673,
+      "sma200": 140.305,
+      "overextension_200d_pct": -12.36,
+      "rsi14": 45.55,
+      "bb_upper": 135.38,
+      "bb_lower": 113.293,
+      "rel_volume": 0.7,
+      "breakout_20": false,
+      "intraday_15m_bias": "neutro",
+      "score_tech": 46,
+      "score": 46,
+      "reasons": [
+        "momento_5d_debil",
+        "tendencia_20d_fuerte",
+        "price_below_ema20",
+        "ema20_below_ema50"
+      ],
+      "score_social": null,
+      "earnings_label": "No Data",
+      "score_macro_adj": 0,
+      "score_asymmetry": 0,
+      "fundamental_inflection_score": 0,
+      "catalyst_score": 0,
+      "spinoff_score": 0,
+      "insider_score": 0,
+      "options_flow_score": 0,
+      "options_cp_ratio": null,
+      "insider_buys": 0,
+      "insider_min_buys_active": 2,
+      "tech_filter_min_score_active": 55,
+      "tech_filter_min_rel_volume_active": 0.0,
+      "convergence_count": 0,
+      "state": "WATCH",
+      "score_final": 46,
+      "confidence_pct": 46,
+      "bubble_level": "Bajo",
+      "argumento_en_contra": "Sin objeción crítica detectada",
       "decision_final": "AVOID"
     }
   ]
