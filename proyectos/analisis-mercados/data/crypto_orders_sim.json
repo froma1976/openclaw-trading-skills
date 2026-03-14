@@ -1,34 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_algo_1773446644",
-      "ticker": "ALGO",
-      "opened_at": "2026-03-14T00:04:04Z",
-      "entry_price": 0.093919,
-      "qty": 351.36660314,
-      "notional_usd": 33.0,
-      "target_price": 0.094764,
-      "stop_price": 0.093402,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 88,
-      "score": 88,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 1,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 0,
-        "flow": 0,
-        "whale": 0
-      },
-      "current_price": 0.0938,
-      "pct_move": -0.127,
-      "pnl_usd_est": -0.041813
-    },
-    {
       "id": "crp_gala_1773447004",
       "ticker": "GALA",
       "opened_at": "2026-03-14T00:10:04Z",
@@ -52,9 +24,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.00351,
-      "pct_move": 0.286,
-      "pnl_usd_est": 0.047143
+      "current_price": 0.003512,
+      "pct_move": 0.346,
+      "pnl_usd_est": 0.057137
     },
     {
       "id": "crp_etc_1773447124",
@@ -80,9 +52,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 8.47,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 8.46,
+      "pct_move": -0.118,
+      "pnl_usd_est": -0.019481
     },
     {
       "id": "crp_xlm_1773447124",
@@ -108,9 +80,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.1643,
-      "pct_move": 0.058,
-      "pnl_usd_est": 0.019293
+      "current_price": 0.164301,
+      "pct_move": 0.059,
+      "pnl_usd_est": 0.019494
     },
     {
       "id": "crp_aave_1773447124",
@@ -136,9 +108,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 112.39,
-      "pct_move": 0.116,
-      "pnl_usd_est": 0.019107
+      "current_price": 112.37,
+      "pct_move": 0.098,
+      "pnl_usd_est": 0.016168
     },
     {
       "id": "crp_sei_1773447124",
@@ -164,9 +136,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.0663,
-      "pct_move": 0.08,
-      "pnl_usd_est": 0.013201
+      "current_price": 0.06632,
+      "pct_move": 0.11,
+      "pnl_usd_est": 0.018182
     },
     {
       "id": "crp_atom_1773447124",
@@ -192,9 +164,121 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 1.858,
-      "pct_move": -0.108,
-      "pnl_usd_est": -0.035484
+      "current_price": 1.86,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0
+    },
+    {
+      "id": "crp_algo_1773447424",
+      "ticker": "ALGO",
+      "opened_at": "2026-03-14T00:17:04Z",
+      "entry_price": 0.0938,
+      "qty": 175.90618337,
+      "notional_usd": 16.5,
+      "target_price": 0.094644,
+      "stop_price": 0.093284,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 64,
+      "score": 64,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 1,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": -1,
+        "whale": 0
+      },
+      "current_price": 0.093692,
+      "pct_move": -0.115,
+      "pnl_usd_est": -0.018998
+    },
+    {
+      "id": "crp_bonk_1773447601",
+      "ticker": "BONK",
+      "opened_at": "2026-03-14T00:20:01Z",
+      "entry_price": 6e-06,
+      "qty": 7751225.49019608,
+      "notional_usd": 47.44,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 86,
+      "score": 86,
+      "research_sentiment": "positive",
+      "research_catalyst_score": 2,
+      "research_size_scale": 1.15,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 0,
+        "euphoria": 1,
+        "flow": 1,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": 2.0,
+      "pnl_usd_est": 0.930147
+    },
+    {
+      "id": "crp_bch_1773447601",
+      "ticker": "BCH",
+      "opened_at": "2026-03-14T00:20:01Z",
+      "entry_price": 460.39,
+      "qty": 0.07167836,
+      "notional_usd": 33.0,
+      "target_price": 464.53351,
+      "stop_price": 457.857855,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 73,
+      "score": 73,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": 0,
+        "whale": 0
+      },
+      "current_price": 460.39,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0
+    },
+    {
+      "id": "crp_trx_1773447601",
+      "ticker": "TRX",
+      "opened_at": "2026-03-14T00:20:01Z",
+      "entry_price": 0.293846,
+      "qty": 112.30372372,
+      "notional_usd": 33.0,
+      "target_price": 0.296491,
+      "stop_price": 0.29223,
+      "state": "ACTIVE",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 74,
+      "score": 74,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 2,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": -1,
+        "whale": 0
+      },
+      "current_price": 0.293846,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0
     }
   ],
   "completed": [
@@ -23823,12 +23907,44 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 0.931669
+    },
+    {
+      "id": "crp_algo_1773446644",
+      "ticker": "ALGO",
+      "opened_at": "2026-03-14T00:04:04Z",
+      "entry_price": 0.093919,
+      "qty": 351.36660314,
+      "notional_usd": 33.0,
+      "target_price": 0.094764,
+      "stop_price": 0.093402,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 88,
+      "score": 88,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 1,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 0,
+        "flow": 0,
+        "whale": 0
+      },
+      "current_price": 0.0938,
+      "pct_move": -0.127,
+      "pnl_usd_est": -0.041813,
+      "closed_at": "2026-03-14T00:17:01Z",
+      "close_price": 0.0938,
+      "result": "timeout",
+      "pnl_usd": -0.041813
     }
   ],
   "daily": {
     "date": "2026-03-14",
-    "trades": 32,
-    "loss_streak": 0,
+    "trades": 36,
+    "loss_streak": 1,
     "paused": false,
     "pause_reason": "",
     "mode": "normal",
@@ -23837,8 +23953,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 535.4316693944354,
-    "market_value_usd": 165.02,
-    "equity_usd": 700.45
+    "cash_usd": 438.45,
+    "market_value_usd": 262.01,
+    "equity_usd": 700.46
   }
 }
