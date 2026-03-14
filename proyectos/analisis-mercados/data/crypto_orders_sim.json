@@ -1,34 +1,6 @@
 {
   "active": [
     {
-      "id": "crp_gala_1773447785",
-      "ticker": "GALA",
-      "opened_at": "2026-03-14T00:23:05Z",
-      "entry_price": 0.00352,
-      "qty": 4687.5,
-      "notional_usd": 16.5,
-      "target_price": 0.003552,
-      "stop_price": 0.003501,
-      "state": "ACTIVE",
-      "mode": "scalp_intradia",
-      "risk_mode": "normal",
-      "confidence": 64,
-      "score": 64,
-      "research_sentiment": "unknown",
-      "research_catalyst_score": 0,
-      "research_size_scale": 1.0,
-      "spy_confluence": 1,
-      "spy_breakdown": {
-        "news": 1,
-        "euphoria": 1,
-        "flow": -1,
-        "whale": 0
-      },
-      "current_price": 0.00351,
-      "pct_move": -0.284,
-      "pnl_usd_est": -0.046875
-    },
-    {
       "id": "crp_algo_1773448205",
       "ticker": "ALGO",
       "opened_at": "2026-03-14T00:30:05Z",
@@ -52,9 +24,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 0.094,
-      "pct_move": 0.021,
-      "pnl_usd_est": 0.003511
+      "current_price": 0.0936,
+      "pct_move": -0.404,
+      "pnl_usd_est": -0.066716
     },
     {
       "id": "crp_etc_1773448205",
@@ -80,9 +52,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 8.48,
-      "pct_move": 0.0,
-      "pnl_usd_est": 0.0
+      "current_price": 8.45,
+      "pct_move": -0.354,
+      "pnl_usd_est": -0.058373
     },
     {
       "id": "crp_atom_1773448205",
@@ -108,9 +80,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 1.859,
-      "pct_move": -0.054,
-      "pnl_usd_est": -0.008871
+      "current_price": 1.856,
+      "pct_move": -0.215,
+      "pnl_usd_est": -0.035484
     },
     {
       "id": "crp_aave_1773448205",
@@ -136,9 +108,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 112.16,
-      "pct_move": -0.125,
-      "pnl_usd_est": -0.02057
+      "current_price": 112.02,
+      "pct_move": -0.249,
+      "pnl_usd_est": -0.04114
     },
     {
       "id": "crp_sei_1773448205",
@@ -164,9 +136,9 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.0667,
-      "pct_move": 0.262,
-      "pnl_usd_est": 0.043156
+      "current_price": 0.0664,
+      "pct_move": -0.189,
+      "pnl_usd_est": -0.031251
     },
     {
       "id": "crp_xlm_1773448205",
@@ -192,9 +164,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.1666,
-      "pct_move": 0.759,
-      "pnl_usd_est": 0.250476
+      "current_price": 0.166,
+      "pct_move": 0.396,
+      "pnl_usd_est": 0.130727
     },
     {
       "id": "crp_xrp_1773448324",
@@ -220,9 +192,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 1.3988,
-      "pct_move": -0.086,
-      "pnl_usd_est": -0.028286
+      "current_price": 1.3965,
+      "pct_move": -0.25,
+      "pnl_usd_est": -0.0825
     },
     {
       "id": "crp_bch_1773448324",
@@ -248,9 +220,9 @@
         "flow": 0,
         "whale": 0
       },
-      "current_price": 460.8,
-      "pct_move": 0.067,
-      "pnl_usd_est": 0.022215
+      "current_price": 460.5,
+      "pct_move": 0.002,
+      "pnl_usd_est": 0.000717
     }
   ],
   "completed": [
@@ -24391,6 +24363,38 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 1.007659
+    },
+    {
+      "id": "crp_gala_1773447785",
+      "ticker": "GALA",
+      "opened_at": "2026-03-14T00:23:05Z",
+      "entry_price": 0.00352,
+      "qty": 4687.5,
+      "notional_usd": 16.5,
+      "target_price": 0.003552,
+      "stop_price": 0.003501,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 64,
+      "score": 64,
+      "research_sentiment": "unknown",
+      "research_catalyst_score": 0,
+      "research_size_scale": 1.0,
+      "spy_confluence": 1,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": -1,
+        "whale": 0
+      },
+      "current_price": 0.00352,
+      "pct_move": 0.0,
+      "pnl_usd_est": 0.0,
+      "closed_at": "2026-03-14T00:36:01Z",
+      "close_price": 0.00352,
+      "result": "timeout",
+      "pnl_usd": 0.0
     }
   ],
   "daily": {
@@ -24405,8 +24409,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 508.4176593137255,
-    "market_value_usd": 198.21,
-    "equity_usd": 706.63
+    "cash_usd": 524.9176593137255,
+    "market_value_usd": 181.32,
+    "equity_usd": 706.23
   }
 }
