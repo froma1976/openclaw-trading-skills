@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import time
 from datetime import datetime, UTC
 from pathlib import Path
 from urllib import request
@@ -44,6 +45,16 @@ def get_json(url: str):
             return json.loads(r.read().decode("utf-8"))
     except:
         return None
+
+
+def get_json_with_retry(url: str, attempts: int = 3, sleep_seconds: float = 1.5):
+    for idx in range(max(1, attempts)):
+        data = get_json(url)
+        if isinstance(data, list) and data:
+            return data
+        if idx < attempts - 1:
+            time.sleep(sleep_seconds)
+    return None
 
 
 def get_binance_price(ticker: str) -> float:
@@ -508,7 +519,7 @@ def _main_locked():
     )
     source_label = "coingecko-free"
     note_flags = ["Scoring cripto con ahorro API activo (espias de velas en subset liquido)"]
-    rows = get_json(url)
+    rows = get_json_with_retry(url, attempts=3, sleep_seconds=1.5)
     if not isinstance(rows, list):
         previous = {"assets": []}
         if OUT.exists():
