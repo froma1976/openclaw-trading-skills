@@ -210,6 +210,7 @@ def load_crypto_snapshot():
         data["freshness_min"] = freshness
         source = str(data.get("source") or "")
         notes = str(data.get("notes") or "")
+        data["is_recovered"] = source == "snapshot-recovered"
         data["is_cache"] = source == "snapshot-cache" or "fallback" in notes.lower()
         data["stale_reason"] = notes if data["is_cache"] else ""
         return data

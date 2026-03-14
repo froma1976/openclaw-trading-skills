@@ -72,6 +72,27 @@ def get_binance_24h_stats_bulk() -> dict:
     return {}
 
 
+def rebuild_rows_from_previous_assets(previous_assets: list[dict]) -> list[dict]:
+    rows = []
+    for asset in previous_assets or []:
+        if not isinstance(asset, dict):
+            continue
+        ticker = str(asset.get("ticker") or "").upper()
+        rows.append({
+            "id": asset.get("id") or ticker.lower(),
+            "symbol": ticker.lower(),
+            "name": asset.get("name") or ticker,
+            "current_price": asset.get("price_usd") or 0,
+            "price_change_percentage_24h": asset.get("chg_24h_pct") or 0,
+            "price_change_percentage_7d_in_currency": asset.get("chg_7d_pct") or 0,
+            "market_cap_rank": asset.get("market_cap_rank") or 9999,
+            "total_volume": asset.get("total_volume") or 0,
+            "market_cap": asset.get("market_cap") or 0,
+            "fully_diluted_valuation": asset.get("fully_diluted_valuation") or asset.get("market_cap") or 0,
+        })
+    return rows
+
+
 def load_universe_status():
     if not UNIVERSE_STATUS.exists():
         return {"core": set(), "watch": set(), "excluded": set()}
@@ -495,9 +516,15 @@ def _main_locked():
                 previous = json.loads(OUT.read_text(encoding="utf-8"))
             except Exception:
                 pass
-        rows = previous.get("assets", []) or []
-        source_label = "snapshot-cache"
-        note_flags = ["Fallback a ultimo snapshot local por rate limit/error externo"]
+        rebuilt_rows = rebuild_rows_from_previous_assets(previous.get("assets", []) or [])
+        if rebuilt_rows:
+            rows = rebuilt_rows
+            source_label = "snapshot-recovered"
+            note_flags = ["Coingecko fallo; snapshot reconstruido con ultimo universo y refresco Binance"]
+        else:
+            rows = previous.get("assets", []) or []
+            source_label = "snapshot-cache"
+            note_flags = ["Fallback a ultimo snapshot local por rate limit/error externo"]
     
     # Obtener stats de 24h de Binance para rellenar huecos
     b24h = get_binance_24h_stats_bulk()

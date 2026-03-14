@@ -1609,9 +1609,11 @@
         <h2>Cripto Scout (simulado) — lenguaje natural</h2>
         <p class="muted">Fuente: {{ crypto_signals.source or 'N/D' }} · actualización: {{ crypto_signals.generated_at or
           'N/D' }}{% if crypto_signals.freshness_min is not none %} (hace {{ crypto_signals.freshness_min }} min){%
-          endif %} {% if crypto_signals.is_cache %}<span class="badge no">CACHE</span>{% else %}<span class="badge ok">LIVE</span>{% endif %}</p>
+          endif %} {% if crypto_signals.is_cache %}<span class="badge no">CACHE</span>{% elif crypto_signals.is_recovered %}<span class="badge warn">RECOVERED</span>{% else %}<span class="badge ok">LIVE</span>{% endif %}</p>
         {% if crypto_signals.is_cache %}
         <p class="muted">Snapshot en fallback/cache. Puede no reflejar la última compra o cierre del autopilot. Motivo: {{ crypto_signals.stale_reason or 'sin detalle' }}</p>
+        {% elif crypto_signals.is_recovered %}
+        <p class="muted">CoinGecko ha fallado, pero el sistema ha reconstruido el snapshot automáticamente usando el último universo y refresco de Binance.</p>
         {% endif %}
         <table>
           <tr>
