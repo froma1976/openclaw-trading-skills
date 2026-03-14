@@ -1,0 +1,12 @@
+# Runtime logs
+proyectos/analisis-mercados/logs/*.log
+proyectos/analisis-mercados/logs/*.lock
+startup-stack.log
+
+# Generated live snapshots and status
+proyectos/analisis-mercados/data/autopilot_log.json
+proyectos/analisis-mercados/data/crypto_snapshot_*.json
+proyectos/analisis-mercados/data/latest_snapshot_*.json
+proyectos/analisis-mercados/data/openclaw_system_snapshot.json
+proyectos/analisis-mercados/data/crypto_stream_status.json
+proyectos/analisis-mercados/data/ensure_ollama.log
