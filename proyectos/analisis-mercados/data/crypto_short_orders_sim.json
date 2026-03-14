@@ -1,0 +1,68 @@
+{
+  "active": [
+    {
+      "id": "crs_xrp_1773500056",
+      "ticker": "XRP",
+      "opened_at": "2026-03-14T14:54:16Z",
+      "entry_price": 1.389305,
+      "qty": 23.94810862,
+      "notional_usd": 33.27,
+      "target_price": 1.375412,
+      "stop_price": 1.398335,
+      "state": "ACTIVE",
+      "mode": "short_intradia",
+      "risk_mode": "normal",
+      "confidence": 78,
+      "score": 78,
+      "side": "SHORT",
+      "spy_confluence": -1,
+      "setup_tag": "base",
+      "fee_bps": 10.0,
+      "slippage_bps": 5.0,
+      "fee_open_usd": 0.033271,
+      "expected_target_net_profit_usd": 0.250016,
+      "expected_target_net_pct": 0.7514
+    },
+    {
+      "id": "crs_arb_1773500056",
+      "ticker": "ARB",
+      "opened_at": "2026-03-14T14:54:16Z",
+      "entry_price": 0.10019488,
+      "qty": 332.06515017,
+      "notional_usd": 33.27,
+      "target_price": 0.09919293,
+      "stop_price": 0.10084614,
+      "state": "ACTIVE",
+      "mode": "short_intradia",
+      "risk_mode": "normal",
+      "confidence": 74,
+      "score": 74,
+      "side": "SHORT",
+      "spy_confluence": 2,
+      "setup_tag": "flow_momentum",
+      "fee_bps": 10.0,
+      "slippage_bps": 5.0,
+      "fee_open_usd": 0.033271,
+      "expected_target_net_profit_usd": 0.250016,
+      "expected_target_net_pct": 0.7514
+    }
+  ],
+  "completed": [],
+  "daily": {
+    "date": "2026-03-14",
+    "trades": 2,
+    "loss_streak": 0,
+    "mode": "normal",
+    "mode_reason": "operativa normal",
+    "paused": false,
+    "pause_reason": "",
+    "paused_at": ""
+  },
+  "portfolio": {
+    "capital_initial_usd": 300.0,
+    "cash_usd": 233.391004,
+    "market_value_usd": 66.54,
+    "equity_usd": 299.931004,
+    "realized_pnl_usd": 0
+  }
+}

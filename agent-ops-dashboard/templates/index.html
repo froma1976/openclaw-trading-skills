@@ -842,6 +842,7 @@
       <button class="tab-btn" data-tab-btn="moonshot">Moonshot</button>
       <button class="tab-btn" data-tab-btn="cartera">Cartera</button>
       <button class="tab-btn" data-tab-btn="crypto">Cripto</button>
+      <button class="tab-btn" data-tab-btn="crypto-short">Cripto Short</button>
       <button class="tab-btn" data-tab-btn="oficina">Oficina</button>
       <button class="tab-btn" data-tab-btn="lstm">LSTM Monitor</button>
       <button class="tab-btn" data-tab-btn="cerebro">Cerebro Local 🧬</button>
@@ -2188,6 +2189,142 @@
           detallados.</div>
       </div>
 
+    </div>
+
+    <div class="grid tab-section" data-tab="crypto-short">
+      {% set cps = crypto_short_portfolio|default({'capital_initial_usd':300,'cash_usd':300,'market_value_usd':0,'equity_usd':300}) %}
+      <div class="card col-12">
+        <h2>Motor Short Cripto (simulado)</h2>
+        <p>
+          <span class="badge {{ 'ok' if learning_status_short.semaforo=='VERDE' else ('warn' if learning_status_short.semaforo=='AMARILLO' else 'no') }}">{{ learning_status_short.semaforo }}</span>
+          <span class="muted">{{ learning_status_short.reason }}</span>
+        </p>
+        <table>
+          <tr>
+            <th>Trades 7d</th>
+            <th>Win rate</th>
+            <th>Expectancy</th>
+            <th>Profit Factor</th>
+            <th>PnL 7d</th>
+            <th>Estado motor</th>
+          </tr>
+          <tr>
+            <td>{{ learning_status_short.trades_7d or 0 }}</td>
+            <td>{{ learning_status_short.win_rate or 0 }}%</td>
+            <td>{{ learning_status_short.expectancy_usd or 0 }}</td>
+            <td>{{ learning_status_short.profit_factor or 0 }}</td>
+            <td>{{ learning_status_short.pnl_7d_usd or 0 }}</td>
+            <td>{{ crypto_short_daily.mode or 'normal' }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card col-12">
+        <h2>Scout Short</h2>
+        <p class="muted">Fuente: {{ crypto_short_signals.source or 'N/D' }} · actualización: {{ crypto_short_signals.generated_at or 'N/D' }}{% if crypto_short_signals.freshness_min is not none %} (hace {{ crypto_short_signals.freshness_min }} min){% endif %}</p>
+        <table>
+          <tr>
+            <th>Activo</th>
+            <th>Precio</th>
+            <th>Entrada short</th>
+            <th>Target</th>
+            <th>Stop</th>
+            <th>24h</th>
+            <th>7d</th>
+            <th>Score short</th>
+            <th>Confluencia</th>
+            <th>Estado</th>
+            <th>Decisión</th>
+            <th>Ejecución</th>
+            <th>Bloqueo real</th>
+          </tr>
+          {% for c in crypto_short_signals.top_opportunities[:10] if crypto_short_signals.top_opportunities is defined %}
+          <tr>
+            <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ c.ticker }}-USD')">{{ c.ticker }}</button> · {{ c.name }}</td>
+            <td>{{ c.price_usd }}</td>
+            <td>{{ c.senior_report_short.setup.entry if c.senior_report_short and c.senior_report_short.setup else '-' }}</td>
+            <td>{{ c.senior_report_short.setup.tp1 if c.senior_report_short and c.senior_report_short.setup else '-' }}</td>
+            <td>{{ c.senior_report_short.setup.sl if c.senior_report_short and c.senior_report_short.setup else '-' }}</td>
+            <td><span class="badge {{ 'ok' if c.chg_24h_pct < 0 else 'no' }}">{{ c.chg_24h_pct }}%</span></td>
+            <td><span class="badge {{ 'ok' if c.chg_7d_pct < 0 else 'no' }}">{{ c.chg_7d_pct }}%</span></td>
+            <td>{{ c.score_short }}</td>
+            <td>{{ c.spy_confluence or 0 }}</td>
+            <td>{{ c.state_short }}</td>
+            <td><span class="badge {{ 'ok' if c.decision_short=='SELL_SHORT' else ('warn' if c.decision_short=='WATCH_SHORT' else 'no') }}">{{ c.decision_short }}</span></td>
+            <td>{% if c.execution_state == 'SHORT ACTIVO' or c.ticker in active_crypto_short_tickers %}<span class="badge ok">SHORT ACTIVO</span>{% elif c.execution_state == 'LISTO SHORT' %}<span class="badge warn">LISTO</span>{% else %}<span class="badge no">NO SHORT</span>{% endif %}</td>
+            <td>{{ c.execution_reason or '-' }}</td>
+          </tr>
+          {% endfor %}
+          {% if crypto_short_signals.top_opportunities is not defined or crypto_short_signals.top_opportunities|length == 0 %}
+          <tr><td colspan="13">Sin oportunidades short todavía.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="card col-12">
+        <h2>Cartera Short Cripto</h2>
+        <table>
+          <tr>
+            <th>Capital inicial</th>
+            <th>Cash libre</th>
+            <th>Valor reservado</th>
+            <th>PnL realizado</th>
+            <th>PnL no realizado</th>
+            <th>Equity</th>
+            <th>Activas</th>
+            <th>Cerradas</th>
+          </tr>
+          <tr>
+            <td>{{ cps['capital_initial_usd'] }}</td>
+            <td>{{ cps['cash_usd'] }}</td>
+            <td>{{ cps['market_value_usd'] }}</td>
+            <td>{{ crypto_short_realized_usd }}</td>
+            <td>{{ crypto_short_unrealized_usd_est }}</td>
+            <td>{{ cps['equity_usd'] }}</td>
+            <td>{{ crypto_short_orders_active|length }}</td>
+            <td>{{ crypto_short_orders_completed|length }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card col-12">
+        <h2>Shorts activos</h2>
+        <table>
+          <tr><th>Ticker</th><th>Entrada</th><th>Precio actual</th><th>%</th><th>PnL est.</th><th>Target</th><th>Stop</th><th>Abierta</th></tr>
+          {% for o in crypto_short_orders_active %}
+          <tr>
+            <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}-USD')">{{ o.ticker }}</button></td>
+            <td>{{ o.entry_price }}</td>
+            <td>{{ o.current_price if o.current_price is not none else '-' }}</td>
+            <td>{% if o.pct_move is not none %}<span class="badge {{ 'ok' if o.pct_move >= 0 else 'no' }}">{{ o.pct_move }}%</span>{% else %}-{% endif %}</td>
+            <td>{% if o.pnl_usd_est is not none %}<span class="badge {{ 'ok' if o.pnl_usd_est >= 0 else 'no' }}">{{ o.pnl_usd_est }}</span>{% else %}-{% endif %}</td>
+            <td>{{ o.target_price }}</td>
+            <td>{{ o.stop_price }}</td>
+            <td>{{ o.opened_at }}</td>
+          </tr>
+          {% endfor %}
+          {% if crypto_short_orders_active|length == 0 %}<tr><td colspan="8">No hay shorts activos.</td></tr>{% endif %}
+        </table>
+      </div>
+
+      <div class="card col-12">
+        <h2>Shorts cerrados</h2>
+        <table>
+          <tr><th>Ticker</th><th>Entrada</th><th>Salida</th><th>Resultado</th><th>PnL USD</th><th>Abierta</th><th>Cerrada</th></tr>
+          {% for o in crypto_short_orders_completed[:20] %}
+          <tr>
+            <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}-USD')">{{ o.ticker }}</button></td>
+            <td>{{ o.entry_price if o.entry_price is not none else '-' }}</td>
+            <td>{{ o.close_price if o.close_price is not none else o.exit_price if o.exit_price is not none else '-' }}</td>
+            <td><span class="badge {{ 'ok' if o.result == 'ganada' else ('warn' if o.result == 'timeout' else 'no') }}">{{ o.result or '-' }}</span></td>
+            <td><span class="badge {{ 'ok' if (o.pnl_usd or 0) >= 0 else 'no' }}">{{ o.pnl_usd if o.pnl_usd is not none else '-' }}</span></td>
+            <td>{{ o.opened_at or '-' }}</td>
+            <td>{{ o.closed_at or '-' }}</td>
+          </tr>
+          {% endfor %}
+          {% if crypto_short_orders_completed|length == 0 %}<tr><td colspan="7">Todavía no hay shorts cerrados.</td></tr>{% endif %}
+        </table>
+      </div>
     </div>
 
     <div class="grid tab-section" data-tab="moonshot">

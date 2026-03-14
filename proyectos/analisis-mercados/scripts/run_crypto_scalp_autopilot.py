@@ -7,6 +7,7 @@ import os
 import urllib.parse
 import urllib.request
 import source_ingest_crypto_free
+import source_ingest_crypto_short
 
 from runtime_utils import atomic_write_json, file_lock, make_exit_levels, round_price
 
@@ -894,6 +895,10 @@ def _main_locked():
 
     try:
         source_ingest_crypto_free._main_locked()
+    except Exception:
+        pass
+    try:
+        source_ingest_crypto_short.main()
     except Exception:
         pass
 

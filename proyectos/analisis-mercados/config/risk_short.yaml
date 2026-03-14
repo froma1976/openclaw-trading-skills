@@ -1,0 +1,30 @@
+version: 1
+capital_base_usd: 300.0
+max_daily_loss_pct: 5.0
+defensive_daily_loss_pct: 1.0
+defensive_after_consecutive_losses: 2
+pause_after_consecutive_losses: 3
+pause_hours: 24
+resume_after_pause_min: 180
+resume_in_defensive: true
+slippage_bps: 5
+fee_bps: 10
+target_pct: 1.0
+stop_pct: 0.65
+min_target_net_pct: 0.5
+min_expected_net_profit_usd: 0.25
+timeout_min: 15
+timeout_force_close_min: 40
+max_trades_day: 120
+max_trades_hour: 30
+max_active_positions: 8
+alloc_per_trade_usd: 30.0
+max_alloc_per_trade_usd: 60.0
+min_notional_usd: 10.0
+normal_min_score: 72
+defensive_min_score: 78
+defensive_min_confluence: 2
+allowed_hours_utc:
+  start: "00:00"
+  end: "23:59"
+execution_mode: sim_only

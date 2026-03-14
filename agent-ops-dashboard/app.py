@@ -29,9 +29,13 @@ SNAPSHOT_PATH = Path(os.getenv("SNAPSHOT_PATH", "C:/Users/Fernando/.openclaw/wor
 BACKUP_ROOT = Path(os.getenv("BACKUP_ROOT", "C:/Users/Fernando/.openclaw/workspace/backups/state"))
 CRYPTO_SIGNALS_PATH = Path(os.getenv("CRYPTO_SIGNALS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json"))
 CRYPTO_ORDERS_PATH = Path(os.getenv("CRYPTO_ORDERS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json"))
+CRYPTO_SHORT_SIGNALS_PATH = Path(os.getenv("CRYPTO_SHORT_SIGNALS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_short.json"))
+CRYPTO_SHORT_ORDERS_PATH = Path(os.getenv("CRYPTO_SHORT_ORDERS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_short_orders_sim.json"))
 CRYPTO_RISK_PATH = Path(os.getenv("CRYPTO_RISK_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/config/risk.yaml"))
+CRYPTO_SHORT_RISK_PATH = Path(os.getenv("CRYPTO_SHORT_RISK_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/config/risk_short.yaml"))
 CRYPTO_STREAM_STATUS_PATH = Path(os.getenv("CRYPTO_STREAM_STATUS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_stream_status.json"))
 LEARNING_STATUS_PATH = Path(os.getenv("LEARNING_STATUS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status.json"))
+LEARNING_STATUS_SHORT_PATH = Path(os.getenv("LEARNING_STATUS_SHORT_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status_short.json"))
 MOONSHOT_CANDIDATES_PATH = Path(os.getenv("MOONSHOT_CANDIDATES_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/moonshot_candidates.json"))
 OPENCLAW_SNAPSHOT_PATH = Path(os.getenv("OPENCLAW_SNAPSHOT_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/openclaw_system_snapshot.json"))
 RESEARCH_AGENTS_PATH = Path(os.getenv("RESEARCH_AGENTS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/research_agents_latest.json"))
@@ -213,6 +217,27 @@ def load_crypto_snapshot():
         return {"generated_at": None, "assets": [], "top_opportunities": [], "freshness_min": None, "is_cache": False, "stale_reason": "error leyendo snapshot"}
 
 
+def load_crypto_short_snapshot():
+    if not CRYPTO_SHORT_SIGNALS_PATH.exists():
+        return {"generated_at": None, "assets": [], "top_opportunities": [], "freshness_min": None, "is_cache": False, "stale_reason": "sin snapshot"}
+    try:
+        data = json.loads(CRYPTO_SHORT_SIGNALS_PATH.read_text(encoding="utf-8"))
+        gen = data.get("generated_at")
+        freshness = None
+        if gen:
+            try:
+                dt = datetime.fromisoformat(gen.replace("Z", "+00:00"))
+                freshness = int((datetime.now(UTC) - dt).total_seconds() // 60)
+            except Exception:
+                freshness = None
+        data["freshness_min"] = freshness
+        data["is_cache"] = False
+        data["stale_reason"] = ""
+        return data
+    except Exception:
+        return {"generated_at": None, "assets": [], "top_opportunities": [], "freshness_min": None, "is_cache": False, "stale_reason": "error leyendo snapshot"}
+
+
 def load_learning_status():
     if not LEARNING_STATUS_PATH.exists():
         return {"semaforo": "ROJO", "reason": "Sin datos suficientes", "trades_7d": 0, "expectancy_usd": 0, "profit_factor": 0}
@@ -221,6 +246,16 @@ def load_learning_status():
         return d if isinstance(d, dict) else {"semaforo": "ROJO", "reason": "Formato invÃ¡lido", "trades_7d": 0}
     except Exception:
         return {"semaforo": "ROJO", "reason": "No se pudo leer learning status", "trades_7d": 0}
+
+
+def load_learning_status_short():
+    if not LEARNING_STATUS_SHORT_PATH.exists():
+        return {"semaforo": "ROJO", "reason": "Sin datos suficientes", "trades_7d": 0, "expectancy_usd": 0, "profit_factor": 0}
+    try:
+        d = json.loads(LEARNING_STATUS_SHORT_PATH.read_text(encoding="utf-8"))
+        return d if isinstance(d, dict) else {"semaforo": "ROJO", "reason": "Formato invalido", "trades_7d": 0}
+    except Exception:
+        return {"semaforo": "ROJO", "reason": "No se pudo leer learning short", "trades_7d": 0}
 
 
 def load_moonshot_candidates():
@@ -279,21 +314,12 @@ def _parse_scalar(value: str):
         return raw.strip('"').strip("'")
 
 
-def load_crypto_risk_config():
-    default = {
-        "normal_min_score": 75,
-        "defensive_min_score": 80,
-        "defensive_min_confluence": 2,
-        "min_notional_usd": 10.0,
-        "min_target_net_pct": 0.45,
-        "min_expected_net_profit_usd": 0.25,
-        "max_alloc_per_trade_usd": 60.0,
-    }
-    if not CRYPTO_RISK_PATH.exists():
-        return default
+def load_simple_risk_config(path: Path, default: dict):
     cfg = dict(default)
+    if not path.exists():
+        return cfg
     try:
-        for line in CRYPTO_RISK_PATH.read_text(encoding="utf-8").splitlines():
+        for line in path.read_text(encoding="utf-8").splitlines():
             stripped = line.strip()
             if not stripped or stripped.startswith("#") or ":" not in stripped:
                 continue
@@ -304,6 +330,32 @@ def load_crypto_risk_config():
     except Exception:
         return default
     return cfg
+
+
+def load_crypto_risk_config():
+    default = {
+        "normal_min_score": 75,
+        "defensive_min_score": 80,
+        "defensive_min_confluence": 2,
+        "min_notional_usd": 10.0,
+        "min_target_net_pct": 0.45,
+        "min_expected_net_profit_usd": 0.25,
+        "max_alloc_per_trade_usd": 60.0,
+    }
+    return load_simple_risk_config(CRYPTO_RISK_PATH, default)
+
+
+def load_crypto_short_risk_config():
+    default = {
+        "normal_min_score": 72,
+        "defensive_min_score": 78,
+        "defensive_min_confluence": 2,
+        "min_notional_usd": 10.0,
+        "min_target_net_pct": 0.5,
+        "min_expected_net_profit_usd": 0.25,
+        "max_alloc_per_trade_usd": 60.0,
+    }
+    return load_simple_risk_config(CRYPTO_SHORT_RISK_PATH, default)
 
 
 def explain_crypto_execution_blockers(candidate: dict, crypto_orders: dict, active_crypto_tickers: set[str], risk_cfg: dict):
@@ -368,6 +420,37 @@ def explain_crypto_execution_blockers(candidate: dict, crypto_orders: dict, acti
     if reasons:
         return {"execution_state": "NO COMPRADA", "execution_reason": "; ".join(reasons), "risk_mode_live": mode}
     return {"execution_state": "LISTA", "execution_reason": "cumple filtros del ejecutor", "risk_mode_live": mode}
+
+
+def explain_crypto_short_execution_blockers(candidate: dict, crypto_orders: dict, active_tickers: set[str], risk_cfg: dict):
+    ticker = str(candidate.get("ticker") or "")
+    if ticker in active_tickers:
+        return {"execution_state": "SHORT ACTIVO", "execution_reason": "ya tiene una posicion short activa"}
+    reasons = []
+    daily = (crypto_orders or {}).get("daily") or {}
+    portfolio = (crypto_orders or {}).get("portfolio") or {}
+    mode = str(daily.get("mode") or "normal")
+    if bool(daily.get("paused")):
+        reasons.append(f"pausado: {daily.get('pause_reason') or 'bloqueo de riesgo'}")
+    if candidate.get("decision_short") != "SELL_SHORT":
+        reasons.append(f"decision {candidate.get('decision_short') or 'N/D'}")
+    if candidate.get("state_short") not in {"READY", "TRIGGERED"}:
+        reasons.append(f"estado {candidate.get('state_short') or 'N/D'}")
+    confluence = int(candidate.get("spy_confluence") or 0)
+    min_confluence = int(risk_cfg.get("defensive_min_confluence", 2) if mode == "defensive" else 1)
+    if confluence < min_confluence:
+        reasons.append(f"confluencia {confluence} < {min_confluence}")
+    score = int(candidate.get("score_short") or 0)
+    if score < int(risk_cfg.get("normal_min_score", 72) or 72):
+        reasons.append(f"score short {score} < {int(risk_cfg.get('normal_min_score', 72) or 72)}")
+    if mode == "defensive" and score < int(risk_cfg.get("defensive_min_score", 78) or 78):
+        reasons.append(f"modo defensivo pide {int(risk_cfg.get('defensive_min_score', 78) or 78)}")
+    cash = float(portfolio.get("cash_usd") or 0)
+    if cash < float(risk_cfg.get("min_notional_usd", 10.0) or 10.0):
+        reasons.append("cash insuficiente")
+    if reasons:
+        return {"execution_state": "NO SHORT", "execution_reason": "; ".join(reasons), "risk_mode_live": mode}
+    return {"execution_state": "LISTO SHORT", "execution_reason": "cumple filtros del ejecutor short", "risk_mode_live": mode}
 
 
 def load_research_panel():
@@ -1333,8 +1416,10 @@ def home(request: Request):
     equity = cash_usd + market_value
     signals = load_signals_snapshot()
     crypto_signals = load_crypto_snapshot()
+    crypto_short_signals = load_crypto_short_snapshot()
     crypto_stream = load_crypto_stream_status()
     learning_status = load_learning_status()
+    learning_status_short = load_learning_status_short()
     moonshot = load_moonshot_candidates()
     openclaw_snapshot = load_openclaw_snapshot()
     research_panel = load_research_panel()
@@ -1495,22 +1580,41 @@ def home(request: Request):
     # cartera cripto separada
     crypto_active = crypto_orders.get("active", []) or []
     crypto_completed = crypto_orders.get("completed", []) or []
+    crypto_short_orders = _load_json_file(CRYPTO_SHORT_ORDERS_PATH, {"active": [], "completed": [], "daily": {}, "portfolio": {}})
+    crypto_short_active = crypto_short_orders.get("active", []) or []
+    crypto_short_completed = crypto_short_orders.get("completed", []) or []
     crypto_portfolio = crypto_orders.get("portfolio", {"capital_initial_usd": 300, "cash_usd": 300, "market_value_usd": 0, "equity_usd": 300})
+    crypto_short_portfolio = crypto_short_orders.get("portfolio", {"capital_initial_usd": 300, "cash_usd": 300, "market_value_usd": 0, "equity_usd": 300})
     active_crypto_tickers = {str(o.get("ticker")) for o in crypto_active if o.get("ticker")}
+    active_crypto_short_tickers = {str(o.get("ticker")) for o in crypto_short_active if o.get("ticker")}
     crypto_map = {str(a.get("ticker")): float(a.get("price_usd")) for a in (crypto_signals.get("assets", []) or []) if a.get("ticker") and a.get("price_usd")}
+    crypto_short_map = {str(a.get("ticker")): float(a.get("price_usd")) for a in (crypto_short_signals.get("assets", []) or []) if a.get("ticker") and a.get("price_usd")}
     crypto_risk_cfg = load_crypto_risk_config()
+    crypto_short_risk_cfg = load_crypto_short_risk_config()
     crypto_unrealized = 0.0
     crypto_realized = 0.0
+    crypto_short_unrealized = 0.0
+    crypto_short_realized = 0.0
 
     for c in (crypto_signals.get("top_opportunities", []) or []):
         if not isinstance(c, dict):
             continue
         c.update(explain_crypto_execution_blockers(c, crypto_orders, active_crypto_tickers, crypto_risk_cfg))
 
+    for c in (crypto_short_signals.get("top_opportunities", []) or []):
+        if not isinstance(c, dict):
+            continue
+        c.update(explain_crypto_short_execution_blockers(c, crypto_short_orders, active_crypto_short_tickers, crypto_short_risk_cfg))
+
     # Calculamos PnL realizado
     for c in crypto_completed:
         try:
             crypto_realized += float(c.get("pnl_usd") or 0)
+        except Exception:
+            pass
+    for c in crypto_short_completed:
+        try:
+            crypto_short_realized += float(c.get("pnl_usd") or 0)
         except Exception:
             pass
 
@@ -1559,6 +1663,13 @@ def home(request: Request):
         c_view["closed_at"] = date_iso_to_es(c.get("closed_at"))
         crypto_completed_view.append(c_view)
 
+    crypto_short_completed_view = []
+    for c in crypto_short_completed[::-1]:
+        c_view = dict(c)
+        c_view["opened_at"] = date_iso_to_es(c.get("opened_at"))
+        c_view["closed_at"] = date_iso_to_es(c.get("closed_at"))
+        crypto_short_completed_view.append(c_view)
+
     for o in crypto_active:
         try:
             o["opened_at"] = date_iso_to_es(o.get("opened_at"))
@@ -1568,6 +1679,19 @@ def home(request: Request):
             o["pct_move"] = round(((cp - ep) / ep) * 100, 2)
             o["pnl_usd_est"] = round(cp - ep, 6)
             crypto_unrealized += (cp - ep)
+        except Exception:
+            o["pct_move"] = None
+            o["pnl_usd_est"] = None
+
+    for o in crypto_short_active:
+        try:
+            o["opened_at"] = date_iso_to_es(o.get("opened_at"))
+            ep = float(o.get("entry_price"))
+            cp = float(crypto_short_map.get(o.get("ticker"), ep))
+            o["current_price"] = round(cp, 6)
+            o["pct_move"] = round(((ep - cp) / ep) * 100, 2)
+            o["pnl_usd_est"] = round(((ep - cp) * float(o.get("qty") or 0)), 6)
+            crypto_short_unrealized += float(o["pnl_usd_est"])
         except Exception:
             o["pct_move"] = None
             o["pnl_usd_est"] = None
@@ -1628,19 +1752,29 @@ def home(request: Request):
             "portfolio_equity_live_est": equity_live_est,
             "signals": signals,
             "crypto_signals": crypto_signals,
+            "crypto_short_signals": crypto_short_signals,
             "crypto_stream": crypto_stream,
             "learning_status": learning_status,
+            "learning_status_short": learning_status_short,
             "moonshot": moonshot,
             "openclaw_snapshot": openclaw_snapshot,
             "research_panel": research_panel,
             "crypto_orders_active": crypto_active,
             "crypto_orders_completed": crypto_completed_view,
+            "crypto_short_orders_active": crypto_short_active,
+            "crypto_short_orders_completed": crypto_short_completed_view,
             "crypto_daily": crypto_orders.get("daily", {}),
+            "crypto_short_daily": crypto_short_orders.get("daily", {}),
             "crypto_unrealized_usd_est": round(crypto_unrealized, 4),
             "crypto_realized_usd": round(crypto_realized, 4),
+            "crypto_short_unrealized_usd_est": round(crypto_short_unrealized, 4),
+            "crypto_short_realized_usd": round(crypto_short_realized, 4),
             "crypto_equity_reconciled": round(float(crypto_portfolio.get("capital_initial_usd", 0)) + crypto_realized + crypto_unrealized, 4),
             "crypto_portfolio": crypto_portfolio,
+            "crypto_short_equity_reconciled": round(float(crypto_short_portfolio.get("capital_initial_usd", 0)) + crypto_short_realized + crypto_short_unrealized, 4),
+            "crypto_short_portfolio": crypto_short_portfolio,
             "active_crypto_tickers": list(active_crypto_tickers),
+            "active_crypto_short_tickers": list(active_crypto_short_tickers),
             "commits": commits,
             "signals_stale": stale,
             "autopilot_log": autopilot_log,
