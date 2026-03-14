@@ -8,8 +8,10 @@ import subprocess
 import urllib.request
 import urllib.parse
 from datetime import datetime, UTC, timedelta
-from fastapi import FastAPI, Request, Form
+import secrets
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -45,6 +47,28 @@ RESEARCH_DEPLOYMENTS_PATH = Path(os.getenv("RESEARCH_DEPLOYMENTS_PATH", "C:/User
 GPT53_BUDGET_PATH = Path(os.getenv("GPT53_BUDGET_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/gpt53_budget.json"))
 STARTUP_LOG_PATH = Path(os.getenv("STARTUP_LOG_PATH", "C:/Users/Fernando/.openclaw/workspace/startup-stack.log"))
 GPT53_MODE = os.getenv("GPT53_MODE", "normal").strip().lower()
+
+# --- CACHE DE API PROBES (evitar llamadas externas en cada carga de pagina) ---
+_api_probe_cache = {"status": {}, "last_check": 0, "ttl_seconds": 300}  # 5 min cache
+
+# --- AUTENTICACION BASICA ---
+# Credenciales configurables via env vars. Cambiar en produccion.
+DASHBOARD_USER = os.getenv("DASHBOARD_USER", "admin")
+DASHBOARD_PASS = os.getenv("DASHBOARD_PASS", "openclaw2026")
+security = HTTPBasic()
+
+
+def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
+    """Verifica credenciales HTTP Basic Auth contra env vars."""
+    correct_user = secrets.compare_digest(credentials.username.encode("utf-8"), DASHBOARD_USER.encode("utf-8"))
+    correct_pass = secrets.compare_digest(credentials.password.encode("utf-8"), DASHBOARD_PASS.encode("utf-8"))
+    if not (correct_user and correct_pass):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales invalidas",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
 
 
 def date_iso_to_es(iso_str: str) -> str:
@@ -1201,7 +1225,7 @@ def complete_order(order_id: str = Form(...)):
 
 
 @app.post("/signals/refresh")
-def refresh_signals():
+def refresh_signals(user: str = Depends(verify_credentials)):
     if INGEST_SCRIPT.exists():
         try:
             subprocess.run(["py", "-3", str(INGEST_SCRIPT)], check=False, timeout=120)
@@ -1211,7 +1235,7 @@ def refresh_signals():
 
 
 @app.post("/crypto/pause")
-def crypto_pause():
+def crypto_pause(user: str = Depends(verify_credentials)):
     d = load_crypto_orders()
     daily = d.get("daily", {}) or {}
     daily["paused"] = True
@@ -1223,7 +1247,7 @@ def crypto_pause():
 
 
 @app.post("/crypto/resume")
-def crypto_resume():
+def crypto_resume(user: str = Depends(verify_credentials)):
     d = load_crypto_orders()
     daily = d.get("daily", {}) or {}
     daily["paused"] = False
@@ -1236,7 +1260,7 @@ def crypto_resume():
 
 
 @app.post("/kill_switch")
-def kill_switch():
+def kill_switch(user: str = Depends(verify_credentials)):
     d = load_crypto_orders()
     daily = d.get("daily", {}) or {}
     daily["paused"] = True
@@ -1255,7 +1279,7 @@ def kill_switch():
 
 
 @app.post("/signals/autotasks")
-def create_tasks_from_top(threshold: int = Form(60), assigned_to: str = Form("alpha-scout")):
+def create_tasks_from_top(threshold: int = Form(60), assigned_to: str = Form("alpha-scout"), user: str = Depends(verify_credentials)):
     signals = load_signals_snapshot()
     top = signals.get("top_opportunities", []) if isinstance(signals, dict) else []
     conn = sqlite3.connect(DB_PATH)
@@ -1291,7 +1315,7 @@ def create_tasks_from_top(threshold: int = Form(60), assigned_to: str = Form("al
 
 
 @app.post("/autopilot/run")
-def autopilot_run(threshold: int = Form(60), assigned_to: str = Form("alpha-scout")):
+def autopilot_run(threshold: int = Form(60), assigned_to: str = Form("alpha-scout"), user: str = Depends(verify_credentials)):
     threshold = max(0, min(100, threshold))
 
     if INGEST_SCRIPT.exists():
@@ -1555,24 +1579,31 @@ def home(request: Request):
         except Exception:
             return False
 
-    finnhub_k = os.getenv("FINNHUB_API_KEY", "").strip()
-    fmp_k = os.getenv("FMP_API_KEY", "").strip()
-    av_k = os.getenv("ALPHA_VANTAGE_API_KEY", "").strip() or os.getenv("ALPHAVANTAGE_API_KEY", "").strip()
-    fred_k = os.getenv("FRED_API_KEY", "").strip()
-    news_k = os.getenv("GOOGLE_NEWS_API_KEY", "").strip() or os.getenv("NEWSAPI_KEY", "").strip()
-    cg_k = os.getenv("COINGECKO_API_KEY", "").strip()
+    # --- API PROBE CACHEADO: solo re-probar cada 5 minutos ---
+    import time as _time
+    now_ts = _time.time()
+    if now_ts - _api_probe_cache["last_check"] > _api_probe_cache["ttl_seconds"]:
+        finnhub_k = os.getenv("FINNHUB_API_KEY", "").strip()
+        fmp_k = os.getenv("FMP_API_KEY", "").strip()
+        av_k = os.getenv("ALPHA_VANTAGE_API_KEY", "").strip() or os.getenv("ALPHAVANTAGE_API_KEY", "").strip()
+        fred_k = os.getenv("FRED_API_KEY", "").strip()
+        news_k = os.getenv("GOOGLE_NEWS_API_KEY", "").strip() or os.getenv("NEWSAPI_KEY", "").strip()
+        cg_k = os.getenv("COINGECKO_API_KEY", "").strip()
 
-    api_status = {
-        "FINNHUB": ("OK" if (finnhub_k and api_probe(f"https://finnhub.io/api/v1/quote?symbol=AAPL&token={urllib.parse.quote(finnhub_k)}")) else ("FALTA" if not finnhub_k else "ERROR")),
-        "FMP": ("OK" if (fmp_k and api_probe(f"https://financialmodelingprep.com/stable/quote?symbol=AAPL&apikey={urllib.parse.quote(fmp_k)}")) else ("FALTA" if not fmp_k else "ERROR")),
-        "ALPHA_VANTAGE": ("OK" if (av_k and api_probe(f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey={urllib.parse.quote(av_k)}")) else ("FALTA" if not av_k else "ERROR")),
-        "FRED": ("OK" if (fred_k and api_probe(f"https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key={urllib.parse.quote(fred_k)}&file_type=json&limit=1")) else ("FALTA" if not fred_k else "ERROR")),
-        "NEWSAPI": ("OK" if (news_k and api_probe(f"https://newsapi.org/v2/top-headlines?country=us&pageSize=1&apiKey={urllib.parse.quote(news_k)}")) else ("FALTA" if not news_k else "ERROR")),
-        "COINGECKO": ("OK" if api_probe(f"https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd{('&x_cg_demo_api_key=' + urllib.parse.quote(cg_k)) if cg_k else ''}") else "ERROR"),
-        "OPENINSIDER": "OK",
-        "YAHOO_OPTIONS": "OK",
-        "FINVIZ": "OK",
-    }
+        _api_probe_cache["status"] = {
+            "FINNHUB": ("OK" if (finnhub_k and api_probe(f"https://finnhub.io/api/v1/quote?symbol=AAPL&token={urllib.parse.quote(finnhub_k)}")) else ("FALTA" if not finnhub_k else "ERROR")),
+            "FMP": ("OK" if (fmp_k and api_probe(f"https://financialmodelingprep.com/stable/quote?symbol=AAPL&apikey={urllib.parse.quote(fmp_k)}")) else ("FALTA" if not fmp_k else "ERROR")),
+            "ALPHA_VANTAGE": ("OK" if (av_k and api_probe(f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey={urllib.parse.quote(av_k)}")) else ("FALTA" if not av_k else "ERROR")),
+            "FRED": ("OK" if (fred_k and api_probe(f"https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key={urllib.parse.quote(fred_k)}&file_type=json&limit=1")) else ("FALTA" if not fred_k else "ERROR")),
+            "NEWSAPI": ("OK" if (news_k and api_probe(f"https://newsapi.org/v2/top-headlines?country=us&pageSize=1&apiKey={urllib.parse.quote(news_k)}")) else ("FALTA" if not news_k else "ERROR")),
+            "COINGECKO": ("OK" if api_probe(f"https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd{('&x_cg_demo_api_key=' + urllib.parse.quote(cg_k)) if cg_k else ''}") else "ERROR"),
+            "OPENINSIDER": "OK",
+            "YAHOO_OPTIONS": "OK",
+            "FINVIZ": "OK",
+        }
+        _api_probe_cache["last_check"] = now_ts
+
+    api_status = _api_probe_cache["status"]
 
     freshness = signals.get("freshness_min") if isinstance(signals, dict) else None
     stale = (freshness is None) or (freshness > 20)
@@ -2129,6 +2160,27 @@ def control_page():
         return HTMLResponse("Template not found", status_code=500)
     return HTMLResponse(html_path.read_text(encoding="utf-8", errors="replace"))
 # ===== END_CONTROL_PAGE =====
+
+
+# ===== RISK & REGIME API =====
+RISK_METRICS_PATH = Path(os.getenv("RISK_METRICS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/reports/risk_metrics.json"))
+REGIME_PATH = Path(os.getenv("REGIME_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/market_regime.json"))
+CORRELATION_PATH = Path(os.getenv("CORRELATION_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/correlation_analysis.json"))
+
+
+@app.get("/api/risk-metrics")
+def api_risk_metrics():
+    return JSONResponse(_load_json_file(RISK_METRICS_PATH, {"error": "no risk metrics available"}))
+
+
+@app.get("/api/market-regime")
+def api_market_regime():
+    return JSONResponse(_load_json_file(REGIME_PATH, {"error": "no regime data available"}))
+
+
+@app.get("/api/correlation")
+def api_correlation():
+    return JSONResponse(_load_json_file(CORRELATION_PATH, {"error": "no correlation data available"}))
 
 
 

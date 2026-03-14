@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'SilentlyContinue'
+$ErrorActionPreference = 'Continue'
 $base = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados'
 $logDir = Join-Path $base 'logs'
 New-Item -ItemType Directory -Path $logDir -Force | Out-Null

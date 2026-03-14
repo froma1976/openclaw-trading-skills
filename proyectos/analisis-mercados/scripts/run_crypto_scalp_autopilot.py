@@ -10,6 +10,16 @@ import source_ingest_crypto_free
 import source_ingest_crypto_short
 
 from runtime_utils import atomic_write_json, file_lock, make_exit_levels, round_price
+from log_config import get_logger, log_trade, log_error_safe
+
+log = get_logger("autopilot")
+
+# Importar slippage model (graceful fallback si no disponible)
+try:
+    from slippage_model import estimate_slippage_bps as _estimate_slippage
+    HAS_SLIPPAGE_MODEL = True
+except ImportError:
+    HAS_SLIPPAGE_MODEL = False
 
 SNAP = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_snapshot_free.json")
 ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_orders_sim.json")
@@ -127,16 +137,9 @@ def record_to_memory(ticker, result, pnl):
         except Exception:
             pass
 
-    # 3. Guardar en memoria de largo plazo (MCP)
-    mcp_url = os.getenv("MCP_MEMORY_URL", "http://localhost:3001/tools/store_episodic")
-    try:
-        payload = {
-            "content": f"Trade cerrado para {ticker}. Resultado: {result}. PnL: {pnl} USD.",
-            "tags": ["crypto", "trading", ticker, result],
-            "metadata": {"timestamp": datetime.now(UTC).isoformat(), "asset": ticker, "pnl": pnl}
-        }
-    except Exception:
-        pass
+    # 3. Guardar en memoria de largo plazo (MCP) -- deshabilitado (endpoint no disponible)
+    # mcp_url = os.getenv("MCP_MEMORY_URL", "http://localhost:3001/tools/store_episodic")
+    # Codigo eliminado en auditoria 2026-03-14: el POST nunca se ejecutaba (faltaba urlopen)
 
 
 def analyze_ticker_memory(completed_orders, ticker):
@@ -275,6 +278,28 @@ def load_risk_config():
     if not RISK_CFG.exists():
         return cfg
 
+    # Intentar PyYAML primero, fallback a parser manual
+    try:
+        import yaml
+        with RISK_CFG.open(encoding="utf-8") as f:
+            parsed = yaml.safe_load(f)
+        if isinstance(parsed, dict):
+            for k, v in parsed.items():
+                if k in cfg:
+                    cfg[k] = v
+            # Normalizar listas
+            for list_key in ("allowed_symbols", "excluded_symbols"):
+                if isinstance(cfg.get(list_key), list):
+                    cfg[list_key] = [str(s).upper() for s in cfg[list_key] if s]
+                elif cfg.get(list_key) is None:
+                    cfg[list_key] = []
+            return cfg
+    except ImportError:
+        pass  # PyYAML no disponible, usar parser manual
+    except Exception:
+        log.warning("Error parsing risk.yaml con PyYAML, fallback a parser manual")
+
+    # Parser manual (legacy fallback)
     section = None
     for line in RISK_CFG.read_text(encoding="utf-8", errors="ignore").splitlines():
         if not line.strip() or line.lstrip().startswith("#"):
@@ -314,8 +339,6 @@ def load_universe_status():
 
 
 def pick_runtime_universe(allowed_symbols: set, universe_core: set, universe_watch: set, universe_excluded: set) -> tuple[set, str]:
-    if not allowed_symbols:
-        return set(), "market_dynamic"
     if allowed_symbols:
         core_allowed = {s for s in allowed_symbols if s in universe_core and s not in universe_excluded}
         if core_allowed:
@@ -548,6 +571,37 @@ def _main_locked():
     universe_excluded = universe.get("excluded") or set()
     runtime_universe, runtime_universe_source = pick_runtime_universe(allowed_symbols, universe_core, universe_watch, universe_excluded)
 
+    # --- CIRCUIT BREAKER: parar si el profit factor reciente es muy bajo ---
+    CIRCUIT_BREAKER_MIN_TRADES = 30
+    CIRCUIT_BREAKER_MIN_PF = 0.5
+    recent_completed = completed[-CIRCUIT_BREAKER_MIN_TRADES:]
+    if len(recent_completed) >= CIRCUIT_BREAKER_MIN_TRADES:
+        rc_gross_profit = sum(float(o.get("pnl_usd") or 0) for o in recent_completed if float(o.get("pnl_usd") or 0) > 0)
+        rc_gross_loss = abs(sum(float(o.get("pnl_usd") or 0) for o in recent_completed if float(o.get("pnl_usd") or 0) < 0))
+        rc_pf = (rc_gross_profit / rc_gross_loss) if rc_gross_loss > 0 else 999.0
+        if rc_pf < CIRCUIT_BREAKER_MIN_PF:
+            daily["paused"] = True
+            daily["pause_reason"] = f"CIRCUIT_BREAKER: PF={rc_pf:.2f} en ultimas {CIRCUIT_BREAKER_MIN_TRADES} trades < {CIRCUIT_BREAKER_MIN_PF}"
+            daily["mode"] = "paused"
+            daily["mode_reason"] = daily["pause_reason"]
+            if not daily.get("paused_at"):
+                daily["paused_at"] = now_iso()
+
+    # --- COOLDOWN POR TICKER: evitar sobreoperacion en el mismo activo ---
+    COOLDOWN_MINUTES = 30  # minutos minimos entre trades del mismo ticker
+    now = datetime.now(UTC)
+    recent_ticker_times = {}
+    for o in completed[-200:]:
+        t = str(o.get("ticker") or "").upper()
+        closed_at = o.get("closed_at") or o.get("opened_at") or ""
+        if t and closed_at:
+            try:
+                ct = parse_iso(closed_at)
+                if t not in recent_ticker_times or ct > recent_ticker_times[t]:
+                    recent_ticker_times[t] = ct
+            except Exception:
+                pass
+
     closed_now = 0
     still_active = []
     for order in active:
@@ -593,7 +647,8 @@ def _main_locked():
                     protect_price = max(breakeven_px, entry + ((original_target - entry) * 0.6))
                     if protect_price > safe_float(order.get("stop_price"), 0):
                         order["stop_price"] = round_price(protect_price)
-        except Exception:
+        except Exception as e:
+            log_error_safe(log, f"Error calculating live PnL for {ticker}: {e}")
             order["pct_move"] = None
             order["pnl_usd_est"] = None
 
@@ -626,8 +681,8 @@ def _main_locked():
                         ).isoformat().replace("+00:00", "Z")
                     elif age >= timedelta(minutes=timeout_min + timeout_profit_grace_min) or pnl_est <= 0:
                         result = "timeout"
-            except Exception:
-                pass
+            except Exception as e:
+                log_error_safe(log, f"Error evaluating timeout for {ticker}: {e}")
 
         if not result:
             still_active.append(order)
@@ -648,7 +703,8 @@ def _main_locked():
             fee_total = max(0.0, fee_open) + max(0.0, fee_close)
             pnl = gross_pnl - fee_total
             returned_cash = exit_notional - fee_close
-        except Exception:
+        except Exception as e:
+            log_error_safe(log, f"CRITICAL: PnL calc failed for closed order {ticker} result={result}: {e}")
             gross_pnl = 0.0
             fee_total = 0.0
             returned_cash = float(order.get("notional_usd", 0) or 0)
@@ -722,14 +778,46 @@ def _main_locked():
     macro_score, macro_label = get_macro_sentiment(av_key)
     macro_multiplier = 1.0
     if macro_label == "Bearish":
-        macro_multiplier = 0.6  # Reducimos exposicion si el sentimiento global es malo
+        macro_multiplier = 0.6
     elif macro_label == "Bullish":
-        macro_multiplier = 1.1  # Aumentamos un poco si hay euforia positiva
+        macro_multiplier = 1.1
+
+    # --- REGIME DETECTOR: ajustar parametros segun estado del mercado ---
+    regime_data = load_json(Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/market_regime.json"), {})
+    regime_multipliers = {}
+    for _sym, _reg in (regime_data.get("regimes") or {}).items():
+        adj = _reg.get("param_adjustments") or {}
+        regime_multipliers[_sym] = {
+            "target": float(adj.get("target_pct_multiplier", 1.0)),
+            "stop": float(adj.get("stop_pct_multiplier", 1.0)),
+            "alloc": float(adj.get("alloc_multiplier", 1.0)),
+            "max_pos": float(adj.get("max_positions_multiplier", 1.0)),
+            "regime": _reg.get("regime", "unknown"),
+            "recommended_mode": _reg.get("recommended_mode", "normal"),
+        }
+    # Usar BTC como proxy del mercado general si existe
+    btc_regime = regime_multipliers.get("BTCUSDT", {})
+    regime_alloc_mult = float(btc_regime.get("alloc", 1.0))
+    regime_target_mult = float(btc_regime.get("target", 1.0))
+    regime_stop_mult = float(btc_regime.get("stop", 1.0))
+    regime_max_pos_mult = float(btc_regime.get("max_pos", 1.0))
+    # Ajustar parametros base segun regime
+    target_pct = target_pct * regime_target_mult
+    stop_pct = stop_pct * regime_stop_mult
+    effective_max_active_positions_regime = max(1, int(round(max_active_positions * regime_max_pos_mult)))
+
+    # --- CORRELATION CHECK: detectar riesgo concentrado ---
+    correlation_data = load_json(Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/correlation_analysis.json"), {})
+    portfolio_concentrated = bool(correlation_data.get("concentrated_risk", False))
         
     entry_scale = defensive_scale if mode == "defensive" else 1.0
     effective_max_trades_day = max(1, int(round(max_trades_day * entry_scale))) if mode == "defensive" else max_trades_day
     effective_max_trades_hour = max(1, int(round(max_trades_hour * entry_scale))) if mode == "defensive" else max_trades_hour
     effective_max_active_positions = max(1, int(round(max_active_positions * entry_scale))) if mode == "defensive" else max_active_positions
+    # Aplicar regime y correlation ajustes
+    effective_max_active_positions = min(effective_max_active_positions, effective_max_active_positions_regime)
+    if portfolio_concentrated:
+        effective_max_active_positions = max(1, effective_max_active_positions // 2)  # reducir 50% si correlacion alta
 
     for candidate in top:
         if daily.get("trades", 0) >= effective_max_trades_day:
@@ -751,6 +839,11 @@ def _main_locked():
             continue
         if ticker in active_tickers:
             continue
+
+        # --- COOLDOWN POR TICKER ---
+        last_trade_time = recent_ticker_times.get(ticker_upper)
+        if last_trade_time and (now - last_trade_time).total_seconds() < COOLDOWN_MINUTES * 60:
+            continue
         
         # --- NUEVA LOGICA DE MEMORIA AUTODIDACTA ---
         ticker_multiplier, memory_reason = analyze_ticker_memory(completed, ticker)
@@ -767,7 +860,15 @@ def _main_locked():
         breakout = int(candidate.get("spy_breakout") or 0)
         chart = int(candidate.get("spy_chart") or 0)
         setup_tag = infer_setup_tag(candidate, breakout, chart)
-        min_confluence = defensive_min_confluence if mode == "defensive" else 1
+
+        # --- FILTRO DE EDGE: bloquear setups sin edge demostrado ---
+        # Auditoria 2026-03-14: setup "base" tiene 0% win rate historico
+        # Confluencia < 3 tiene 11% win rate (edge_score -10)
+        BLOCKED_SETUPS = {"base"}
+        MIN_CONFLUENCE_HARD = 3  # No abrir trades con menos de 3 spies de confluencia
+        if setup_tag in BLOCKED_SETUPS:
+            continue
+        min_confluence = max(MIN_CONFLUENCE_HARD, defensive_min_confluence if mode == "defensive" else MIN_CONFLUENCE_HARD)
         if confluence < min_confluence:
             continue
 
@@ -793,11 +894,30 @@ def _main_locked():
             research_scale = research_positive_size_scale
         elif research_sentiment in {"negative", "mixed"} and research_catalyst_score < 0:
             research_scale = research_negative_size_scale
-        target_alloc = alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier
+
+        # --- SIZING DINAMICO POR CONVICCION ---
+        # Escalar notional segun score y confluencia en vez de flat $30
+        conviction_scale = 1.0
+        if score >= 90 and confluence >= 4:
+            conviction_scale = 1.4  # Alta conviccion: 40% mas
+        elif score >= 82 and confluence >= 3:
+            conviction_scale = 1.15  # Buena conviccion: 15% mas
+        elif score < 70:
+            conviction_scale = 0.7  # Baja conviccion: 30% menos
+
+        target_alloc = alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier * conviction_scale * regime_alloc_mult
         notional = min(target_alloc, cash, max_alloc_per_trade_usd)
         if notional < min_notional_usd:
             continue
-        entry_px = float(price) * (1 + slippage_bps / 10000.0)
+        # Slippage dinamico si el modelo esta disponible
+        effective_slippage_bps = slippage_bps
+        if HAS_SLIPPAGE_MODEL and price and price > 0:
+            try:
+                slip_est = _estimate_slippage(ticker, notional, float(price))
+                effective_slippage_bps = max(slippage_bps, slip_est.get("estimated_bps", slippage_bps))
+            except Exception:
+                pass
+        entry_px = float(price) * (1 + effective_slippage_bps / 10000.0)
         if entry_px <= 0:
             continue
         target_price, stop_price = make_exit_levels(entry_px, target_pct, stop_pct)
@@ -834,7 +954,8 @@ def _main_locked():
             "research_sentiment": candidate.get("research_sentiment"),
             "research_catalyst_score": candidate.get("research_catalyst_score"),
             "research_size_scale": round(research_scale, 3),
-            "slippage_bps": slippage_bps,
+            "slippage_bps": effective_slippage_bps,
+            "slippage_bps_base": slippage_bps,
             "fee_bps": fee_bps,
             "fee_open_usd": round(fee_open, 6),
             "expected_target_net_profit_usd": economics["net_profit_usd"],
@@ -859,6 +980,10 @@ def _main_locked():
         opened_now += 1
         hour_trades += 1
         daily["trades"] = int(daily.get("trades", 0)) + 1
+        log_trade(log, "OPEN", ticker, notional=round(notional, 2), entry=round_price(entry_px),
+                  target=target_price, stop=stop_price, score=score, confluence=confluence,
+                  setup=setup_tag, slippage=round(effective_slippage_bps, 1),
+                  regime=btc_regime.get("regime", "unknown"))
 
     active_value = 0.0
     for order in active:
@@ -879,7 +1004,8 @@ def _main_locked():
                 order["pct_move"] = None
                 order["pnl_usd_est"] = None
             active_value += qty_live * float(cur)
-        except Exception:
+        except Exception as e:
+            log_error_safe(log, f"Error calculating portfolio value for {ticker}: {e}")
             order["pct_move"] = None
             order["pnl_usd_est"] = None
 

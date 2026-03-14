@@ -86,16 +86,10 @@ def make_dataset(series: np.ndarray, lookback: int = 32):
     return X, y
 
 
-class TinyLSTM(nn.Module):
-    def __init__(self, hidden=32):
-        super().__init__()
-        self.lstm = nn.LSTM(input_size=1, hidden_size=hidden, num_layers=1, batch_first=True)
-        self.head = nn.Linear(hidden, 1)
-
-    def forward(self, x):
-        o, _ = self.lstm(x)
-        last = o[:, -1, :]
-        return self.head(last)
+# TinyLSTM importado desde modulo compartido para evitar drift arquitectural
+import sys
+sys.path.insert(0, str(BASE / "models"))
+from architecture import TinyLSTM  # noqa: E402
 
 
 def main():
@@ -121,11 +115,16 @@ def main():
     sd = X.std(axis=1, keepdims=True) + 1e-8
     Xn = (X - mu) / sd
 
-    # split
+    # split con gap/purge para evitar contaminacion por ventanas solapadas
     n = len(Xn)
     cut = int(n * 0.8)
+    gap = args.lookback  # saltar 'lookback' muestras entre train y val
     Xtr, ytr = Xn[:cut], y[:cut]
-    Xva, yva = Xn[cut:], y[cut:]
+    val_start = min(cut + gap, n)
+    Xva, yva = Xn[val_start:], y[val_start:]
+    if len(Xva) < 20:
+        # Si el gap deja muy pocas muestras, reducir gap
+        Xva, yva = Xn[cut:], y[cut:]
 
     Xtr_t = torch.tensor(Xtr).unsqueeze(-1)
     ytr_t = torch.tensor(ytr).unsqueeze(-1)
@@ -151,7 +150,25 @@ def main():
 
     MODELS.mkdir(parents=True, exist_ok=True)
     mp = MODELS / f"lstm_{args.ticker}.pt"
-    torch.save(model.state_dict(), mp)
+
+    # --- CHAMPION GATING: solo reemplazar modelo si val_mse mejora ---
+    reg_path = MODELS / "registry.json"
+    reg = {"version": 1, "symbols": {}}
+    if reg_path.exists():
+        try:
+            reg = json.loads(reg_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    current_best = float(reg.get("symbols", {}).get(args.ticker, {}).get("best_val_mse", 999))
+    is_champion = va_loss <= current_best
+
+    if is_champion:
+        torch.save(model.state_dict(), mp)
+        champion_action = "PROMOTED"
+    else:
+        tmp_path = MODELS / f"lstm_{args.ticker}_candidate.pt"
+        torch.save(model.state_dict(), tmp_path)
+        champion_action = "REJECTED"
 
     meta = {
         "ticker": args.ticker,
@@ -160,10 +177,12 @@ def main():
         "epochs": args.epochs,
         "val_mse": round(float(va_loss), 8),
         "trained_at": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
-        "note": "Modelo confirmador (no decide solo).",
+        "champion_action": champion_action,
+        "previous_best_mse": round(current_best, 8) if current_best < 999 else None,
+        "note": "Modelo confirmador de research. No usar para justificar dinero real sin validacion adicional.",
     }
     (MODELS / f"lstm_{args.ticker}_meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({"ok": True, "model": str(mp), "val_mse": meta["val_mse"]}, ensure_ascii=False))
+    print(json.dumps({"ok": True, "model": str(mp), "val_mse": meta["val_mse"], "champion_action": champion_action}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

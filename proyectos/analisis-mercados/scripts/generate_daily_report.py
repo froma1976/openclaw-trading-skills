@@ -59,6 +59,23 @@ def main():
     lines.append(f"Órdenes pendientes: {len(pending)}")
     lines.append(f"Órdenes cerradas: {total} (ganadas: {wins}, perdidas: {losses}, win rate: {wr}%)")
 
+    # --- RISK METRICS INTEGRADOS ---
+    risk_path = BASE / "reports" / "risk_metrics.json"
+    risk = load_json(risk_path, {})
+    if risk.get("total_trades", 0) > 0:
+        lines.append("")
+        lines.append("📈 Risk Metrics (crypto sim):")
+        lines.append(f"- Sharpe: {risk.get('sharpe_ratio', 'N/A')} | Sortino: {risk.get('sortino_ratio', 'N/A')}")
+        lines.append(f"- PF: {risk.get('profit_factor', 'N/A')} | Max DD: ${risk.get('max_drawdown_usd', 'N/A')}")
+        lines.append(f"- Kelly: {risk.get('kelly_pct', 'N/A')}%")
+
+    # --- REGIME ---
+    regime_path = BASE / "data" / "market_regime.json"
+    regime = load_json(regime_path, {})
+    btc_r = (regime.get("regimes") or {}).get("BTCUSDT", {})
+    if btc_r.get("regime"):
+        lines.append(f"- BTC Regime: {btc_r['regime']} (ADX={btc_r.get('adx', '?')}, Hurst={btc_r.get('hurst', '?')})")
+
     txt = "\n".join(lines)
     OUT.write_text(txt, encoding="utf-8")
     print(f"OK -> {OUT}")

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, UTC
 from pathlib import Path
 from urllib import request
@@ -14,8 +15,8 @@ CORE_RESEARCH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-m
 TRADE_EDGE_MODEL = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/trade_edge_model.json")
 API_SAVING_MODE = os.getenv("API_SAVING_MODE", "1").strip() in {"1", "true", "TRUE", "yes"}
 MAX_SPY_ASSETS = int(os.getenv("MAX_SPY_ASSETS", "15"))
-STABLECOIN_IDS = {"tether", "usd-coin"}
-STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE"}
+STABLECOIN_IDS = {"tether", "usd-coin", "dai", "true-usd", "first-digital-usd", "binance-usd", "ethena-usde", "frax", "usdd", "pax-dollar"}
+STABLECOIN_TICKERS = {"USDT", "USDC", "BUSD", "FDUSD", "TUSD", "DAI", "USDE", "FRAX", "USDD", "USDP", "PYUSD", "GUSD", "CRVUSD"}
 EXCLUDED_TICKERS = {"PEPE"}
 RUNTIME_LOCK = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/locks/crypto_runtime.lock")
 COINS = [
@@ -43,7 +44,7 @@ def get_json(url: str):
         req = request.Request(url, headers={"User-Agent": "crypto-scout/1.0"})
         with request.urlopen(req, timeout=10) as r:
             return json.loads(r.read().decode("utf-8"))
-    except:
+    except Exception:
         return None
 
 
@@ -66,7 +67,7 @@ def get_binance_price(ticker: str) -> float:
         data = get_json(url)
         if data and "price" in data:
             return float(data["price"])
-    except:
+    except Exception:
         pass
     return 0.0
 
@@ -78,7 +79,7 @@ def get_binance_24h_stats_bulk() -> dict:
         data = get_json(url)
         if isinstance(data, list):
             return {item["symbol"]: item for item in data if "symbol" in item}
-    except:
+    except Exception:
         pass
     return {}
 
@@ -550,6 +551,26 @@ def _main_locked():
         for rr in top_rows:
             spy_allowed.add(SYMBOL.get(rr.get("id"), str(rr.get("symbol", "")).upper()))
 
+    # --- PRE-CALCULAR SPY SIGNALS EN PARALELO (ThreadPoolExecutor) ---
+    # Antes: 45+ llamadas HTTP secuenciales (~60s). Ahora: paralelas (~8-12s).
+    spy_results = {}
+    spy_tickers_to_fetch = [t for t in spy_allowed if t not in STABLECOIN_TICKERS and t not in EXCLUDED_TICKERS]
+
+    def _fetch_spy_pair(ticker: str) -> tuple:
+        chart = fetch_chart_spy(ticker)
+        breakout = fetch_breakout_spy(ticker)
+        return ticker, {"chart": chart, "breakout": breakout}
+
+    if spy_tickers_to_fetch:
+        with ThreadPoolExecutor(max_workers=6) as executor:
+            futures = {executor.submit(_fetch_spy_pair, t): t for t in spy_tickers_to_fetch}
+            for future in as_completed(futures):
+                try:
+                    ticker_result, signals = future.result()
+                    spy_results[ticker_result] = signals
+                except Exception:
+                    pass
+
     for r in rows:
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
         p = float(r.get("current_price") or 0)
@@ -580,15 +601,9 @@ def _main_locked():
 
         ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
         sc = apply_research_overlay(ticker, sc, research_map or {})
-        if ticker in STABLECOIN_TICKERS or ticker in EXCLUDED_TICKERS:
-            spy_chart = 0
-            spy_breakout = 0
-        elif ticker in spy_allowed:
-            spy_chart = fetch_chart_spy(ticker)
-            spy_breakout = fetch_breakout_spy(ticker)
-        else:
-            spy_chart = 0
-            spy_breakout = 0
+        # Spy signals se pre-calculan en paralelo (ver abajo)
+        spy_chart = spy_results.get(ticker, {}).get("chart", 0)
+        spy_breakout = spy_results.get(ticker, {}).get("breakout", 0)
         sc["spy_chart"] = spy_chart
         sc["spy_breakout"] = spy_breakout
         sc["spy_confluence"] = int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"] + sc["spy_chart"] + sc["spy_breakout"])

@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'SilentlyContinue'
+$ErrorActionPreference = 'Continue'
 $log = 'C:\Users\Fernando\.openclaw\workspace\startup-stack.log'
 "[$(Get-Date -Format s)] inicio startup" | Add-Content $log
 

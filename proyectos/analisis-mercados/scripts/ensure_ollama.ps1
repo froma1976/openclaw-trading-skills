@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'SilentlyContinue'
+$ErrorActionPreference = 'Continue'
 
 $ollamaExe = 'C:\Users\Fernando\AppData\Local\Programs\Ollama\ollama.exe'
 $log = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\data\ensure_ollama.log'

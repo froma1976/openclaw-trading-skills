@@ -24,15 +24,10 @@ BASE = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados")
 MODELS = BASE / "models"
 
 
-class TinyLSTM(nn.Module):
-    def __init__(self, hidden=32):
-        super().__init__()
-        self.lstm = nn.LSTM(input_size=1, hidden_size=hidden, num_layers=1, batch_first=True)
-        self.head = nn.Linear(hidden, 1)
-
-    def forward(self, x):
-        o, _ = self.lstm(x)
-        return self.head(o[:, -1, :])
+# TinyLSTM importado desde modulo compartido para evitar drift arquitectural
+import sys
+sys.path.insert(0, str(BASE / "models"))
+from architecture import TinyLSTM  # noqa: E402
 
 
 def get_json(url: str):
@@ -77,7 +72,7 @@ def main():
     x = ((x - mu) / sd).astype(np.float32)
 
     model = TinyLSTM(hidden=32)
-    model.load_state_dict(torch.load(model_p, map_location="cpu"))
+    model.load_state_dict(torch.load(model_p, map_location="cpu", weights_only=True))
     model.eval()
 
     with torch.no_grad():
