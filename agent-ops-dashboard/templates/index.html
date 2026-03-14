@@ -1208,6 +1208,7 @@
           <tr>
             <th>Mercado</th>
             <th>Ticker</th>
+            <th>Lado</th>
             <th>Entrada</th>
             <th>Salida</th>
             <th>Resultado</th>
@@ -1543,6 +1544,7 @@
         <table>
           <tr>
             <th>Ticker</th>
+            <th>Lado</th>
             <th>Entrada</th>
             <th>Precio actual</th>
             <th>%</th>
@@ -1569,7 +1571,7 @@
           </tr>
           {% endfor %}
           {% if crypto_orders_active|length == 0 %}<tr>
-            <td colspan="9">No hay compras activas ahora mismo.</td>
+            <td colspan="10">No hay compras activas ahora mismo.</td>
           </tr>{% endif %}
         </table>
       </div>
@@ -1598,7 +1600,7 @@
           </tr>
           {% endfor %}
           {% if crypto_orders_completed|length == 0 %}<tr>
-            <td colspan="7">Todavía no hay órdenes cripto cerradas.</td>
+            <td colspan="8">Todavía no hay órdenes cripto cerradas.</td>
           </tr>{% endif %}
         </table>
       </div>
@@ -1614,6 +1616,7 @@
         <table>
           <tr>
             <th>Activo</th>
+            <th>Lado</th>
             <th>Precio USD</th>
             <th>Entrada</th>
             <th>Target</th>
@@ -1667,7 +1670,7 @@
           {% endfor %}
           {% if crypto_signals.top_opportunities is not defined or crypto_signals.top_opportunities|length == 0 %}
           <tr>
-            <td colspan="17">Sin datos cripto todavía (ejecuta ingest cripto).</td>
+            <td colspan="18">Sin datos cripto todavía (ejecuta ingest cripto).</td>
           </tr>
           {% endif %}
         </table>
@@ -2225,6 +2228,7 @@
         <table>
           <tr>
             <th>Activo</th>
+            <th>Lado</th>
             <th>Precio</th>
             <th>Entrada short</th>
             <th>Target</th>
@@ -2241,6 +2245,7 @@
           {% for c in crypto_short_signals.top_opportunities[:10] if crypto_short_signals.top_opportunities is defined %}
           <tr>
             <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ c.ticker }}-USD')">{{ c.ticker }}</button> · {{ c.name }}</td>
+            <td><span class="badge no">SHORT</span></td>
             <td>{{ c.price_usd }}</td>
             <td>{{ c.senior_report_short.setup.entry if c.senior_report_short and c.senior_report_short.setup else '-' }}</td>
             <td>{{ c.senior_report_short.setup.tp1 if c.senior_report_short and c.senior_report_short.setup else '-' }}</td>
@@ -2256,7 +2261,7 @@
           </tr>
           {% endfor %}
           {% if crypto_short_signals.top_opportunities is not defined or crypto_short_signals.top_opportunities|length == 0 %}
-          <tr><td colspan="13">Sin oportunidades short todavía.</td></tr>
+          <tr><td colspan="14">Sin oportunidades short todavía.</td></tr>
           {% endif %}
         </table>
       </div>
@@ -2290,10 +2295,11 @@
       <div class="card col-12">
         <h2>Shorts activos</h2>
         <table>
-          <tr><th>Ticker</th><th>Entrada</th><th>Precio actual</th><th>%</th><th>PnL est.</th><th>Target</th><th>Stop</th><th>Abierta</th></tr>
+          <tr><th>Ticker</th><th>Lado</th><th>Entrada</th><th>Precio actual</th><th>%</th><th>PnL est.</th><th>Target</th><th>Stop</th><th>Abierta</th></tr>
           {% for o in crypto_short_orders_active %}
           <tr>
             <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}-USD')">{{ o.ticker }}</button></td>
+            <td><span class="badge no">SHORT</span></td>
             <td>{{ o.entry_price }}</td>
             <td>{{ o.current_price if o.current_price is not none else '-' }}</td>
             <td>{% if o.pct_move is not none %}<span class="badge {{ 'ok' if o.pct_move >= 0 else 'no' }}">{{ o.pct_move }}%</span>{% else %}-{% endif %}</td>
@@ -2303,17 +2309,18 @@
             <td>{{ o.opened_at }}</td>
           </tr>
           {% endfor %}
-          {% if crypto_short_orders_active|length == 0 %}<tr><td colspan="8">No hay shorts activos.</td></tr>{% endif %}
+          {% if crypto_short_orders_active|length == 0 %}<tr><td colspan="9">No hay shorts activos.</td></tr>{% endif %}
         </table>
       </div>
 
       <div class="card col-12">
         <h2>Shorts cerrados</h2>
         <table>
-          <tr><th>Ticker</th><th>Entrada</th><th>Salida</th><th>Resultado</th><th>PnL USD</th><th>Abierta</th><th>Cerrada</th></tr>
+          <tr><th>Ticker</th><th>Lado</th><th>Entrada</th><th>Salida</th><th>Resultado</th><th>PnL USD</th><th>Abierta</th><th>Cerrada</th></tr>
           {% for o in crypto_short_orders_completed[:20] %}
           <tr>
             <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}-USD')">{{ o.ticker }}</button></td>
+            <td><span class="badge no">SHORT</span></td>
             <td>{{ o.entry_price if o.entry_price is not none else '-' }}</td>
             <td>{{ o.close_price if o.close_price is not none else o.exit_price if o.exit_price is not none else '-' }}</td>
             <td><span class="badge {{ 'ok' if o.result == 'ganada' else ('warn' if o.result == 'timeout' else 'no') }}">{{ o.result or '-' }}</span></td>
@@ -2322,7 +2329,7 @@
             <td>{{ o.closed_at or '-' }}</td>
           </tr>
           {% endfor %}
-          {% if crypto_short_orders_completed|length == 0 %}<tr><td colspan="7">Todavía no hay shorts cerrados.</td></tr>{% endif %}
+          {% if crypto_short_orders_completed|length == 0 %}<tr><td colspan="8">Todavía no hay shorts cerrados.</td></tr>{% endif %}
         </table>
       </div>
     </div>
