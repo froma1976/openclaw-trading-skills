@@ -52,9 +52,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 8.46,
-      "pct_move": -0.353,
-      "pnl_usd_est": -0.116608
+      "current_price": 8.48,
+      "pct_move": -0.118,
+      "pnl_usd_est": -0.038869
     },
     {
       "id": "crp_op_1773446401",
@@ -80,9 +80,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.1231,
-      "pct_move": -0.485,
-      "pnl_usd_est": -0.080032
+      "current_price": 0.1232,
+      "pct_move": -0.404,
+      "pnl_usd_est": -0.066694
     },
     {
       "id": "crp_xlm_1773446401",
@@ -108,9 +108,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.1641,
-      "pct_move": 0.061,
-      "pnl_usd_est": 0.020122
+      "current_price": 0.1644,
+      "pct_move": 0.244,
+      "pnl_usd_est": 0.080488
     },
     {
       "id": "crp_trx_1773446401",
@@ -136,9 +136,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.2935,
-      "pct_move": 0.034,
-      "pnl_usd_est": 0.011247
+      "current_price": 0.2936,
+      "pct_move": 0.068,
+      "pnl_usd_est": 0.022495
     },
     {
       "id": "crp_apt_1773446524",
@@ -164,9 +164,9 @@
         "flow": -1,
         "whale": 0
       },
-      "current_price": 0.93,
-      "pct_move": -0.322,
-      "pnl_usd_est": -0.053055
+      "current_price": 0.931,
+      "pct_move": -0.214,
+      "pnl_usd_est": -0.03537
     },
     {
       "id": "crp_gala_1773446644",
@@ -248,16 +248,16 @@
         "flow": 1,
         "whale": 0
       },
-      "current_price": 0.05051,
-      "pct_move": 0.666,
-      "pnl_usd_est": 0.274583
+      "current_price": 0.05022,
+      "pct_move": 0.088,
+      "pnl_usd_est": 0.036173
     },
     {
-      "id": "crp_bonk_1773446824",
+      "id": "crp_bonk_1773446884",
       "ticker": "BONK",
-      "opened_at": "2026-03-14T00:07:04Z",
+      "opened_at": "2026-03-14T00:08:04Z",
       "entry_price": 6e-06,
-      "qty": 7751225.49019608,
+      "qty": 7738580.75040783,
       "notional_usd": 47.44,
       "target_price": 6e-06,
       "stop_price": 6e-06,
@@ -277,8 +277,8 @@
         "whale": 0
       },
       "current_price": 6e-06,
-      "pct_move": 2.0,
-      "pnl_usd_est": 0.930147
+      "pct_move": 2.167,
+      "pnl_usd_est": 1.006015
     }
   ],
   "completed": [
@@ -23331,11 +23331,43 @@
       "close_price": 6e-06,
       "result": "ganada",
       "pnl_usd": 0.930147
+    },
+    {
+      "id": "crp_bonk_1773446824",
+      "ticker": "BONK",
+      "opened_at": "2026-03-14T00:07:04Z",
+      "entry_price": 6e-06,
+      "qty": 7751225.49019608,
+      "notional_usd": 47.44,
+      "target_price": 6e-06,
+      "stop_price": 6e-06,
+      "state": "CLOSED",
+      "mode": "scalp_intradia",
+      "risk_mode": "normal",
+      "confidence": 64,
+      "score": 64,
+      "research_sentiment": "positive",
+      "research_catalyst_score": 2,
+      "research_size_scale": 1.15,
+      "spy_confluence": 1,
+      "spy_breakdown": {
+        "news": 1,
+        "euphoria": 1,
+        "flow": -1,
+        "whale": 0
+      },
+      "current_price": 6e-06,
+      "pct_move": 2.167,
+      "pnl_usd_est": 1.007659,
+      "closed_at": "2026-03-14T00:08:01Z",
+      "close_price": 6e-06,
+      "result": "ganada",
+      "pnl_usd": 1.007659
     }
   ],
   "daily": {
     "date": "2026-03-14",
-    "trades": 17,
+    "trades": 18,
     "loss_streak": 0,
     "paused": false,
     "pause_reason": "",
@@ -23345,8 +23377,8 @@
   },
   "portfolio": {
     "capital_initial_usd": 300.0,
-    "cash_usd": 406.64,
-    "market_value_usd": 286.6,
-    "equity_usd": 693.24
+    "cash_usd": 407.65,
+    "market_value_usd": 286.54,
+    "equity_usd": 694.19
   }
 }
