@@ -1,154 +1,146 @@
-import requests, statistics, time
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
+import requests
+import math
 
-COINGECKO = 'https://api.coingecko.com/api/v3/coins/markets'
-BINANCE_KLINES = 'https://api.binance.com/api/v3/klines'
 
-SESSION = requests.Session()
-SESSION.headers.update({'User-Agent':'Mozilla/5.0'})
-
-def fetch_json(url, params=None, timeout=20):
-    for attempt in range(4):
-        try:
-            r = SESSION.get(url, params=params, timeout=timeout)
-            if r.status_code == 429:
-                time.sleep(1.0*(attempt+1))
-                continue
-            r.raise_for_status()
-            return r.json()
-        except Exception:
-            if attempt == 3:
-                return None
-            time.sleep(0.7*(attempt+1))
-    return None
-
-def get_top100_altcoins():
-    params = {
-        'vs_currency':'usd',
-        'order':'market_cap_desc',
-        'per_page':100,
-        'page':1,
-        'sparkline':'false',
-        'price_change_percentage':'1h,24h,7d'
-    }
-    data = fetch_json(COINGECKO, params=params)
-    if not data:
-        return []
-    stables = {'usdt','usdc','dai','busd','tusd','fdusd','usde','susde','usdd','lusd','frax','pyusd','usd0','usds'}
-    out=[]
-    for c in data:
-        sym = (c.get('symbol') or '').lower()
-        if sym in {'btc','eth'}:
-            continue
-        if sym in stables:
-            continue
-        if (c.get('name','').lower().endswith(' usd')):
-            continue
-        out.append({
-            'symbol':sym,
-            'name':c.get('name'),
-            'mcap_rank':c.get('market_cap_rank'),
-            'cg_1h':c.get('price_change_percentage_1h_in_currency'),
-            'cg_24h':c.get('price_change_percentage_24h_in_currency'),
-        })
-    return out
-
-def analyze_klines(kl):
-    if not kl or len(kl) < 3:
+def quantile(values, q):
+    """Simple quantile (0..1) with linear interpolation."""
+    xs = sorted(v for v in values if v is not None and not math.isnan(v))
+    if not xs:
         return None
-    closes=[float(x[4]) for x in kl]
-    vols=[float(x[5]) for x in kl]
-    last=closes[-1]; prev=closes[-2]
-    chg1h=(last/prev-1)*100
-    vol_last=vols[-1]
-    vol_med=statistics.median(vols[:-1]) if len(vols)>1 else vol_last
-    base=closes[-7] if len(closes)>=7 else closes[0]
-    chg6h=(last/base-1)*100
-    vol_ratio = vol_last/(vol_med if vol_med>0 else 1)
-    return {'chg1h': chg1h,'chg6h': chg6h,'vol_ratio': vol_ratio}
+    if q <= 0:
+        return xs[0]
+    if q >= 1:
+        return xs[-1]
+    pos = (len(xs) - 1) * q
+    lo = int(math.floor(pos))
+    hi = int(math.ceil(pos))
+    if lo == hi:
+        return xs[lo]
+    frac = pos - lo
+    return xs[lo] * (1 - frac) + xs[hi] * frac
 
-def fetch_binance_klines(symbol):
-    pair = symbol.upper()+'USDT'
-    params={'symbol':pair,'interval':'1h','limit':24}
-    data = fetch_json(BINANCE_KLINES, params=params)
-    if isinstance(data, dict) and 'code' in data:
-        return None
-    return pair, data
 
 def main():
-    top = get_top100_altcoins()
-    if not top:
-        print('OK'); return
+    # CoinGecko top by market cap
+    cg_url = "https://api.coingecko.com/api/v3/coins/markets"
+    params = {
+        "vs_currency": "usd",
+        "order": "market_cap_desc",
+        "per_page": 120,
+        "page": 1,
+        "sparkline": "false",
+        "price_change_percentage": "1h,24h,7d",
+    }
+    coins = requests.get(cg_url, params=params, timeout=20).json()
 
-    results=[]
-    with ThreadPoolExecutor(max_workers=12) as ex:
-        futs = {ex.submit(fetch_binance_klines, c['symbol']): c for c in top}
-        for fut in as_completed(futs):
-            c = futs[fut]
-            try:
-                res = fut.result()
-            except Exception:
-                continue
-            if not res:
-                continue
-            pair, kl = res
-            a = analyze_klines(kl)
-            if not a:
-                continue
-            results.append({**c,'pair':pair,**a})
+    stable = {
+        "usdt","usdc","dai","tusd","busd","usde","fdusd","usdd","lusd","frax",
+        "pyusd","gusd","susd","eurs","usdp","usdn","ustc","mim","crvusd","usdy"
+    }
 
-    alerts=[]
-    for r in results:
-        chg1h=r['chg1h']; vr=r['vol_ratio']; chg6h=r['chg6h']
-        score=0; tags=[]
-        if abs(chg1h) >= 8:
-            score += 4; tags.append(f"MOV1h {chg1h:+.1f}%")
-        elif abs(chg1h) >= 5:
-            score += 2; tags.append(f"mov1h {chg1h:+.1f}%")
+    alts = []
+    for c in coins:
+        sym = (c.get("symbol") or "").lower()
+        if sym in stable or sym in {"btc", "eth"}:
+            continue
+        if c.get("market_cap_rank") is None:
+            continue
+        alts.append({
+            "symbol": sym.upper(),
+            "name": c.get("name"),
+            "mc_rank": c.get("market_cap_rank"),
+            "cg_vol_24h": float(c.get("total_volume") or 0.0),
+            "cg_chg_24h": c.get("price_change_percentage_24h_in_currency"),
+        })
 
-        if vr >= 6:
-            score += 4; tags.append(f"VOLx{vr:.1f}")
-        elif vr >= 4:
-            score += 3; tags.append(f"volx{vr:.1f}")
-        elif vr >= 3:
-            score += 2; tags.append(f"volx{vr:.1f}")
+    alts.sort(key=lambda x: x["mc_rank"])
+    alts = alts[:100]
 
-        if vr >= 4 and abs(chg1h) < 1.2:
-            score += 2; tags.append('diverg(Vol>>Price)')
+    # Binance 24h tickers
+    tickers = requests.get("https://api.binance.com/api/v3/ticker/24hr", timeout=20).json()
+    bmap = {t["symbol"]: t for t in tickers if isinstance(t, dict) and "symbol" in t}
 
-        if chg1h > 5 and chg6h > 12:
-            score += 2; tags.append(f"extended6h {chg6h:+.1f}%")
-        if chg1h < -5 and vr >= 3:
-            score += 1; tags.append('selloff+vol')
+    mapped = 0
+    merged = []
+    for a in alts:
+        pair = a["symbol"] + "USDT"
+        t = bmap.get(pair)
+        if not t:
+            continue
+        mapped += 1
+        try:
+            qv = float(t.get("quoteVolume", 0.0))
+            chg = float(t.get("priceChangePercent", 0.0))
+            last = float(t.get("lastPrice", 0.0))
+            high = float(t.get("highPrice", 0.0))
+            low = float(t.get("lowPrice", 0.0))
+            rng = (high - low) / last * 100 if last else None
+        except Exception:
+            continue
 
-        if score >= 6:
-            alerts.append((score, r, tags))
+        cg_vol = a["cg_vol_24h"]
+        vol_ratio = (qv / cg_vol) if cg_vol else None
 
-    alerts.sort(key=lambda x:(-x[0], -abs(x[1]['chg1h']), -x[1]['vol_ratio']))
+        merged.append({
+            **a,
+            "pair": pair,
+            "bn_quoteVol": qv,
+            "bn_chg_24h": chg,
+            "bn_range_pct": rng,
+            "vol_ratio": vol_ratio,
+        })
 
-    if not alerts:
-        print('OK'); return
+    print(f"TOTAL_COINS {len(alts)} BINANCE_MAPPED {mapped}")
 
-    now = datetime.now().astimezone().strftime('%Y-%m-%d %H:%M %Z')
-    print(f"ALERTA Crypto (Top100 alt, CoinGecko+Binance) — {now}")
-    print("Señales: movimiento 1h extremo y/o spike de volumen 1h vs mediana 24h (vela 1h puede estar en curso).\n")
+    if not merged:
+        print("OK")
+        return
 
-    for score, r, tags in alerts[:8]:
-        cg1h=r.get('cg_1h'); cg24=r.get('cg_24h')
-        cg1h_s = f"CG1h {cg1h:+.1f}%" if isinstance(cg1h,(int,float)) and cg1h==cg1h else "CG1h n/d"
-        cg24_s = f"CG24h {cg24:+.1f}%" if isinstance(cg24,(int,float)) and cg24==cg24 else "CG24h n/d"
+    qv_q3 = quantile([m["bn_quoteVol"] for m in merged], 0.75)
+    if qv_q3 is None:
+        print("OK")
+        return
 
-        if r['vol_ratio']>=4 and abs(r['chg1h'])<1.2:
-            direction = 'Atención (absorción/rotación)'
-        else:
-            direction = 'Riesgo (dump)' if r['chg1h']<0 else 'Oportunidad/Breakout'
+    cands = []
+    for m in merged:
+        if m["bn_quoteVol"] < qv_q3:
+            continue
+        vr = m["vol_ratio"]
+        if vr is None or m["bn_range_pct"] is None:
+            continue
+        extreme = (
+            abs(m["bn_chg_24h"]) >= 15
+            or (m["bn_range_pct"] >= 20)
+            or (vr >= 2.5)
+            or (vr <= 0.35)
+        )
+        if not extreme:
+            continue
 
-        print(f"- {r['pair']} ({r['name']}, rank#{r['mcap_rank']}) | {direction}")
-        print(f"  Binance: 1h {r['chg1h']:+.2f}%, 6h {r['chg6h']:+.2f}%, VolSpike x{r['vol_ratio']:.1f}")
-        print(f"  CoinGecko: {cg1h_s}, {cg24_s} | Tags: {', '.join(tags)} | Score {score}")
+        divergence = max(vr, 1.0 / vr) if vr > 0 else 0
+        score = (abs(m["bn_chg_24h"]) / 10.0) + (m["bn_range_pct"] / 15.0) + (divergence / 2.0)
+        m["score"] = score
+        cands.append(m)
 
-    print("\nChecklist: confirmar en 5m/15m (ruptura de rango + nivel). Si es spike de volumen sin movimiento, vigilar fakeout; usar stops y tamaño pequeño.")
+    cands.sort(key=lambda x: x["score"], reverse=True)
+    cands = cands[:8]
 
-if __name__ == '__main__':
+    if not cands:
+        print("OK")
+        return
+
+    for r in cands:
+        cg24 = r.get("cg_chg_24h")
+        cg24_s = f"{cg24:+.1f}%" if isinstance(cg24, (int, float)) else "n/a"
+        print(
+            f"{r['symbol']}/USDT "
+            f"24h:{r['bn_chg_24h']:+.1f}% "
+            f"range:{r['bn_range_pct']:.1f}% "
+            f"Vol(Binance):${r['bn_quoteVol']/1e6:.1f}M "
+            f"VolRatio(Bn/CG):{r['vol_ratio']:.2f} "
+            f"CG24h:{cg24_s}"
+        )
+
+
+if __name__ == "__main__":
     main()
