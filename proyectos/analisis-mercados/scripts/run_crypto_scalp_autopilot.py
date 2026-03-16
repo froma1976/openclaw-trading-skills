@@ -319,14 +319,16 @@ def load_risk_config():
         "bull_target_extension_ratio": 1.1,
         "bull_target_extension_min_score": 74,
         "risk_on_enabled": True,
-        "risk_on_min_alt_24h_pct": 4.0,
-        "risk_on_min_alt_7d_pct": 8.0,
-        "risk_on_min_candidates": 4,
-        "risk_on_max_trades_hour_multiplier": 1.6,
-        "risk_on_max_active_positions_multiplier": 1.5,
-        "risk_on_max_trades_day_multiplier": 1.35,
-        "risk_on_bull_priority_bonus": 14,
-        "risk_on_breakout_priority_bonus": 6,
+        "risk_on_min_alt_24h_pct": 3.0,
+        "risk_on_min_alt_7d_pct": 6.5,
+        "risk_on_min_score": 69,
+        "risk_on_min_confluence": 1,
+        "risk_on_min_candidates": 3,
+        "risk_on_max_trades_hour_multiplier": 2.0,
+        "risk_on_max_active_positions_multiplier": 1.8,
+        "risk_on_max_trades_day_multiplier": 1.5,
+        "risk_on_bull_priority_bonus": 18,
+        "risk_on_breakout_priority_bonus": 8,
     }
     if not RISK_CFG.exists():
         return cfg
@@ -570,22 +572,24 @@ def _main_locked():
     px = {a.get("ticker"): float(a.get("price_usd")) for a in assets if a.get("ticker") and a.get("price_usd")}
 
     risk_on_enabled = bool(cfg.get("risk_on_enabled", True))
-    risk_on_min_alt_24h_pct = float(cfg.get("risk_on_min_alt_24h_pct", 4.0) or 4.0)
-    risk_on_min_alt_7d_pct = float(cfg.get("risk_on_min_alt_7d_pct", 8.0) or 8.0)
-    risk_on_min_candidates = int(cfg.get("risk_on_min_candidates", 4) or 4)
-    risk_on_max_trades_hour_multiplier = float(cfg.get("risk_on_max_trades_hour_multiplier", 1.6) or 1.6)
-    risk_on_max_active_positions_multiplier = float(cfg.get("risk_on_max_active_positions_multiplier", 1.5) or 1.5)
-    risk_on_max_trades_day_multiplier = float(cfg.get("risk_on_max_trades_day_multiplier", 1.35) or 1.35)
-    risk_on_bull_priority_bonus = int(cfg.get("risk_on_bull_priority_bonus", 14) or 14)
-    risk_on_breakout_priority_bonus = int(cfg.get("risk_on_breakout_priority_bonus", 6) or 6)
+    risk_on_min_alt_24h_pct = float(cfg.get("risk_on_min_alt_24h_pct", 3.0) or 3.0)
+    risk_on_min_alt_7d_pct = float(cfg.get("risk_on_min_alt_7d_pct", 6.5) or 6.5)
+    risk_on_min_score = int(cfg.get("risk_on_min_score", 69) or 69)
+    risk_on_min_confluence = int(cfg.get("risk_on_min_confluence", 1) or 1)
+    risk_on_min_candidates = int(cfg.get("risk_on_min_candidates", 3) or 3)
+    risk_on_max_trades_hour_multiplier = float(cfg.get("risk_on_max_trades_hour_multiplier", 2.0) or 2.0)
+    risk_on_max_active_positions_multiplier = float(cfg.get("risk_on_max_active_positions_multiplier", 1.8) or 1.8)
+    risk_on_max_trades_day_multiplier = float(cfg.get("risk_on_max_trades_day_multiplier", 1.5) or 1.5)
+    risk_on_bull_priority_bonus = int(cfg.get("risk_on_bull_priority_bonus", 18) or 18)
+    risk_on_breakout_priority_bonus = int(cfg.get("risk_on_breakout_priority_bonus", 8) or 8)
 
     risk_on_candidates = [
         c for c in top
         if str(c.get("ticker") or "").upper() not in {"BTC", "ETH"}
         and float(c.get("chg_24h_pct") or 0.0) >= risk_on_min_alt_24h_pct
         and float(c.get("chg_7d_pct") or 0.0) >= risk_on_min_alt_7d_pct
-        and int(c.get("score_final") or c.get("score") or 0) >= max(75, int(cfg.get("bull_min_score", 76) or 76) - 2)
-        and int(c.get("spy_confluence") or 0) >= 2
+        and int(c.get("score_final") or c.get("score") or 0) >= risk_on_min_score
+        and int(c.get("spy_confluence") or 0) >= risk_on_min_confluence
         and c.get("decision_final") == "BUY"
     ]
     market_risk_on = risk_on_enabled and len(risk_on_candidates) >= risk_on_min_candidates
