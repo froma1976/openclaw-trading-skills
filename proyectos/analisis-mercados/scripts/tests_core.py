@@ -35,7 +35,7 @@ from run_crypto_scalp_autopilot import (
     parse_scalar,
     load_risk_config,
 )
-from strategy_router import normalize_symbol, compute_range_reversion_context, build_strategy_plan, plan_range_grid
+from strategy_router import normalize_symbol, compute_range_reversion_context, compute_bull_trend_context, build_strategy_plan, plan_range_grid
 
 # ============================================================
 # Tests: runtime_utils
@@ -328,6 +328,76 @@ class TestStrategyRouter:
             assert plan["alloc_multiplier"] < 1.0
             assert plan["target_multiplier"] < 1.0
 
+    def test_bull_trend_context_detects_continuation(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            path = root / "BTCUSDT_5m.csv"
+            rows = ["open,high,low,close,volume"]
+            price = 100.0
+            for i in range(140):
+                price *= 1.0015
+                rows.append(f"{price:.4f},{price * 1.003:.4f},{price * 0.997:.4f},{price:.4f},1000")
+            path.write_text("\n".join(rows), encoding="utf-8")
+
+            ctx = compute_bull_trend_context("BTC", current_price=price, history_root=root)
+            assert ctx["eligible"] is True
+            assert ctx["trend_strength_pct"] > 0.45
+
+    def test_strategy_plan_activates_bull_trend_mode(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            path = root / "BTCUSDT_5m.csv"
+            rows = ["open,high,low,close,volume"]
+            price = 100.0
+            for i in range(140):
+                price *= 1.0017
+                rows.append(f"{price:.4f},{price * 1.003:.4f},{price * 0.997:.4f},{price:.4f},1000")
+            path.write_text("\n".join(rows), encoding="utf-8")
+
+            candidate = {
+                "score_final": 81,
+                "spy_confluence": 3,
+                "spy_breakout": 1,
+                "spy_chart": 1,
+                "chg_24h_pct": 5.4,
+                "chg_7d_pct": 12.8,
+            }
+            cfg = load_risk_config()
+            plan = build_strategy_plan(
+                candidate,
+                ticker="BTC",
+                current_price=price,
+                cfg=cfg,
+                market_regime={"regime": "trending_up", "confidence": 0.82},
+                symbol_regime={"regime": "trending_up", "confidence": 0.86},
+                history_root=root,
+            )
+            assert plan["strategy_mode"] == "bull_trend"
+            assert plan["target_multiplier"] > 1.0
+            assert plan["timeout_multiplier"] > 1.0
+
+    def test_strategy_plan_activates_bull_trend_without_local_history(self):
+        candidate = {
+            "score_final": 82,
+            "spy_confluence": 3,
+            "spy_breakout": 1,
+            "spy_chart": 0,
+            "chg_24h_pct": 6.2,
+            "chg_7d_pct": 14.4,
+        }
+        cfg = load_risk_config()
+        plan = build_strategy_plan(
+            candidate,
+            ticker="AVAX",
+            current_price=25.0,
+            cfg=cfg,
+            market_regime={"regime": "unknown", "confidence": 0.0},
+            symbol_regime={"regime": "unknown", "confidence": 0.0},
+            history_root=Path(tempfile.gettempdir()) / "nonexistent-openclaw-history",
+        )
+        assert plan["strategy_mode"] == "bull_trend"
+        assert "sin historico local" in plan["reason"]
+
     def test_range_grid_plans_multiple_bands(self):
         strategy_plan = {
             "strategy_mode": "range_lateral",
@@ -472,6 +542,7 @@ def run_all():
         TestInferSetupTag,
         TestParseScalar,
         TestLoadRiskConfig,
+        TestStrategyRouter,
         TestRiskMetrics,
         TestBootstrapCI,
         TestSlippageModel,

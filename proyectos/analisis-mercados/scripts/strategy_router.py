@@ -131,6 +131,77 @@ def compute_range_reversion_context(
     }
 
 
+def compute_bull_trend_context(
+    symbol: str,
+    current_price: float,
+    fast_bars: int = 20,
+    slow_bars: int = 50,
+    breakout_near_high_pct: float = 1.25,
+    max_pullback_pct: float = 3.5,
+    min_trend_strength_pct: float = 0.45,
+    history_root: Path | None = None,
+) -> dict:
+    rows = load_recent_ohlcv(symbol, intervals=("5m", "15m"), max_rows=max(slow_bars + 40, 120), history_root=history_root)
+    if len(rows) < max(slow_bars, 60) or current_price <= 0:
+        return {
+            "eligible": False,
+            "reason": "sin historico suficiente para tendencia",
+            "trend_strength_pct": 0.0,
+            "pullback_from_high_pct": 999.0,
+            "breakout_distance_pct": -999.0,
+        }
+
+    closes = [r["close"] for r in rows]
+    highs = [r["high"] for r in rows]
+    fast_ma = mean(closes[-fast_bars:])
+    slow_ma = mean(closes[-slow_bars:])
+    trend_strength_pct = ((fast_ma / max(slow_ma, 1e-9)) - 1.0) * 100.0
+    recent_high = max(highs[-fast_bars:])
+    breakout_distance_pct = ((current_price / max(recent_high, 1e-9)) - 1.0) * 100.0
+    pullback_from_high_pct = ((recent_high / max(current_price, 1e-9)) - 1.0) * 100.0
+    short_anchor = closes[-12] if len(closes) >= 12 else closes[0]
+    momentum_short_pct = ((current_price / max(short_anchor, 1e-9)) - 1.0) * 100.0
+
+    above_fast = current_price >= fast_ma
+    fast_above_slow = fast_ma > slow_ma
+    near_high = pullback_from_high_pct <= max_pullback_pct and breakout_distance_pct >= -breakout_near_high_pct
+    momentum_ok = momentum_short_pct >= 0.4
+    trend_ok = trend_strength_pct >= min_trend_strength_pct
+
+    reasons = []
+    if not above_fast:
+        reasons.append("precio por debajo de media rapida")
+    if not fast_above_slow:
+        reasons.append("media rapida no supera a media lenta")
+    if not trend_ok:
+        reasons.append(f"fuerza de tendencia insuficiente ({trend_strength_pct:.2f}%)")
+    if not near_high:
+        reasons.append(f"demasiado lejos del maximo reciente ({pullback_from_high_pct:.2f}%)")
+    if not momentum_ok:
+        reasons.append(f"impulso corto debil ({momentum_short_pct:.2f}%)")
+
+    quality = 0.0
+    quality += 0.3 if above_fast else 0.0
+    quality += 0.2 if fast_above_slow else 0.0
+    quality += max(0.0, min(0.25, trend_strength_pct / max(min_trend_strength_pct * 4.0, 1e-9)))
+    quality += max(0.0, 0.15 - min(0.15, pullback_from_high_pct / max(max_pullback_pct * 10.0, 1e-9)))
+    quality += max(0.0, min(0.1, momentum_short_pct / 10.0))
+    quality = round(min(1.0, quality), 3)
+
+    return {
+        "eligible": above_fast and fast_above_slow and trend_ok and near_high and momentum_ok,
+        "reason": "; ".join(reasons) if reasons else "continuacion alcista valida",
+        "fast_ma": round(fast_ma, 6),
+        "slow_ma": round(slow_ma, 6),
+        "trend_strength_pct": round(trend_strength_pct, 4),
+        "recent_high": round(recent_high, 6),
+        "pullback_from_high_pct": round(pullback_from_high_pct, 4),
+        "breakout_distance_pct": round(breakout_distance_pct, 4),
+        "momentum_short_pct": round(momentum_short_pct, 4),
+        "trend_quality": quality,
+    }
+
+
 def build_strategy_plan(
     candidate: dict,
     ticker: str,
@@ -146,32 +217,111 @@ def build_strategy_plan(
         "stop_multiplier": 1.0,
         "alloc_multiplier": 1.0,
         "timeout_multiplier": 1.0,
+        "trail_activation_ratio_override": None,
+        "trail_stop_profit_share_override": None,
+        "target_extension_ratio_override": None,
+        "target_extension_min_score_override": None,
         "min_score_override": None,
         "min_confluence_override": None,
         "reason": "modo base",
         "range_context": {},
+        "bull_context": {},
     }
-
-    if not bool(cfg.get("range_mode_enabled", True)):
-        plan["reason"] = "range mode desactivado"
-        return plan
 
     score = int(candidate.get("score_final") or candidate.get("score") or 0)
     confluence = int(candidate.get("spy_confluence") or 0)
     breakout = int(candidate.get("spy_breakout") or 0)
     chart = int(candidate.get("spy_chart") or 0)
+    chg_24h_pct = float(candidate.get("chg_24h_pct") or 0.0)
+    chg_7d_pct = float(candidate.get("chg_7d_pct") or 0.0)
     market_regime_name = str(market_regime.get("regime") or "unknown")
     symbol_regime_name = str(symbol_regime.get("regime") or market_regime_name or "unknown")
-    regime_confidence = max(
+    trend_regime_confidence = max(
         float(symbol_regime.get("confidence") or 0.0),
+        float(market_regime.get("confidence") or 0.0),
+    )
+    range_regime_confidence = max(
+        float(symbol_regime.get("confidence") or 0.0) if symbol_regime_name == "ranging" else 0.0,
         float(market_regime.get("confidence") or 0.0) if market_regime_name == "ranging" else 0.0,
     )
+
+    bull_context = compute_bull_trend_context(
+        ticker,
+        current_price,
+        fast_bars=int(cfg.get("bull_fast_bars", 20) or 20),
+        slow_bars=int(cfg.get("bull_slow_bars", 50) or 50),
+        breakout_near_high_pct=float(cfg.get("bull_breakout_near_high_pct", 1.25) or 1.25),
+        max_pullback_pct=float(cfg.get("bull_max_pullback_pct", 3.5) or 3.5),
+        min_trend_strength_pct=float(cfg.get("bull_min_trend_strength_pct", 0.45) or 0.45),
+        history_root=history_root,
+    )
+    plan["bull_context"] = bull_context
+    strong_countertrend_override = (
+        chg_24h_pct >= float(cfg.get("bull_countertrend_override_24h", 5.0) or 5.0)
+        and chg_7d_pct >= float(cfg.get("bull_countertrend_override_7d", 10.0) or 10.0)
+        and (breakout > 0 or chart > 0 or confluence >= 3)
+    )
+
+    if bool(cfg.get("bull_trend_enabled", True)):
+        bull_min_score = int(cfg.get("bull_min_score", 76) or 76)
+        bull_min_confluence = int(cfg.get("bull_min_confluence", 2) or 2)
+        bull_min_24h_pct = float(cfg.get("bull_min_24h_pct", 2.5) or 2.5)
+        bull_min_7d_pct = float(cfg.get("bull_min_7d_pct", 6.0) or 6.0)
+        snapshot_bullish_fallback = (
+            str(bull_context.get("reason") or "").startswith("sin historico suficiente")
+            and chg_24h_pct >= float(cfg.get("bull_nohistory_min_24h", 4.0) or 4.0)
+            and chg_7d_pct >= float(cfg.get("bull_nohistory_min_7d", 9.0) or 9.0)
+            and (breakout > 0 or chart > 0 or confluence >= 3)
+        )
+        severe_downtrend = (
+            symbol_regime_name == "trending_down"
+            and market_regime_name == "trending_down"
+            and trend_regime_confidence >= float(cfg.get("bull_downtrend_block_confidence", 0.7) or 0.7)
+        )
+        if (
+            score >= bull_min_score
+            and confluence >= bull_min_confluence
+            and chg_24h_pct >= bull_min_24h_pct
+            and chg_7d_pct >= bull_min_7d_pct
+            and (bull_context.get("eligible") or snapshot_bullish_fallback)
+            and ((breakout > 0 or chart > 0 or confluence >= 3) or bull_context.get("trend_quality", 0.0) >= 0.72 or snapshot_bullish_fallback)
+            and (not severe_downtrend or strong_countertrend_override)
+        ):
+            reason = (
+                f"bull_trend snapshot: 24h={chg_24h_pct:.2f}%, 7d={chg_7d_pct:.2f}% sin historico local"
+                if snapshot_bullish_fallback and not bull_context.get("eligible")
+                else (
+                    f"bull_trend activo: 24h={chg_24h_pct:.2f}%, 7d={chg_7d_pct:.2f}%, "
+                    f"pullback={bull_context.get('pullback_from_high_pct', 0.0):.2f}%"
+                )
+            )
+            plan.update(
+                {
+                    "strategy_mode": "bull_trend",
+                    "target_multiplier": float(cfg.get("bull_target_pct_multiplier", 3.0) or 3.0),
+                    "stop_multiplier": float(cfg.get("bull_stop_pct_multiplier", 1.35) or 1.35),
+                    "alloc_multiplier": float(cfg.get("bull_alloc_multiplier", 0.85) or 0.85),
+                    "timeout_multiplier": float(cfg.get("bull_timeout_multiplier", 4.5) or 4.5),
+                    "trail_activation_ratio_override": float(cfg.get("bull_trail_activation_ratio", 1.0) or 1.0),
+                    "trail_stop_profit_share_override": float(cfg.get("bull_trail_stop_profit_share", 0.62) or 0.62),
+                    "target_extension_ratio_override": float(cfg.get("bull_target_extension_ratio", 1.1) or 1.1),
+                    "target_extension_min_score_override": int(cfg.get("bull_target_extension_min_score", 74) or 74),
+                    "min_score_override": bull_min_score,
+                    "min_confluence_override": bull_min_confluence,
+                    "reason": reason,
+                }
+            )
+            return plan
+
+    if not bool(cfg.get("range_mode_enabled", True)):
+        plan["reason"] = "range mode desactivado"
+        return plan
 
     if symbol_regime_name != "ranging" and market_regime_name != "ranging":
         plan["reason"] = f"regimen no lateral ({symbol_regime_name}/{market_regime_name})"
         return plan
-    if regime_confidence < float(cfg.get("range_confidence_min", 0.55) or 0.55):
-        plan["reason"] = f"confianza de rango insuficiente ({regime_confidence:.2f})"
+    if range_regime_confidence < float(cfg.get("range_confidence_min", 0.55) or 0.55):
+        plan["reason"] = f"confianza de rango insuficiente ({range_regime_confidence:.2f})"
         return plan
     if breakout > 0 or chart > 0:
         plan["reason"] = "setup parece breakout, no lateral"
@@ -208,7 +358,7 @@ def build_strategy_plan(
             "min_score_override": int(cfg.get("range_min_score", 68) or 68),
             "min_confluence_override": int(cfg.get("range_min_confluence", 2) or 2),
             "reason": (
-                f"range_lateral activo: {symbol_regime_name}, conf={regime_confidence:.2f}, "
+                f"range_lateral activo: {symbol_regime_name}, conf={range_regime_confidence:.2f}, "
                 f"pos={range_context.get('range_position', 1.0):.2f}, width={range_context.get('range_width_pct', 0.0):.2f}%"
             ),
         }

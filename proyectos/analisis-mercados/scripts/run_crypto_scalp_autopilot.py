@@ -295,6 +295,29 @@ def load_risk_config():
         "range_grid_max_new_orders_per_cycle": 2,
         "range_grid_safety_buffer_pct": 0.0025,
         "range_grid_band_cooldown_min": 25,
+        "bull_trend_enabled": True,
+        "bull_min_score": 76,
+        "bull_min_confluence": 2,
+        "bull_min_24h_pct": 2.5,
+        "bull_min_7d_pct": 6.0,
+        "bull_fast_bars": 20,
+        "bull_slow_bars": 50,
+        "bull_breakout_near_high_pct": 1.25,
+        "bull_max_pullback_pct": 3.5,
+        "bull_min_trend_strength_pct": 0.45,
+        "bull_downtrend_block_confidence": 0.7,
+        "bull_countertrend_override_24h": 5.0,
+        "bull_countertrend_override_7d": 10.0,
+        "bull_nohistory_min_24h": 4.0,
+        "bull_nohistory_min_7d": 9.0,
+        "bull_target_pct_multiplier": 3.0,
+        "bull_stop_pct_multiplier": 1.35,
+        "bull_alloc_multiplier": 0.85,
+        "bull_timeout_multiplier": 4.5,
+        "bull_trail_activation_ratio": 1.0,
+        "bull_trail_stop_profit_share": 0.62,
+        "bull_target_extension_ratio": 1.1,
+        "bull_target_extension_min_score": 74,
     }
     if not RISK_CFG.exists():
         return cfg
@@ -672,17 +695,21 @@ def _main_locked():
             if target_price > entry > 0:
                 target_progress = (cur - entry) / max(target_price - entry, 1e-9)
             order["target_progress"] = round(target_progress, 3)
-            if target_progress >= trail_activation_ratio and order.get("pnl_usd_est", 0) > 0:
-                locked_price = entry + max(0.0, (cur - entry) * trail_stop_profit_share)
+            order_trail_activation_ratio = float(order.get("trail_activation_ratio") or trail_activation_ratio)
+            order_trail_stop_profit_share = float(order.get("trail_stop_profit_share") or trail_stop_profit_share)
+            order_target_extension_ratio = float(order.get("target_extension_ratio") or target_extension_ratio)
+            order_target_extension_min_score = int(order.get("target_extension_min_score") or target_extension_min_score)
+            if target_progress >= order_trail_activation_ratio and order.get("pnl_usd_est", 0) > 0:
+                locked_price = entry + max(0.0, (cur - entry) * order_trail_stop_profit_share)
                 locked_price = max(locked_price, breakeven_px)
                 if locked_price > safe_float(order.get("stop_price"), 0):
                     order["stop_price"] = round_price(locked_price)
                     order["trailing_armed"] = True
             if cur >= target_price > 0 and not bool(order.get("target_extended")):
                 score_live = int(order.get("confidence") or order.get("score") or 0)
-                if score_live >= target_extension_min_score or int(order.get("spy_confluence") or 0) >= 4:
+                if score_live >= order_target_extension_min_score or int(order.get("spy_confluence") or 0) >= 4:
                     original_target = target_price
-                    extended_target = entry + ((target_price - entry) * (1.0 + target_extension_ratio))
+                    extended_target = entry + ((target_price - entry) * (1.0 + order_target_extension_ratio))
                     order["target_price"] = round_price(extended_target)
                     order["target_extended"] = True
                     order["target_extension_from"] = round_price(original_target)
@@ -1010,6 +1037,10 @@ def _main_locked():
         trade_target_pct = target_pct * float(strategy_plan.get("target_multiplier") or 1.0)
         trade_stop_pct = stop_pct * float(strategy_plan.get("stop_multiplier") or 1.0)
         strategy_timeout_mult = float(strategy_plan.get("timeout_multiplier") or 1.0)
+        trade_trail_activation_ratio = float(strategy_plan.get("trail_activation_ratio_override") or trail_activation_ratio)
+        trade_trail_stop_profit_share = float(strategy_plan.get("trail_stop_profit_share_override") or trail_stop_profit_share)
+        trade_target_extension_ratio = float(strategy_plan.get("target_extension_ratio_override") or target_extension_ratio)
+        trade_target_extension_min_score = int(strategy_plan.get("target_extension_min_score_override") or target_extension_min_score)
         trade_timeout_min = max(15, int(round(timeout_min * strategy_timeout_mult)))
         trade_timeout_profit_grace_min = max(5, int(round(timeout_profit_grace_min * max(0.75, strategy_timeout_mult))))
         trade_timeout_force_close_min = max(trade_timeout_min + 15, int(round(timeout_force_close_min * max(0.65, strategy_timeout_mult))))
@@ -1115,9 +1146,14 @@ def _main_locked():
                 "timeout_min": trade_timeout_min,
                 "timeout_profit_grace_min": trade_timeout_profit_grace_min,
                 "timeout_force_close_min": trade_timeout_force_close_min,
+                "trail_activation_ratio": trade_trail_activation_ratio,
+                "trail_stop_profit_share": trade_trail_stop_profit_share,
+                "target_extension_ratio": trade_target_extension_ratio,
+                "target_extension_min_score": trade_target_extension_min_score,
                 "opened_hour_utc": datetime.now(UTC).strftime("%H"),
                 "setup_tag": setup_tag,
                 "range_context": range_context if strategy_mode == "range_lateral" else {},
+                "bull_context": strategy_plan.get("bull_context") if strategy_mode == "bull_trend" else {},
                 "grid_band_index": band_index,
                 "grid_levels": entry_plan.get("grid_levels") or [],
                 "spy_confluence": confluence,
