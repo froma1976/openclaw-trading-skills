@@ -648,6 +648,10 @@ def build_trade_detail(order: dict, book: str, state: str):
     candle_pack = load_trade_candles(ticker, opened_at, closed_at)
     direction = "short" if book == "short" else "long"
     strategy_mode = str(order.get("strategy_mode") or ("scalp_short" if book == "short" else "scalp_intradia"))
+    strategy_label = (
+        "LATERAL" if strategy_mode == "range_lateral"
+        else ("ALCISTA" if strategy_mode == "bull_trend" else ("SHORT" if strategy_mode == "scalp_short" else "NORMAL"))
+    )
     grid_levels = []
     for level in (order.get("grid_levels") or []):
         try:
@@ -694,6 +698,7 @@ def build_trade_detail(order: dict, book: str, state: str):
         "state": state,
         "direction": direction,
         "strategy_mode": strategy_mode,
+        "strategy_label": strategy_label,
         "strategy_reason": order.get("strategy_reason") or "",
         "result": order.get("result") or state,
         "entry_price": order.get("entry_price"),
