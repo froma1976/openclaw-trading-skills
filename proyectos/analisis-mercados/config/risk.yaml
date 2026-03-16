@@ -85,3 +85,12 @@ bull_trail_activation_ratio: 1.0
 bull_trail_stop_profit_share: 0.62
 bull_target_extension_ratio: 1.1
 bull_target_extension_min_score: 74
+risk_on_enabled: true
+risk_on_min_alt_24h_pct: 4.0
+risk_on_min_alt_7d_pct: 8.0
+risk_on_min_candidates: 4
+risk_on_max_trades_hour_multiplier: 1.6
+risk_on_max_active_positions_multiplier: 1.5
+risk_on_max_trades_day_multiplier: 1.35
+risk_on_bull_priority_bonus: 14
+risk_on_breakout_priority_bonus: 6

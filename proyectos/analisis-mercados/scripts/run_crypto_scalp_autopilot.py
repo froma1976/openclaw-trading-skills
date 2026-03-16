@@ -318,6 +318,15 @@ def load_risk_config():
         "bull_trail_stop_profit_share": 0.62,
         "bull_target_extension_ratio": 1.1,
         "bull_target_extension_min_score": 74,
+        "risk_on_enabled": True,
+        "risk_on_min_alt_24h_pct": 4.0,
+        "risk_on_min_alt_7d_pct": 8.0,
+        "risk_on_min_candidates": 4,
+        "risk_on_max_trades_hour_multiplier": 1.6,
+        "risk_on_max_active_positions_multiplier": 1.5,
+        "risk_on_max_trades_day_multiplier": 1.35,
+        "risk_on_bull_priority_bonus": 14,
+        "risk_on_breakout_priority_bonus": 6,
     }
     if not RISK_CFG.exists():
         return cfg
@@ -559,6 +568,44 @@ def _main_locked():
                     moonshot_prime.add(tkr)
 
     px = {a.get("ticker"): float(a.get("price_usd")) for a in assets if a.get("ticker") and a.get("price_usd")}
+
+    risk_on_enabled = bool(cfg.get("risk_on_enabled", True))
+    risk_on_min_alt_24h_pct = float(cfg.get("risk_on_min_alt_24h_pct", 4.0) or 4.0)
+    risk_on_min_alt_7d_pct = float(cfg.get("risk_on_min_alt_7d_pct", 8.0) or 8.0)
+    risk_on_min_candidates = int(cfg.get("risk_on_min_candidates", 4) or 4)
+    risk_on_max_trades_hour_multiplier = float(cfg.get("risk_on_max_trades_hour_multiplier", 1.6) or 1.6)
+    risk_on_max_active_positions_multiplier = float(cfg.get("risk_on_max_active_positions_multiplier", 1.5) or 1.5)
+    risk_on_max_trades_day_multiplier = float(cfg.get("risk_on_max_trades_day_multiplier", 1.35) or 1.35)
+    risk_on_bull_priority_bonus = int(cfg.get("risk_on_bull_priority_bonus", 14) or 14)
+    risk_on_breakout_priority_bonus = int(cfg.get("risk_on_breakout_priority_bonus", 6) or 6)
+
+    risk_on_candidates = [
+        c for c in top
+        if str(c.get("ticker") or "").upper() not in {"BTC", "ETH"}
+        and float(c.get("chg_24h_pct") or 0.0) >= risk_on_min_alt_24h_pct
+        and float(c.get("chg_7d_pct") or 0.0) >= risk_on_min_alt_7d_pct
+        and int(c.get("score_final") or c.get("score") or 0) >= max(75, int(cfg.get("bull_min_score", 76) or 76) - 2)
+        and int(c.get("spy_confluence") or 0) >= 2
+        and c.get("decision_final") == "BUY"
+    ]
+    market_risk_on = risk_on_enabled and len(risk_on_candidates) >= risk_on_min_candidates
+
+    def candidate_priority(item):
+        score = int(item.get("score_final") or item.get("score") or 0)
+        confluence = int(item.get("spy_confluence") or 0)
+        breakout = int(item.get("spy_breakout") or 0)
+        chart = int(item.get("spy_chart") or 0)
+        chg24 = float(item.get("chg_24h_pct") or 0.0)
+        chg7 = float(item.get("chg_7d_pct") or 0.0)
+        priority = score * 100 + confluence * 15 + breakout * 8 + chart * 8
+        if market_risk_on:
+            if chg24 >= risk_on_min_alt_24h_pct and chg7 >= risk_on_min_alt_7d_pct:
+                priority += risk_on_bull_priority_bonus
+            if breakout > 0 or chart > 0:
+                priority += risk_on_breakout_priority_bonus
+        return priority
+
+    top = sorted(top, key=candidate_priority, reverse=True)
 
     book = load_json(ORD, {"active": [], "completed": [], "daily": {}, "portfolio": {}})
     active = book.get("active", []) or []
@@ -895,6 +942,10 @@ def _main_locked():
     effective_max_active_positions = max(1, int(round(max_active_positions * entry_scale))) if mode == "defensive" else max_active_positions
     # Aplicar regime y correlation ajustes
     effective_max_active_positions = min(effective_max_active_positions, effective_max_active_positions_regime)
+    if market_risk_on and mode != "defensive":
+        effective_max_trades_day = max(effective_max_trades_day, int(round(max_trades_day * risk_on_max_trades_day_multiplier)))
+        effective_max_trades_hour = max(effective_max_trades_hour, int(round(max_trades_hour * risk_on_max_trades_hour_multiplier)))
+        effective_max_active_positions = max(effective_max_active_positions, int(round(max_active_positions * risk_on_max_active_positions_multiplier)))
     if portfolio_concentrated:
         effective_max_active_positions = max(1, effective_max_active_positions // 2)  # reducir 50% si correlacion alta
 

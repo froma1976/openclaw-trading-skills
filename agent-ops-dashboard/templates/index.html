@@ -1536,6 +1536,18 @@
             <td>{{ crypto_orders_completed|length }}</td>
           </tr>
         </table>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <span class="badge ok">NORMAL activas: {{ crypto_active_mode_counts.NORMAL }}</span>
+          <span class="badge warn">LATERAL activas: {{ crypto_active_mode_counts.LATERAL }}</span>
+          <span class="badge ok">ALCISTA activas: {{ crypto_active_mode_counts.ALCISTA }}</span>
+          <span class="badge no">SHORT activos: {{ crypto_short_active_mode_counts.SHORT }}</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <span class="badge ok">NORMAL cerradas: {{ crypto_completed_mode_counts.NORMAL }}</span>
+          <span class="badge warn">LATERAL cerradas: {{ crypto_completed_mode_counts.LATERAL }}</span>
+          <span class="badge ok">ALCISTA cerradas: {{ crypto_completed_mode_counts.ALCISTA }}</span>
+          <span class="badge no">SHORT cerrados: {{ crypto_short_completed_mode_counts.SHORT }}</span>
+        </div>
         <div class="muted" style="margin-top:8px">BUY = entra operación. AVOID = no entramos.</div>
       </div>
 
@@ -1664,8 +1676,8 @@
             <td>
               {% if c.execution_state == 'COMPRADA' or c.ticker in active_crypto_tickers %}
               <span class="badge ok">COMPRADA</span>
-              {% elif c.execution_state == 'LISTA' %}
-              <span class="badge warn">LISTA</span>
+              {% elif c.execution_state == 'ELEGIBLE' %}
+              <span class="badge warn">ELEGIBLE</span>
               {% else %}
               <span class="badge no">NO COMPRADA</span>
               {% endif %}
