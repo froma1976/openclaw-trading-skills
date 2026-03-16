@@ -3040,7 +3040,10 @@
 
     function renderTradeChart(svg, payload) {
       const c = Array.isArray(payload.candles) ? payload.candles : [];
-      if (c.length < 2) { svg.innerHTML = ''; return; }
+      if (c.length < 2) {
+        svg.innerHTML = '<text x="50%" y="50%" fill="#94a3b8" text-anchor="middle" font-size="14">No hay velas suficientes para dibujar este trade</text>';
+        return;
+      }
       const markers = payload.markers || {};
       const levels = [];
       ['entry_price', 'target_price', 'stop_price', 'exit_price'].forEach((k) => {
@@ -3090,8 +3093,22 @@
       });
       const firstTs = c[0].t;
       const lastTs = c[c.length - 1].t;
-      const projectX = (iso) => {
+      const nearestCandleTs = (iso) => {
         const ts = Date.parse(String(iso || ''));
+        if (!Number.isFinite(ts)) return null;
+        let best = c[0].t;
+        let bestDiff = Math.abs(best - ts);
+        for (const candle of c) {
+          const diff = Math.abs(candle.t - ts);
+          if (diff < bestDiff) {
+            best = candle.t;
+            bestDiff = diff;
+          }
+        }
+        return best;
+      };
+      const projectX = (iso) => {
+        const ts = nearestCandleTs(iso);
         if (!Number.isFinite(ts) || lastTs <= firstTs) return null;
         const ratio = Math.max(0, Math.min(1, (ts - firstTs) / (lastTs - firstTs)));
         return p + ratio * (w - 2 * p);
@@ -3100,6 +3117,20 @@
       const closeX = projectX(payload.closed_at);
       if (openX !== null) html += `<line x1="${openX}" y1="${p}" x2="${openX}" y2="${h - p}" stroke="#e5e7eb" stroke-width="1" opacity="0.65"/><text x="${openX + 4}" y="${p + 12}" fill="#e5e7eb" font-size="10">Open</text>`;
       if (closeX !== null) html += `<line x1="${closeX}" y1="${p}" x2="${closeX}" y2="${h - p}" stroke="#fbbf24" stroke-width="1" opacity="0.75"/><text x="${closeX + 4}" y="${p + 24}" fill="#fbbf24" font-size="10">Close</text>`;
+
+      const pointStyles = {
+        buy: { fill: '#22c55e', stroke: '#dcfce7', label: 'BUY' },
+        sell: { fill: '#ef4444', stroke: '#fee2e2', label: 'SELL' },
+      };
+      (markers.event_points || []).forEach((point) => {
+        const price = Number(point.price);
+        const px = projectX(point.time);
+        if (!Number.isFinite(price) || price <= 0 || px === null) return;
+        const py = y(price);
+        const style = pointStyles[point.kind] || { fill: '#fbbf24', stroke: '#fef3c7', label: point.label || 'P' };
+        html += `<circle cx="${px}" cy="${py}" r="5.5" fill="${style.fill}" stroke="${style.stroke}" stroke-width="1.6"/>`;
+        html += `<text x="${px + 8}" y="${py - 8}" fill="${style.fill}" font-size="11" font-weight="700">${point.label || style.label}</text>`;
+      });
       svg.innerHTML = html;
     }
 
@@ -3117,13 +3148,31 @@
       document.getElementById('anTarget').textContent = d.target_price ?? '-';
       document.getElementById('anStop').textContent = d.stop_price ?? '-';
 
-      renderTradeChart(document.getElementById('anCandle'), { candles: d.candles || [], markers: {} });
+      renderTradeChart(document.getElementById('anCandle'), {
+        candles: d.candles || [],
+        markers: {
+          entry_price: d.entry_price,
+          target_price: d.target_price,
+          stop_price: d.stop_price,
+          exit_price: null,
+          grid_levels: [],
+          event_points: [
+            d.entry_price ? { kind: 'buy', label: 'Entrada', time: null, price: d.entry_price } : null,
+          ].filter(Boolean),
+        },
+      });
     }
 
     async function openTradeDetail(book, state, orderId) {
       const modal = document.getElementById('analysisModal');
       modal.style.display = 'flex';
       const res = await fetch(`/api/crypto-order-detail/${encodeURIComponent(book)}/${encodeURIComponent(state)}/${encodeURIComponent(orderId)}`);
+      if (!res.ok) {
+        document.getElementById('anTitle').textContent = 'Trade detail';
+        document.getElementById('anNarrativa').textContent = 'No pude cargar el detalle del trade.';
+        renderTradeChart(document.getElementById('anCandle'), { candles: [], markers: {} });
+        return;
+      }
       const d = await res.json();
       document.getElementById('anTitle').textContent = `Trade detail · ${d.ticker}`;
       document.getElementById('anNarrativa').textContent = d.summary || d.strategy_reason || '';

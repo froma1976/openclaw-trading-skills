@@ -663,6 +663,20 @@ def build_trade_detail(order: dict, book: str, state: str):
         "grid_levels": grid_levels,
         "grid_band_index": order.get("grid_band_index"),
         "range_context": order.get("range_context") or {},
+        "event_points": [
+            {
+                "kind": "buy" if direction == "long" else "sell",
+                "label": "Entrada",
+                "time": opened_at,
+                "price": order.get("entry_price"),
+            },
+            {
+                "kind": "sell" if direction == "long" else "buy",
+                "label": "Salida",
+                "time": closed_at,
+                "price": order.get("close_price") or order.get("exit_price"),
+            },
+        ],
     }
     summary = (
         f"{ticker} · {strategy_mode} · {direction}. "
