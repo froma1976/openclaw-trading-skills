@@ -26,9 +26,10 @@ MODELS = BASE / "models"
 OUT = BASE / "reports" / "walkforward_report.md"
 CSVOUT = BASE / "reports" / "baseline_vs_lstm.csv"
 
-# Importar TinyLSTM desde modulo compartido
+# Importar arquitecturas desde modulo compartido
 sys.path.insert(0, str(MODELS))
-from architecture import TinyLSTM  # noqa: E402
+from architecture import TinyLSTM, EnhancedLSTM  # noqa: E402
+from lstm_features import load_ohlcv, make_enhanced_dataset  # noqa: E402
 from runtime_utils import atomic_write_text  # noqa: E402
 
 
@@ -68,17 +69,41 @@ def make_windows(series, lookback=32):
     return np.array(X, dtype=np.float32), np.array(y_ret, dtype=np.float32)
 
 
+def make_windows_from_history(path: Path, lookback: int, feature_count: int):
+    if feature_count > 1:
+        ohlcv = load_ohlcv(path)
+        return make_enhanced_dataset(ohlcv, lookback)
+    closes = load_close(path)
+    return make_windows(closes, lookback)
+
+
 def load_model(symbol: str):
     """Carga el modelo LSTM entrenado para un simbolo. Retorna None si no existe."""
     model_p = MODELS / f"lstm_{symbol}.pt"
     meta_p = MODELS / f"lstm_{symbol}_meta.json"
     if not (model_p.exists() and meta_p.exists()):
         return None, None
-    if torch is None or TinyLSTM is None:
+    if torch is None or TinyLSTM is None or EnhancedLSTM is None:
         return None, None
     meta = json.loads(meta_p.read_text(encoding="utf-8"))
-    model = TinyLSTM(hidden=32)
-    model.load_state_dict(torch.load(model_p, map_location="cpu", weights_only=True))
+    state_dict = torch.load(model_p, map_location="cpu", weights_only=True)
+
+    ih0 = state_dict.get("lstm.weight_ih_l0")
+    hh0 = state_dict.get("lstm.weight_hh_l0")
+    has_second_layer = "lstm.weight_ih_l1" in state_dict
+    input_size = int(ih0.shape[1]) if ih0 is not None else int(meta.get("features", 1) or 1)
+    hidden = int(hh0.shape[1]) if hh0 is not None else int(meta.get("hidden", 32) or 32)
+
+    if has_second_layer or input_size > 1 or meta.get("model_type") == "EnhancedLSTM":
+        model = EnhancedLSTM(input_size=input_size, hidden=hidden, dropout=0.15)
+    else:
+        model = TinyLSTM(hidden=hidden)
+
+    try:
+        model.load_state_dict(state_dict)
+    except RuntimeError as exc:
+        meta = {**meta, "load_error": str(exc)}
+        return None, meta
     model.eval()
     return model, meta
 
@@ -91,18 +116,19 @@ def predict_batch(model, X_np, batch_size=512):
     with torch.no_grad():
         for i in range(0, len(X_np), batch_size):
             chunk = X_np[i:i + batch_size]
-            X_t = torch.tensor(chunk, dtype=torch.float32).unsqueeze(-1)
+            X_t = torch.tensor(chunk, dtype=torch.float32)
+            if X_t.ndim == 2:
+                X_t = X_t.unsqueeze(-1)
             preds = model(X_t).squeeze(-1).numpy()
             all_preds.append(preds)
     return np.concatenate(all_preds)
 
 
-def walk_eval_real(series, model, folds=5, lookback=32, gap=32):
+def walk_eval_real(X, y, model, folds=5, gap=32):
     """
     Walk-forward REAL: entrena y evalua por folds usando el LSTM cargado.
     gap: numero de muestras entre train y test para evitar contaminacion de ventanas solapadas.
     """
-    X, y = make_windows(series, lookback)
     n = len(X)
     fold_size = n // (folds + 1)
     results = []
@@ -160,7 +186,8 @@ def main():
         # Cargar modelo entrenado
         model, meta = load_model(sym)
         if model is None:
-            print(f"WARN: No hay modelo para {sym}, saltando")
+            extra = f" ({meta.get('load_error')})" if meta and meta.get("load_error") else ""
+            print(f"WARN: No hay modelo utilizable para {sym}, saltando{extra}")
             continue
 
         # Cargar datos historicos
@@ -171,17 +198,18 @@ def main():
             print(f"WARN: No hay historico para {sym}, saltando")
             continue
 
-        closes = load_close(p)
-        if len(closes) < 200:
-            print(f"WARN: Historico muy corto para {sym} ({len(closes)} velas)")
+        feature_count = int(meta.get("features", 1) or 1)
+        X, y = make_windows_from_history(p, lookback=int(meta.get("lookback", 32)), feature_count=feature_count)
+        if len(X) < 200:
+            print(f"WARN: Historico muy corto para {sym} ({len(X)} muestras)")
             continue
-        # Limitar a las ultimas 5000 velas para evitar OOM y mejorar relevancia temporal
-        MAX_BARS = 5000
-        if len(closes) > MAX_BARS:
-            closes = closes[-MAX_BARS:]
 
         lookback = int(meta.get("lookback", 32))
-        ev = walk_eval_real(closes, model, folds=5, lookback=lookback, gap=lookback)
+        max_samples = 5000
+        if len(X) > max_samples:
+            X = X[-max_samples:]
+            y = y[-max_samples:]
+        ev = walk_eval_real(X, y, model, folds=5, gap=lookback)
 
         for e in ev:
             all_rows.append({"symbol": sym, **e})

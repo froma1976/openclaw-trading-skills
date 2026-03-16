@@ -1,3 +1,10 @@
+param([switch]$HiddenChild)
+
+if (-not $HiddenChild) {
+  Start-Process -FilePath 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-HiddenChild') -WindowStyle Hidden
+  exit 0
+}
+
 $ErrorActionPreference = 'Continue'
 $base = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados'
 $logDir = Join-Path $base 'logs'
@@ -15,23 +22,29 @@ try {
   if ($outp) { $outp | Add-Content $log }
   "[$(Get-Date -Format s)] PUBLIC_OHLCV_EXITCODE=$exitp" | Add-Content $log
 
-  # 1) Actualizar histórico incremental (15m) para BTC y SOL
-  $out0 = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\download_binance_history.py" --symbols BTCUSDT,SOLUSDT --interval 15m --years 1 --incremental 2>&1
+  # 1) Actualizar histórico incremental (5m) para BTC, ETH y SOL
+  $out0 = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\download_binance_history.py" --symbols BTCUSDT,ETHUSDT,SOLUSDT --interval 5m --years 1 --incremental 2>&1
   $exit0 = $LASTEXITCODE
   if ($out0) { $out0 | Add-Content $log }
   "[$(Get-Date -Format s)] HISTORY_EXITCODE=$exit0" | Add-Content $log
 
-  # 2) Entrenar BTCUSDT (15m)
-  $out1 = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\train_lstm.py" --ticker BTCUSDT --interval 15m --lookback 32 --epochs 12 2>&1
-  $exit1 = $LASTEXITCODE
-  if ($out1) { $out1 | Add-Content $log }
-  "[$(Get-Date -Format s)] BTC_EXITCODE=$exit1" | Add-Content $log
+  # 2) Entrenar LSTM por simbolo en procesos separados para evitar acumulacion de memoria
+  $trainScript = "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\train_lstm_from_history.py"
+  $trainSymbols = @('BTCUSDT', 'ETHUSDT', 'SOLUSDT')
+  $trainExitCodes = @()
+  foreach ($trainSymbol in $trainSymbols) {
+    $out1 = & $py -3 $trainScript --symbols $trainSymbol --interval 5m --lookback 32 --epochs 8 --patience 5 --batch-size 128 --max-samples 40000 --eval-batch-size 256 2>&1
+    $symbolExit = $LASTEXITCODE
+    if ($out1) { $out1 | Add-Content $log }
+    "[$(Get-Date -Format s)] TRAIN_${trainSymbol}_EXITCODE=$symbolExit" | Add-Content $log
+    $trainExitCodes += $symbolExit
+  }
+  $exit1 = 0
+  if ($trainExitCodes | Where-Object { $_ -ne 0 }) { $exit1 = 1 }
+  "[$(Get-Date -Format s)] TRAIN_FROM_HISTORY_EXITCODE=$exit1" | Add-Content $log
 
-  # 3) Entrenar SOLUSDT (15m)
-  $out2 = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\train_lstm.py" --ticker SOLUSDT --interval 15m --lookback 32 --epochs 12 2>&1
-  $exit2 = $LASTEXITCODE
-  if ($out2) { $out2 | Add-Content $log }
-  "[$(Get-Date -Format s)] SOL_EXITCODE=$exit2" | Add-Content $log
+  # 3) Compat: se mantiene variable para la validación final del script
+  $exit2 = 0
 
   # 4) Calidad de dataset (trade-by-trade limpio desde órdenes disponibles)
   $out3 = & $py -3 "C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados\scripts\dataset_quality.py" 2>&1
@@ -75,7 +88,7 @@ try {
   if ($out9) { $out9 | Add-Content $log }
   "[$(Get-Date -Format s)] SNAPSHOT_EXITCODE=$exit9" | Add-Content $log
 
-  if ($exit0 -ne 0 -or $exit1 -ne 0 -or $exit2 -ne 0 -or $exit3 -ne 0 -or $exit4 -ne 0 -or $exit5 -ne 0 -or $exit6 -ne 0 -or $exit7 -ne 0 -or $exit8 -ne 0 -or $exit9 -ne 0) {
+  if ($exit0 -ne 0 -or $exit1 -ne 0 -or $exit3 -ne 0 -or $exit4 -ne 0 -or $exit5 -ne 0 -or $exit6 -ne 0 -or $exit7 -ne 0 -or $exit8 -ne 0 -or $exit9 -ne 0) {
     exit 1
   }
   exit 0

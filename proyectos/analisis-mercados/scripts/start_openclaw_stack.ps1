@@ -4,13 +4,23 @@ $log = 'C:\Users\Fernando\.openclaw\workspace\startup-stack.log'
 
 # 1) Gateway
 try {
-  & openclaw gateway start | Out-Null
-  "[$(Get-Date -Format s)] gateway start ok" | Add-Content $log
+  & 'C:\Users\Fernando\.openclaw\gateway.cmd' | Out-Null
+  "[$(Get-Date -Format s)] gateway start requested" | Add-Content $log
 } catch {
   "[$(Get-Date -Format s)] gateway start error" | Add-Content $log
 }
 
 Start-Sleep -Seconds 5
+
+# 1b) Node host
+try {
+  & 'C:\Users\Fernando\.openclaw\node.cmd' | Out-Null
+  "[$(Get-Date -Format s)] node host start requested" | Add-Content $log
+} catch {
+  "[$(Get-Date -Format s)] node host start error" | Add-Content $log
+}
+
+Start-Sleep -Seconds 3
 
 # 2) Dashboard (si no está corriendo)
 $dashCmd = 'uvicorn app:app --host 127.0.0.1 --port 8080'

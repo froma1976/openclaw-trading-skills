@@ -35,6 +35,7 @@ from run_crypto_scalp_autopilot import (
     parse_scalar,
     load_risk_config,
 )
+from strategy_router import normalize_symbol, compute_range_reversion_context, build_strategy_plan, plan_range_grid
 
 # ============================================================
 # Tests: runtime_utils
@@ -275,6 +276,71 @@ class TestLoadRiskConfig:
         assert isinstance(cfg["target_pct"], (int, float))
         assert isinstance(cfg["max_trades_day"], (int, float))
         assert isinstance(cfg["fee_bps"], (int, float))
+
+
+class TestStrategyRouter:
+    def test_normalize_symbol(self):
+        assert normalize_symbol("btc") == "BTCUSDT"
+        assert normalize_symbol("ETHUSDT") == "ETHUSDT"
+
+    def test_range_context_detects_valid_lower_band(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            path = root / "BTCUSDT_15m.csv"
+            rows = ["open,high,low,close,volume"]
+            for i in range(140):
+                base = 100.0 + ((i % 12) - 6) * 0.35
+                rows.append(f"{base:.4f},{base + 0.8:.4f},{base - 0.8:.4f},{base:.4f},1000")
+            path.write_text("\n".join(rows), encoding="utf-8")
+
+            ctx = compute_range_reversion_context("BTC", current_price=98.85, history_root=root)
+            assert ctx["eligible"] is True
+            assert ctx["range_position"] < 0.36
+            assert ctx["range_width_pct"] > 1.2
+
+    def test_strategy_plan_activates_range_mode(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            path = root / "BTCUSDT_15m.csv"
+            rows = ["open,high,low,close,volume"]
+            for i in range(140):
+                base = 100.0 + ((i % 10) - 5) * 0.4
+                rows.append(f"{base:.4f},{base + 0.7:.4f},{base - 0.7:.4f},{base:.4f},1000")
+            path.write_text("\n".join(rows), encoding="utf-8")
+
+            candidate = {
+                "score_final": 72,
+                "spy_confluence": 2,
+                "spy_breakout": 0,
+                "spy_chart": 0,
+            }
+            cfg = load_risk_config()
+            plan = build_strategy_plan(
+                candidate,
+                ticker="BTC",
+                current_price=98.7,
+                cfg=cfg,
+                market_regime={"regime": "ranging", "confidence": 0.72},
+                symbol_regime={"regime": "ranging", "confidence": 0.81},
+                history_root=root,
+            )
+            assert plan["strategy_mode"] == "range_lateral"
+            assert plan["alloc_multiplier"] < 1.0
+            assert plan["target_multiplier"] < 1.0
+
+    def test_range_grid_plans_multiple_bands(self):
+        strategy_plan = {
+            "strategy_mode": "range_lateral",
+            "range_context": {
+                "range_low": 98.0,
+                "range_high": 102.0,
+                "range_position": 0.18,
+            },
+        }
+        cfg = load_risk_config()
+        entries = plan_range_grid(strategy_plan, current_price=99.1, cfg=cfg, active_grid_bands=set(), recent_grid_bands=set())
+        assert len(entries) >= 1
+        assert entries[0]["target_price"] > 99.1
 
 
 # ============================================================

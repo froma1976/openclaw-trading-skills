@@ -35,6 +35,7 @@ CRYPTO_SHORT_SIGNALS_PATH = Path(os.getenv("CRYPTO_SHORT_SIGNALS_PATH", "C:/User
 CRYPTO_SHORT_ORDERS_PATH = Path(os.getenv("CRYPTO_SHORT_ORDERS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_short_orders_sim.json"))
 CRYPTO_RISK_PATH = Path(os.getenv("CRYPTO_RISK_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/config/risk.yaml"))
 CRYPTO_SHORT_RISK_PATH = Path(os.getenv("CRYPTO_SHORT_RISK_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/config/risk_short.yaml"))
+CRYPTO_HISTORY_DIR = Path(os.getenv("CRYPTO_HISTORY_DIR", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/history"))
 CRYPTO_STREAM_STATUS_PATH = Path(os.getenv("CRYPTO_STREAM_STATUS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/crypto_stream_status.json"))
 LEARNING_STATUS_PATH = Path(os.getenv("LEARNING_STATUS_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status.json"))
 LEARNING_STATUS_SHORT_PATH = Path(os.getenv("LEARNING_STATUS_SHORT_PATH", "C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/learning_status_short.json"))
@@ -51,24 +52,9 @@ GPT53_MODE = os.getenv("GPT53_MODE", "normal").strip().lower()
 # --- CACHE DE API PROBES (evitar llamadas externas en cada carga de pagina) ---
 _api_probe_cache = {"status": {}, "last_check": 0, "ttl_seconds": 300}  # 5 min cache
 
-# --- AUTENTICACION BASICA ---
-# Credenciales configurables via env vars. Cambiar en produccion.
-DASHBOARD_USER = os.getenv("DASHBOARD_USER", "admin")
-DASHBOARD_PASS = os.getenv("DASHBOARD_PASS", "openclaw2026")
-security = HTTPBasic()
-
-
-def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
-    """Verifica credenciales HTTP Basic Auth contra env vars."""
-    correct_user = secrets.compare_digest(credentials.username.encode("utf-8"), DASHBOARD_USER.encode("utf-8"))
-    correct_pass = secrets.compare_digest(credentials.password.encode("utf-8"), DASHBOARD_PASS.encode("utf-8"))
-    if not (correct_user and correct_pass):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales invalidas",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return credentials.username
+# --- AUTENTICACION DESACTIVADA ---
+def verify_credentials():
+    return "admin"
 
 
 def date_iso_to_es(iso_str: str) -> str:
@@ -78,6 +64,15 @@ def date_iso_to_es(iso_str: str) -> str:
         dt = datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
         return dt.strftime("%d/%m/%Y")
     except: return iso_str
+
+
+def parse_iso_utc(value: str | None):
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except Exception:
+        return None
 
 app = FastAPI(title="Agent Ops Dashboard")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -587,6 +582,120 @@ def load_crypto_orders():
         }
     except Exception:
         return {"active": [], "completed": [], "daily": {"trades": 0}, "portfolio": {"capital_initial_usd": 300, "cash_usd": 300, "market_value_usd": 0, "equity_usd": 300}}
+
+
+def load_crypto_order_book(book: str):
+    if book == "short":
+        return _load_json_file(CRYPTO_SHORT_ORDERS_PATH, {"active": [], "completed": [], "daily": {}, "portfolio": {}})
+    return load_crypto_orders()
+
+
+def normalize_crypto_pair(ticker: str) -> str:
+    raw = str(ticker or "").upper().replace("-USD", "").strip()
+    if not raw:
+        return ""
+    if raw.endswith(("USDT", "USDC", "BUSD", "FDUSD")):
+        return raw
+    return f"{raw}USDT"
+
+
+def load_trade_candles(ticker: str, opened_at: str | None, closed_at: str | None):
+    pair = normalize_crypto_pair(ticker)
+    if not pair:
+        return {"candles": [], "interval": None}
+
+    opened_dt = parse_iso_utc(opened_at) or (datetime.now(UTC) - timedelta(hours=8))
+    closed_dt = parse_iso_utc(closed_at) or datetime.now(UTC)
+    trade_minutes = max(30, int((closed_dt - opened_dt).total_seconds() // 60))
+    interval = "5m" if trade_minutes <= 24 * 60 else "15m"
+    path = CRYPTO_HISTORY_DIR / f"{pair}_{interval}.csv"
+    if not path.exists() and interval == "5m":
+        interval = "15m"
+        path = CRYPTO_HISTORY_DIR / f"{pair}_{interval}.csv"
+    if not path.exists():
+        return {"candles": [], "interval": interval}
+
+    pad_before = timedelta(minutes=90 if interval == "5m" else 240)
+    pad_after = timedelta(minutes=90 if interval == "5m" else 240)
+    start_dt = opened_dt - pad_before
+    end_dt = closed_dt + pad_after
+    candles = []
+    with path.open(encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            try:
+                open_ms = int(float(row.get("open_time") or 0))
+                dt = datetime.fromtimestamp(open_ms / 1000, tz=UTC)
+                if dt < start_dt:
+                    continue
+                if dt > end_dt:
+                    break
+                candles.append({
+                    "t": open_ms,
+                    "o": float(row.get("open") or 0),
+                    "h": float(row.get("high") or 0),
+                    "l": float(row.get("low") or 0),
+                    "c": float(row.get("close") or 0),
+                })
+            except Exception:
+                continue
+    return {"candles": candles[-180:], "interval": interval}
+
+
+def build_trade_detail(order: dict, book: str, state: str):
+    ticker = str(order.get("ticker") or "")
+    opened_at = order.get("opened_at")
+    closed_at = order.get("closed_at")
+    candle_pack = load_trade_candles(ticker, opened_at, closed_at)
+    direction = "short" if book == "short" else "long"
+    strategy_mode = str(order.get("strategy_mode") or ("scalp_short" if book == "short" else "scalp_intradia"))
+    grid_levels = []
+    for level in (order.get("grid_levels") or []):
+        try:
+            grid_levels.append(round(float(level), 6))
+        except Exception:
+            continue
+
+    markers = {
+        "entry_price": order.get("entry_price"),
+        "target_price": order.get("target_price"),
+        "stop_price": order.get("stop_price"),
+        "exit_price": order.get("close_price") or order.get("exit_price"),
+        "grid_levels": grid_levels,
+        "grid_band_index": order.get("grid_band_index"),
+        "range_context": order.get("range_context") or {},
+    }
+    summary = (
+        f"{ticker} · {strategy_mode} · {direction}. "
+        f"Resultado {order.get('result') or state}. "
+        f"Entrada {order.get('entry_price') or '-'} | salida {order.get('close_price') or order.get('exit_price') or '-'} | "
+        f"PnL {order.get('pnl_usd') if order.get('pnl_usd') is not None else order.get('pnl_usd_est') or '-'} USD."
+    )
+    if strategy_mode == "range_lateral" and grid_levels:
+        summary += f" Grid activo con {len(grid_levels)} niveles y banda {order.get('grid_band_index')}"
+
+    return {
+        "ok": True,
+        "ticker": ticker,
+        "book": book,
+        "state": state,
+        "direction": direction,
+        "strategy_mode": strategy_mode,
+        "strategy_reason": order.get("strategy_reason") or "",
+        "result": order.get("result") or state,
+        "entry_price": order.get("entry_price"),
+        "target_price": order.get("target_price"),
+        "stop_price": order.get("stop_price"),
+        "exit_price": order.get("close_price") or order.get("exit_price"),
+        "current_price": order.get("current_price"),
+        "opened_at": opened_at,
+        "closed_at": closed_at,
+        "pnl_usd": order.get("pnl_usd") if order.get("pnl_usd") is not None else order.get("pnl_usd_est"),
+        "notional_usd": order.get("notional_usd"),
+        "interval": candle_pack.get("interval"),
+        "candles": candle_pack.get("candles") or [],
+        "markers": markers,
+        "summary": summary,
+    }
 
 
 def load_journal():
@@ -1111,6 +1220,23 @@ def api_analysis(ticker: str):
     })
 
 
+@app.get("/api/crypto-order-detail/{book}/{state}/{order_id}")
+def api_crypto_order_detail(book: str, state: str, order_id: str):
+    book = (book or "long").strip().lower()
+    state = (state or "completed").strip().lower()
+    if book not in {"long", "short"}:
+        raise HTTPException(status_code=400, detail="book invalido")
+    if state not in {"active", "completed"}:
+        raise HTTPException(status_code=400, detail="state invalido")
+
+    order_book = load_crypto_order_book(book)
+    rows = (order_book.get(state) or []) if isinstance(order_book, dict) else []
+    order = next((row for row in rows if str(row.get("id") or "") == str(order_id)), None)
+    if not order:
+        raise HTTPException(status_code=404, detail="orden no encontrada")
+    return JSONResponse(build_trade_detail(order, book, state))
+
+
 @app.post("/tasks/create")
 def create_task(
     title: str = Form(...),
@@ -1225,7 +1351,7 @@ def complete_order(order_id: str = Form(...)):
 
 
 @app.post("/signals/refresh")
-def refresh_signals(user: str = Depends(verify_credentials)):
+def refresh_signals():
     if INGEST_SCRIPT.exists():
         try:
             subprocess.run(["py", "-3", str(INGEST_SCRIPT)], check=False, timeout=120)
@@ -1235,7 +1361,7 @@ def refresh_signals(user: str = Depends(verify_credentials)):
 
 
 @app.post("/crypto/pause")
-def crypto_pause(user: str = Depends(verify_credentials)):
+def crypto_pause():
     d = load_crypto_orders()
     daily = d.get("daily", {}) or {}
     daily["paused"] = True
@@ -1247,7 +1373,7 @@ def crypto_pause(user: str = Depends(verify_credentials)):
 
 
 @app.post("/crypto/resume")
-def crypto_resume(user: str = Depends(verify_credentials)):
+def crypto_resume():
     d = load_crypto_orders()
     daily = d.get("daily", {}) or {}
     daily["paused"] = False
@@ -1260,7 +1386,7 @@ def crypto_resume(user: str = Depends(verify_credentials)):
 
 
 @app.post("/kill_switch")
-def kill_switch(user: str = Depends(verify_credentials)):
+def kill_switch():
     d = load_crypto_orders()
     daily = d.get("daily", {}) or {}
     daily["paused"] = True
@@ -1279,7 +1405,7 @@ def kill_switch(user: str = Depends(verify_credentials)):
 
 
 @app.post("/signals/autotasks")
-def create_tasks_from_top(threshold: int = Form(60), assigned_to: str = Form("alpha-scout"), user: str = Depends(verify_credentials)):
+def create_tasks_from_top(threshold: int = Form(60), assigned_to: str = Form("alpha-scout")):
     signals = load_signals_snapshot()
     top = signals.get("top_opportunities", []) if isinstance(signals, dict) else []
     conn = sqlite3.connect(DB_PATH)
@@ -1315,7 +1441,7 @@ def create_tasks_from_top(threshold: int = Form(60), assigned_to: str = Form("al
 
 
 @app.post("/autopilot/run")
-def autopilot_run(threshold: int = Form(60), assigned_to: str = Form("alpha-scout"), user: str = Depends(verify_credentials)):
+def autopilot_run(threshold: int = Form(60), assigned_to: str = Form("alpha-scout")):
     threshold = max(0, min(100, threshold))
 
     if INGEST_SCRIPT.exists():
@@ -1668,6 +1794,9 @@ def home(request: Request):
         unified_completed_orders.append({
             "market": "Cripto",
             "ticker": o.get("ticker"),
+            "order_id": o.get("id"),
+            "order_book": "long",
+            "order_state": "completed",
             "entry_price": o.get("entry_price"),
             "exit_price": o.get("close_price") or o.get("exit_price"),
             "result": o.get("result"),

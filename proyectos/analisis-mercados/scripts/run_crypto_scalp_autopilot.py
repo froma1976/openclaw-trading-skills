@@ -11,6 +11,7 @@ import source_ingest_crypto_short
 
 from runtime_utils import atomic_write_json, file_lock, make_exit_levels, round_price
 from log_config import get_logger, log_trade, log_error_safe
+from strategy_router import build_strategy_plan, normalize_symbol, plan_range_grid
 
 log = get_logger("autopilot")
 
@@ -27,11 +28,12 @@ ORD = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/da
 RISK_CFG = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/config/risk.yaml")
 UNIVERSE_STATUS = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/universe_status.json")
 MACRO_SENTINEL_PATH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/macro_sentinel.json")
+MOONSHOT_PATH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/moonshot_candidates.json")
 RUNTIME_LOCK = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/locks/crypto_runtime.lock")
 
 TARGET_PCT = 0.9
 STOP_PCT = 0.55
-TIMEOUT_MIN = 12
+TIMEOUT_MIN = 30
 MAX_TRADES_DAY = 120
 MAX_TRADES_HOUR = 30
 CRYPTO_CAPITAL_INITIAL_USD = 300.0
@@ -152,7 +154,7 @@ def analyze_ticker_memory(completed_orders, ticker):
     if not recent:
         return 1.0, "Nuevo para hoy"
     
-    losses = [o for o in recent if o.get("result") == "perdida" or (o.get("pnl_usd") or 0) < 0]
+    losses = [o for o in recent if (o.get("result") == "perdida") or (o.get("result") != "timeout" and (o.get("pnl_usd") or 0) < 0)]
     wins = [o for o in recent if o.get("result") == "ganada" and (o.get("pnl_usd") or 0) > 0]
     
     if len(losses) >= 3:
@@ -275,6 +277,24 @@ def load_risk_config():
         "excluded_symbols": [],
         "allowed_hours_utc": {"start": "00:00", "end": "23:59"},
         "execution_mode": "sim_only",
+        "range_mode_enabled": True,
+        "range_confidence_min": 0.55,
+        "range_min_score": 68,
+        "range_min_confluence": 2,
+        "range_lookback_bars": 96,
+        "range_entry_zone_max": 0.36,
+        "range_width_pct_min": 1.2,
+        "range_width_pct_max": 12.0,
+        "range_max_rebound_pct": 2.2,
+        "range_target_pct_multiplier": 0.72,
+        "range_stop_pct_multiplier": 0.78,
+        "range_alloc_multiplier": 0.75,
+        "range_timeout_multiplier": 0.65,
+        "range_grid_levels": 4,
+        "range_grid_max_positions_per_ticker": 3,
+        "range_grid_max_new_orders_per_cycle": 2,
+        "range_grid_safety_buffer_pct": 0.0025,
+        "range_grid_band_cooldown_min": 25,
     }
     if not RISK_CFG.exists():
         return cfg
@@ -501,6 +521,20 @@ def _main_locked():
 
     top = snap.get("top_opportunities", []) or []
     assets = snap.get("assets", []) or []
+    
+    # Cargar candidatos de Moonshot para el multiplicador de conviccion
+    moonshot_data = load_json(MOONSHOT_PATH, {})
+    moonshot_prime = set()
+    moonshot_all = set()
+    if isinstance(moonshot_data, dict):
+        crypto_ms = moonshot_data.get("crypto", [])
+        for c in crypto_ms:
+            tkr = str(c.get("ticker", "")).upper()
+            if tkr:
+                moonshot_all.add(tkr)
+                if c.get("state") == "PRIME":
+                    moonshot_prime.add(tkr)
+
     px = {a.get("ticker"): float(a.get("price_usd")) for a in assets if a.get("ticker") and a.get("price_usd")}
 
     book = load_json(ORD, {"active": [], "completed": [], "daily": {}, "portfolio": {}})
@@ -590,8 +624,10 @@ def _main_locked():
 
     # --- COOLDOWN POR TICKER: evitar sobreoperacion en el mismo activo ---
     COOLDOWN_MINUTES = 30  # minutos minimos entre trades del mismo ticker
+    range_band_cooldown_min = int(cfg.get("range_grid_band_cooldown_min", 25) or 25)
     now = datetime.now(UTC)
     recent_ticker_times = {}
+    recent_grid_band_times = {}
     for o in completed[-200:]:
         t = str(o.get("ticker") or "").upper()
         closed_at = o.get("closed_at") or o.get("opened_at") or ""
@@ -600,6 +636,11 @@ def _main_locked():
                 ct = parse_iso(closed_at)
                 if t not in recent_ticker_times or ct > recent_ticker_times[t]:
                     recent_ticker_times[t] = ct
+                grid_band_index = o.get("grid_band_index")
+                if grid_band_index is not None:
+                    band_key = f"{t}:{grid_band_index}"
+                    if band_key not in recent_grid_band_times or ct > recent_grid_band_times[band_key]:
+                        recent_grid_band_times[band_key] = ct
             except Exception:
                 pass
 
@@ -661,7 +702,10 @@ def _main_locked():
         else:
             try:
                 age = datetime.now(UTC) - parse_iso(order.get("opened_at"))
-                if age >= timedelta(minutes=timeout_min):
+                order_timeout_min = int(order.get("timeout_min") or timeout_min)
+                order_timeout_profit_grace_min = int(order.get("timeout_profit_grace_min") or timeout_profit_grace_min)
+                order_timeout_force_close_min = int(order.get("timeout_force_close_min") or timeout_force_close_min)
+                if age >= timedelta(minutes=order_timeout_min):
                     pnl_est = safe_float(order.get("pnl_usd_est"), 0)
                     target_price = safe_float(order.get("target_price"), 0)
                     entry_price = safe_float(order.get("entry_price"), 0)
@@ -669,7 +713,7 @@ def _main_locked():
                     if target_price > entry_price > 0:
                         target_progress = (cur - entry_price) / max(target_price - entry_price, 1e-9)
                     extend_timeout = (
-                        age < timedelta(minutes=timeout_force_close_min)
+                        age < timedelta(minutes=order_timeout_force_close_min)
                         and (
                             pnl_est >= min_timeout_profit_usd
                             or target_progress >= near_target_ratio
@@ -678,9 +722,9 @@ def _main_locked():
                     if extend_timeout:
                         order["timeout_extended"] = True
                         order["timeout_extended_until"] = (
-                            parse_iso(order.get("opened_at")) + timedelta(minutes=timeout_force_close_min)
+                            parse_iso(order.get("opened_at")) + timedelta(minutes=order_timeout_force_close_min)
                         ).isoformat().replace("+00:00", "Z")
-                    elif age >= timedelta(minutes=timeout_min + timeout_profit_grace_min) or pnl_est <= 0:
+                    elif age >= timedelta(minutes=order_timeout_min + order_timeout_profit_grace_min) or pnl_est < -0.15:
                         result = "timeout"
             except Exception as e:
                 log_error_safe(log, f"Error evaluating timeout for {ticker}: {e}")
@@ -728,7 +772,13 @@ def _main_locked():
 
     active = still_active
     opened_now = 0
-    active_tickers = {o.get("ticker") for o in active}
+    active_tickers = {str(o.get("ticker")).upper() for o in active if o.get("ticker")}
+    active_by_ticker = {}
+    for order in active:
+        ticker_key = str(order.get("ticker") or "").upper()
+        if not ticker_key:
+            continue
+        active_by_ticker.setdefault(ticker_key, []).append(order)
 
     now = datetime.now(UTC)
     one_hour_ago = now - timedelta(hours=1)
@@ -794,6 +844,7 @@ def _main_locked():
             "alloc": float(adj.get("alloc_multiplier", 1.0)),
             "max_pos": float(adj.get("max_positions_multiplier", 1.0)),
             "regime": _reg.get("regime", "unknown"),
+            "confidence": float(_reg.get("confidence", 0.0) or 0.0),
             "recommended_mode": _reg.get("recommended_mode", "normal"),
         }
     # Usar BTC como proxy del mercado general si existe
@@ -820,6 +871,8 @@ def _main_locked():
     if portfolio_concentrated:
         effective_max_active_positions = max(1, effective_max_active_positions // 2)  # reducir 50% si correlacion alta
 
+    opened_strategy_modes = {}
+
     for candidate in top:
         if daily.get("trades", 0) >= effective_max_trades_day:
             break
@@ -836,23 +889,24 @@ def _main_locked():
         ticker_upper = str(ticker or "").upper()
         if ticker_upper in excluded_symbols or ticker_upper in universe_excluded:
             continue
-        if runtime_universe and ticker_upper not in runtime_universe:
-            continue
-        if ticker in active_tickers:
-            continue
-
-        # --- COOLDOWN POR TICKER ---
-        last_trade_time = recent_ticker_times.get(ticker_upper)
-        if last_trade_time and (now - last_trade_time).total_seconds() < COOLDOWN_MINUTES * 60:
-            continue
-        
-        # --- NUEVA LOGICA DE MEMORIA AUTODIDACTA ---
         ticker_multiplier, memory_reason = analyze_ticker_memory(completed, ticker)
         if ticker_multiplier <= 0:
-            # print(f"DEBUG: Saltando {ticker} por memoria negativa: {memory_reason}")
+            log.info(f"Skipping {ticker}: blocked by episodic memory - {memory_reason}")
             continue
-            
+
+        score = int(candidate.get("score_final") or candidate.get("score") or 0)
+        
+        # --- BYPASS DE UNIVERSO POR ALTA CONVICCION ---
+        # Si el score es >= 80, operamos aunque no este en el Core/Watch predefinido
+        if runtime_universe and ticker_upper not in runtime_universe:
+            if score < 75:
+                log.info(f"Skipping {ticker}: score {score} < 75 and not in core/watch universe")
+                continue
+            else:
+                log.info(f"BYPASS: {ticker} (Score {score}) allowed outside universe for high conviction")
+
         if candidate.get("decision_final") != "BUY":
+            log.info(f"Skipping {ticker}: final decision is {candidate.get('decision_final')}")
             continue
         if candidate.get("state") not in {"READY", "TRIGGERED"}:
             continue
@@ -867,26 +921,61 @@ def _main_locked():
         # Confluencia < 3 tiene 11% win rate (edge_score -10)
         BLOCKED_SETUPS = {"base"}
         MIN_CONFLUENCE_HARD = 3  # No abrir trades con menos de 3 spies de confluencia
-        if setup_tag in BLOCKED_SETUPS:
-            continue
-        min_confluence = max(MIN_CONFLUENCE_HARD, defensive_min_confluence if mode == "defensive" else MIN_CONFLUENCE_HARD)
-        if confluence < min_confluence:
-            continue
 
-        score = int(candidate.get("score_final") or candidate.get("score") or 0)
         research_sentiment = str(candidate.get("research_sentiment") or "unknown").lower()
         research_catalyst_score = int(candidate.get("research_catalyst_score") or 0)
-        if score < normal_min_score:
-            continue
-        if mode == "defensive" and score < defensive_min_score:
-            continue
-        if max(breakout, chart) <= 0 and score < 50:
-            continue
         if research_catalyst_score <= research_negative_block_threshold and research_sentiment in {"negative", "mixed"}:
             continue
 
         price = px.get(ticker)
         if price is None:
+            continue
+
+        symbol_regime = regime_multipliers.get(normalize_symbol(ticker_upper), btc_regime)
+        strategy_plan = build_strategy_plan(candidate, ticker_upper, float(price), cfg, btc_regime, symbol_regime)
+        strategy_mode = str(strategy_plan.get("strategy_mode") or "scalp_intradia")
+        strategy_reason = str(strategy_plan.get("reason") or "modo base")
+        range_context = strategy_plan.get("range_context") or {}
+        ticker_active_orders = active_by_ticker.get(ticker_upper, [])
+        active_range_orders = [o for o in ticker_active_orders if str(o.get("strategy_mode") or "") == "range_lateral"]
+        active_non_range_orders = [o for o in ticker_active_orders if str(o.get("strategy_mode") or "") != "range_lateral"]
+
+        if strategy_mode == "range_lateral":
+            if active_non_range_orders:
+                log.info(f"Skipping {ticker_upper}: already has non-range active positions")
+                continue
+        elif ticker_active_orders:
+            log.info(f"Skipping {ticker_upper}: already has active positions")
+            continue
+
+        strategy_min_score = int(strategy_plan.get("min_score_override") or normal_min_score)
+        min_confluence = max(MIN_CONFLUENCE_HARD, defensive_min_confluence if mode == "defensive" else MIN_CONFLUENCE_HARD)
+        base_min_confluence = 2 if score >= 80 else min_confluence
+        strategy_min_confluence = int(strategy_plan.get("min_confluence_override") or base_min_confluence)
+        effective_min_confluence = max(1, min(base_min_confluence, strategy_min_confluence))
+
+        if setup_tag in BLOCKED_SETUPS and strategy_mode != "range_lateral":
+            if score < 80:
+                log.info(f"Skipping {ticker}: setup '{setup_tag}' is blocked for scores < 80")
+                continue
+            log.info(f"BYPASS: Allowing setup '{setup_tag}' for {ticker} due to extreme score ({score})")
+
+        if confluence < effective_min_confluence:
+            log.info(f"Skipping {ticker}: confluence {confluence} < effective min {effective_min_confluence}")
+            continue
+
+        effective_normal_min_score = min(normal_min_score, strategy_min_score)
+        effective_defensive_min_score = max(effective_normal_min_score, min(defensive_min_score, strategy_min_score))
+        if score < effective_normal_min_score:
+            log.info(f"Skipping {ticker}: score {score} < threshold {effective_normal_min_score} for {strategy_mode}")
+            continue
+        if mode == "defensive" and score < effective_defensive_min_score:
+            if score >= 80:
+                log.info(f"BYPASS: Allowing {ticker} (Score {score}) in defensive mode ({strategy_mode})")
+            else:
+                log.info(f"Skipping {ticker}: score {score} < defensive threshold {effective_defensive_min_score} for {strategy_mode}")
+                continue
+        if max(breakout, chart) <= 0 and score < 50:
             continue
 
         cash = float(portfolio.get("cash_usd", 0))
@@ -897,94 +986,170 @@ def _main_locked():
             research_scale = research_negative_size_scale
 
         # --- SIZING DINAMICO POR CONVICCION ---
-        # Escalar notional segun score y confluencia en vez de flat $30
+        # Escalar notional segun score y confluencia
         conviction_scale = 1.0
-        if score >= 90 and confluence >= 4:
+        if score >= 95 and confluence >= 4:
+            conviction_scale = 1.6  # Ultra conviccion (Nuevo)
+        elif score >= 90 and confluence >= 4:
             conviction_scale = 1.4  # Alta conviccion: 40% mas
         elif score >= 82 and confluence >= 3:
             conviction_scale = 1.15  # Buena conviccion: 15% mas
         elif score < 70:
             conviction_scale = 0.7  # Baja conviccion: 30% menos
 
-        target_alloc = alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier * conviction_scale * regime_alloc_mult
-        notional = min(target_alloc, cash, max_alloc_per_trade_usd)
-        if notional < min_notional_usd:
-            continue
-        # Slippage dinamico si el modelo esta disponible
-        effective_slippage_bps = slippage_bps
-        if HAS_SLIPPAGE_MODEL and price and price > 0:
-            try:
-                slip_est = _estimate_slippage(ticker, notional, float(price))
-                effective_slippage_bps = max(slippage_bps, slip_est.get("estimated_bps", slippage_bps))
-            except Exception:
-                pass
-        entry_px = float(price) * (1 + effective_slippage_bps / 10000.0)
-        if entry_px <= 0:
-            continue
-        target_price, stop_price = make_exit_levels(entry_px, target_pct, stop_pct)
-        economics = estimate_trade_economics(entry_px, target_price, notional, fee_bps, slippage_bps)
-        if economics["net_return_pct"] <= 0:
-            continue
-        if economics["net_return_pct"] < min_target_net_pct:
-            continue
-        required_notional = max(min_notional_usd, min_expected_net_profit_usd / max(economics["net_return_pct"] / 100.0, 1e-9))
-        if required_notional > notional:
-            notional = min(required_notional, cash, max_alloc_per_trade_usd)
-            if notional < required_notional:
-                continue
-            economics = estimate_trade_economics(entry_px, target_price, notional, fee_bps, slippage_bps)
-            if economics["net_return_pct"] < min_target_net_pct or economics["net_profit_usd"] < min_expected_net_profit_usd:
-                continue
-        qty = notional / entry_px
-        fee_open = notional * fee_bps / 10000.0
+        # --- MOONSHOT BONUS ---
+        moonshot_multiplier = 1.0
+        if ticker_upper in moonshot_prime:
+            moonshot_multiplier = 1.5
+            log.info(f"BONUS: {ticker} es PRIME en Moonshot. Multiplicador 1.5x aplicado.")
+        elif ticker_upper in moonshot_all:
+            moonshot_multiplier = 1.25
+            log.info(f"BONUS: {ticker} es candidato Moonshot. Multiplicador 1.25x aplicado.")
 
-        order = {
-            "id": f"crp_{ticker.lower()}_{int(datetime.now().timestamp())}",
-            "ticker": ticker,
-            "opened_at": now_iso(),
-            "entry_price": round_price(entry_px),
-            "qty": round(qty, 8),
-            "notional_usd": round(notional, 2),
-            "target_price": target_price,
-            "stop_price": stop_price,
-            "state": "ACTIVE",
-            "mode": "scalp_intradia",
-            "risk_mode": mode,
-            "confidence": candidate.get("confidence_pct"),
-            "score": candidate.get("score_final") or candidate.get("score"),
-            "research_sentiment": candidate.get("research_sentiment"),
-            "research_catalyst_score": candidate.get("research_catalyst_score"),
-            "research_size_scale": round(research_scale, 3),
-            "slippage_bps": effective_slippage_bps,
-            "slippage_bps_base": slippage_bps,
-            "fee_bps": fee_bps,
-            "fee_open_usd": round(fee_open, 6),
-            "expected_target_net_profit_usd": economics["net_profit_usd"],
-            "expected_target_net_pct": economics["net_return_pct"],
-            "target_pct": target_pct,
-            "stop_pct": stop_pct,
-            "opened_hour_utc": datetime.now(UTC).strftime("%H"),
-            "setup_tag": setup_tag,
-            "spy_confluence": confluence,
-            "spy_chart": chart,
-            "spy_breakout": breakout,
-            "spy_breakdown": {
-                "news": candidate.get("spy_news"),
-                "euphoria": candidate.get("spy_euphoria"),
-                "flow": candidate.get("spy_flow"),
-                "whale": candidate.get("spy_whale"),
-            },
-        }
-        active.append(order)
-        portfolio["cash_usd"] = round(float(portfolio.get("cash_usd", 0)) - notional - fee_open, 6)
-        active_tickers.add(ticker)
-        opened_now += 1
-        hour_trades += 1
-        daily["trades"] = int(daily.get("trades", 0)) + 1
-        log_trade(log, "OPEN", ticker, notional=round(notional, 2), entry=round_price(entry_px),
-                  target=target_price, stop=stop_price, score=score, confluence=confluence,
-                  setup=setup_tag, slippage=round(effective_slippage_bps, 1),
-                  regime=btc_regime.get("regime", "unknown"))
+        strategy_alloc_mult = float(strategy_plan.get("alloc_multiplier") or 1.0)
+        trade_target_pct = target_pct * float(strategy_plan.get("target_multiplier") or 1.0)
+        trade_stop_pct = stop_pct * float(strategy_plan.get("stop_multiplier") or 1.0)
+        strategy_timeout_mult = float(strategy_plan.get("timeout_multiplier") or 1.0)
+        trade_timeout_min = max(15, int(round(timeout_min * strategy_timeout_mult)))
+        trade_timeout_profit_grace_min = max(5, int(round(timeout_profit_grace_min * max(0.75, strategy_timeout_mult))))
+        trade_timeout_force_close_min = max(trade_timeout_min + 15, int(round(timeout_force_close_min * max(0.65, strategy_timeout_mult))))
+
+        last_ticker_trade = recent_ticker_times.get(ticker_upper)
+        if strategy_mode != "range_lateral" and last_ticker_trade:
+            age_minutes = (now - last_ticker_trade).total_seconds() / 60.0
+            if age_minutes < COOLDOWN_MINUTES:
+                log.info(f"Skipping {ticker}: cooldown activo {age_minutes:.1f}/{COOLDOWN_MINUTES} min")
+                continue
+
+        planned_entries = [{"size_scale": 1.0, "target_price": None, "stop_anchor": None, "band_index": None, "grid_levels": []}]
+        if strategy_mode == "range_lateral":
+            active_bands = {int(o.get("grid_band_index")) for o in active_range_orders if o.get("grid_band_index") is not None}
+            recent_bands = set()
+            for band_key, band_time in recent_grid_band_times.items():
+                prefix = f"{ticker_upper}:"
+                if band_key.startswith(prefix) and ((now - band_time).total_seconds() / 60.0) < range_band_cooldown_min:
+                    try:
+                        recent_bands.add(int(band_key.split(":", 1)[1]))
+                    except Exception:
+                        pass
+            planned_entries = plan_range_grid(strategy_plan, float(price), cfg, active_bands, recent_bands)
+            if not planned_entries:
+                log.info(f"Skipping {ticker}: sin nuevas bandas de grid disponibles")
+                continue
+
+        opened_for_candidate = 0
+        for entry_plan in planned_entries:
+            if daily.get("trades", 0) >= effective_max_trades_day or hour_trades >= effective_max_trades_hour:
+                break
+            if len(active) >= effective_max_active_positions:
+                break
+
+            cash = float(portfolio.get("cash_usd", 0))
+            order_size_scale = float(entry_plan.get("size_scale") or 1.0)
+            target_alloc = alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier * conviction_scale * regime_alloc_mult * strategy_alloc_mult * moonshot_multiplier * order_size_scale
+            notional = min(target_alloc, cash, max_alloc_per_trade_usd)
+            if notional < min_notional_usd:
+                continue
+
+            effective_slippage_bps = slippage_bps
+            if HAS_SLIPPAGE_MODEL and _estimate_slippage is not None and price and price > 0:
+                try:
+                    slip_est = _estimate_slippage(ticker, notional, float(price))
+                    effective_slippage_bps = max(slippage_bps, slip_est.get("estimated_bps", slippage_bps))
+                except Exception:
+                    pass
+            entry_px = float(price) * (1 + effective_slippage_bps / 10000.0)
+            if entry_px <= 0:
+                continue
+
+            target_price = entry_plan.get("target_price")
+            stop_price = entry_plan.get("stop_anchor")
+            if strategy_mode == "range_lateral" and target_price and stop_price:
+                target_price = round_price(max(float(target_price), entry_px * 1.001))
+                stop_price = round_price(min(float(stop_price), entry_px * 0.9985))
+            else:
+                target_price, stop_price = make_exit_levels(entry_px, trade_target_pct, trade_stop_pct)
+
+            economics = estimate_trade_economics(entry_px, float(target_price), notional, fee_bps, slippage_bps)
+            if economics["net_return_pct"] <= 0 or economics["net_return_pct"] < min_target_net_pct:
+                continue
+            required_notional = max(min_notional_usd, min_expected_net_profit_usd / max(economics["net_return_pct"] / 100.0, 1e-9))
+            if required_notional > notional:
+                notional = min(required_notional, cash, max_alloc_per_trade_usd)
+                if notional < required_notional:
+                    continue
+                economics = estimate_trade_economics(entry_px, float(target_price), notional, fee_bps, slippage_bps)
+                if economics["net_return_pct"] < min_target_net_pct or economics["net_profit_usd"] < min_expected_net_profit_usd:
+                    continue
+
+            qty = notional / entry_px
+            fee_open = notional * fee_bps / 10000.0
+            band_index = entry_plan.get("band_index")
+            order = {
+                "id": f"crp_{ticker.lower()}_{int(datetime.now().timestamp())}_{opened_for_candidate}",
+                "ticker": ticker,
+                "opened_at": now_iso(),
+                "entry_price": round_price(entry_px),
+                "qty": round(qty, 8),
+                "notional_usd": round(notional, 2),
+                "target_price": target_price,
+                "stop_price": stop_price,
+                "state": "ACTIVE",
+                "mode": "scalp_intradia",
+                "strategy_mode": strategy_mode,
+                "strategy_reason": strategy_reason,
+                "risk_mode": mode,
+                "confidence": candidate.get("confidence_pct"),
+                "score": candidate.get("score_final") or candidate.get("score"),
+                "research_sentiment": candidate.get("research_sentiment"),
+                "research_catalyst_score": candidate.get("research_catalyst_score"),
+                "research_size_scale": round(research_scale, 3),
+                "slippage_bps": effective_slippage_bps,
+                "slippage_bps_base": slippage_bps,
+                "fee_bps": fee_bps,
+                "fee_open_usd": round(fee_open, 6),
+                "expected_target_net_profit_usd": economics["net_profit_usd"],
+                "expected_target_net_pct": economics["net_return_pct"],
+                "target_pct": trade_target_pct,
+                "stop_pct": trade_stop_pct,
+                "timeout_min": trade_timeout_min,
+                "timeout_profit_grace_min": trade_timeout_profit_grace_min,
+                "timeout_force_close_min": trade_timeout_force_close_min,
+                "opened_hour_utc": datetime.now(UTC).strftime("%H"),
+                "setup_tag": setup_tag,
+                "range_context": range_context if strategy_mode == "range_lateral" else {},
+                "grid_band_index": band_index,
+                "grid_levels": entry_plan.get("grid_levels") or [],
+                "spy_confluence": confluence,
+                "spy_chart": chart,
+                "spy_breakout": breakout,
+                "spy_breakdown": {
+                    "news": candidate.get("spy_news"),
+                    "euphoria": candidate.get("spy_euphoria"),
+                    "flow": candidate.get("spy_flow"),
+                    "whale": candidate.get("spy_whale"),
+                },
+            }
+            active.append(order)
+            active_by_ticker.setdefault(ticker_upper, []).append(order)
+            portfolio["cash_usd"] = round(float(portfolio.get("cash_usd", 0)) - notional - fee_open, 6)
+            active_tickers.add(ticker_upper)
+            opened_strategy_modes[strategy_mode] = int(opened_strategy_modes.get(strategy_mode, 0)) + 1
+            if band_index is not None:
+                recent_grid_band_times[f"{ticker_upper}:{band_index}"] = now
+            recent_ticker_times[ticker_upper] = now
+            opened_now += 1
+            opened_for_candidate += 1
+            hour_trades += 1
+            daily["trades"] = int(daily.get("trades", 0)) + 1
+            log_trade(log, "OPEN", ticker, notional=round(notional, 2), entry=round_price(entry_px),
+                      target=target_price, stop=stop_price, score=score, confluence=confluence,
+                      setup=setup_tag, slippage=round(effective_slippage_bps, 1),
+                      regime=btc_regime.get("regime", "unknown"), strategy=strategy_mode,
+                      grid_band=band_index if band_index is not None else "na")
+
+        if opened_for_candidate <= 0:
+            log.info(f"Skipping {ticker}: no paso economia final para {strategy_mode}")
 
     active_value = 0.0
     for order in active:
@@ -1049,6 +1214,7 @@ def _main_locked():
                 "paused_at": daily.get("paused_at", ""),
                 "resume_candidates": resume_candidates,
                 "runtime_universe": sorted(runtime_universe),
+                "opened_strategy_modes": opened_strategy_modes,
                 "runtime_universe_source": runtime_universe_source,
                 "loss_streak": int(daily.get("loss_streak", 0)),
                 "cash_usd": portfolio.get("cash_usd", 0),

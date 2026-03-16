@@ -10,6 +10,7 @@ Uso:
 """
 
 import argparse
+import gc
 import json
 from pathlib import Path
 from datetime import datetime, UTC
@@ -24,6 +25,13 @@ try:
 except Exception:
     torch = None
     nn = None
+
+if torch is not None:
+    try:
+        torch.set_num_threads(2)
+        torch.set_num_interop_threads(1)
+    except RuntimeError:
+        pass
 
 BASE = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados")
 MODELS = BASE / "models"
@@ -98,6 +106,7 @@ def main():
     parser.add_argument("--interval", default="5m")
     parser.add_argument("--lookback", type=int, default=32)
     parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--batch-size", type=int, default=128)
     args = parser.parse_args()
 
     if torch is None:
@@ -135,18 +144,27 @@ def main():
     opt = torch.optim.Adam(model.parameters(), lr=1e-3)
     loss_fn = nn.MSELoss()
 
+    tr_ds = torch.utils.data.TensorDataset(Xtr_t, ytr_t)
+    tr_loader = torch.utils.data.DataLoader(tr_ds, batch_size=args.batch_size, shuffle=True)
+
     for _ in range(args.epochs):
         model.train()
-        pred = model(Xtr_t)
-        loss = loss_fn(pred, ytr_t)
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
+        for xb, yb in tr_loader:
+            pred = model(xb)
+            loss = loss_fn(pred, yb)
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
 
     model.eval()
     with torch.no_grad():
-        va_pred = model(Xva_t)
-        va_loss = loss_fn(va_pred, yva_t).item()
+        losses = []
+        for start in range(0, len(Xva_t), max(args.batch_size, 256)):
+            xb = Xva_t[start:start + max(args.batch_size, 256)]
+            yb = yva_t[start:start + max(args.batch_size, 256)]
+            va_pred = model(xb)
+            losses.append(loss_fn(va_pred, yb).item())
+        va_loss = float(np.mean(losses)) if losses else float("inf")
 
     MODELS.mkdir(parents=True, exist_ok=True)
     mp = MODELS / f"lstm_{args.ticker}.pt"
@@ -181,6 +199,7 @@ def main():
         "previous_best_mse": round(current_best, 8) if current_best < 999 else None,
         "note": "Modelo confirmador de research. No usar para justificar dinero real sin validacion adicional.",
     }
+    gc.collect()
     (MODELS / f"lstm_{args.ticker}_meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"ok": True, "model": str(mp), "val_mse": meta["val_mse"], "champion_action": champion_action}, ensure_ascii=False))
 

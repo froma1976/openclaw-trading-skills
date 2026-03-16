@@ -1219,7 +1219,7 @@
           {% for o in unified_completed_orders %}
           <tr>
             <td><span class="badge {{ 'ok' if o.market == 'Cripto' else 'warn' }}">{{ o.market }}</span></td>
-            <td>{{ o.ticker or '-' }}</td>
+            <td>{% if o.market == 'Cripto' and o.order_id %}<button type="button" class="tab-btn" onclick="openTradeDetail('{{ o.order_book }}','{{ o.order_state }}','{{ o.order_id }}')">{{ o.ticker or '-' }}</button>{% else %}{{ o.ticker or '-' }}{% endif %}</td>
             <td>{{ o.entry_price if o.entry_price is not none else '-' }}</td>
             <td>{{ o.exit_price if o.exit_price is not none else '-' }}</td>
             <td><span class="badge {{ 'ok' if o.result == 'ganada' else ('warn' if o.result in ['timeout','neutral'] else 'no') }}">{{ o.result or '-' }}</span></td>
@@ -1556,8 +1556,7 @@
           </tr>
           {% for o in crypto_orders_active %}
           <tr>
-            <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}-USD')">{{ o.ticker
-                }}</button></td>
+            <td><button type="button" class="tab-btn" onclick="openTradeDetail('long','active','{{ o.id }}')">{{ o.ticker }}</button></td>
             <td>{{ o.entry_price }}</td>
             <td>{{ o.current_price if o.current_price is not none else '-' }}</td>
             <td>{% if o.pct_move is not none %}<span class="badge {{ 'ok' if o.pct_move >= 0 else 'no' }}">{{ o.pct_move
@@ -1590,7 +1589,7 @@
           </tr>
           {% for o in crypto_orders_completed[:20] %}
           <tr>
-            <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}-USD')">{{ o.ticker }}</button></td>
+            <td><button type="button" class="tab-btn" onclick="openTradeDetail('long','completed','{{ o.id }}')">{{ o.ticker }}</button></td>
             <td>{{ o.entry_price if o.entry_price is not none else '-' }}</td>
             <td>{{ o.close_price if o.close_price is not none else o.exit_price if o.exit_price is not none else '-' }}</td>
             <td><span class="badge {{ 'ok' if o.result == 'ganada' else ('warn' if o.result == 'timeout' else 'no') }}">{{ o.result or '-' }}</span></td>
@@ -2300,7 +2299,7 @@
           <tr><th>Ticker</th><th>Lado</th><th>Entrada</th><th>Precio actual</th><th>%</th><th>PnL est.</th><th>Target</th><th>Stop</th><th>Abierta</th></tr>
           {% for o in crypto_short_orders_active %}
           <tr>
-            <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}-USD')">{{ o.ticker }}</button></td>
+            <td><button type="button" class="tab-btn" onclick="openTradeDetail('short','active','{{ o.id }}')">{{ o.ticker }}</button></td>
             <td><span class="badge no">SHORT</span></td>
             <td>{{ o.entry_price }}</td>
             <td>{{ o.current_price if o.current_price is not none else '-' }}</td>
@@ -2321,7 +2320,7 @@
           <tr><th>Ticker</th><th>Lado</th><th>Entrada</th><th>Salida</th><th>Resultado</th><th>PnL USD</th><th>Abierta</th><th>Cerrada</th></tr>
           {% for o in crypto_short_orders_completed[:20] %}
           <tr>
-            <td><button type="button" class="tab-btn" onclick="openAnalysis('{{ o.ticker }}-USD')">{{ o.ticker }}</button></td>
+            <td><button type="button" class="tab-btn" onclick="openTradeDetail('short','completed','{{ o.id }}')">{{ o.ticker }}</button></td>
             <td><span class="badge no">SHORT</span></td>
             <td>{{ o.entry_price if o.entry_price is not none else '-' }}</td>
             <td>{{ o.close_price if o.close_price is not none else o.exit_price if o.exit_price is not none else '-' }}</td>
@@ -2829,6 +2828,13 @@
         <div class="pill">Target: <span id="anTarget">-</span></div>
         <div class="pill">Stop: <span id="anStop">-</span></div>
       </div>
+      <div id="tradeMeta" style="display:none;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;margin:0 0 10px 0">
+        <div class="pill">Modo: <span id="tdMode">-</span></div>
+        <div class="pill">Resultado: <span id="tdResult">-</span></div>
+        <div class="pill">PnL USD: <span id="tdPnl">-</span></div>
+        <div class="pill">Intervalo: <span id="tdInterval">-</span></div>
+      </div>
+      <div id="tradeGridWrap" class="muted" style="display:none;margin-bottom:8px"></div>
       <svg id="anCandle" viewBox="0 0 900 260"
         style="width:100%;height:260px;border:1px solid #2a3a5b;border-radius:10px;background:#0b1222"></svg>
     </div>
@@ -3032,24 +3038,22 @@
     }
     }) ();
 
-    async function openAnalysis(ticker) {
-      const modal = document.getElementById('analysisModal');
-      modal.style.display = 'flex';
-      const res = await fetch(`/api/analysis/${encodeURIComponent(ticker)}`);
-      const d = await res.json();
-      document.getElementById('anTitle').textContent = `Análisis detallado · ${d.ticker}`;
-      document.getElementById('anNarrativa').textContent = d.narrativa || '';
-      document.getElementById('anPrice').textContent = d.price ?? '-';
-      document.getElementById('anEntry').textContent = d.entry_price ?? '-';
-      document.getElementById('anTarget').textContent = d.target_price ?? '-';
-      document.getElementById('anStop').textContent = d.stop_price ?? '-';
-
-      const svg = document.getElementById('anCandle');
-      const c = Array.isArray(d.candles) ? d.candles : [];
+    function renderTradeChart(svg, payload) {
+      const c = Array.isArray(payload.candles) ? payload.candles : [];
       if (c.length < 2) { svg.innerHTML = ''; return; }
+      const markers = payload.markers || {};
+      const levels = [];
+      ['entry_price', 'target_price', 'stop_price', 'exit_price'].forEach((k) => {
+        const v = Number(markers[k]);
+        if (Number.isFinite(v) && v > 0) levels.push(v);
+      });
+      (markers.grid_levels || []).forEach((v) => {
+        const num = Number(v);
+        if (Number.isFinite(num) && num > 0) levels.push(num);
+      });
+      const hi = Math.max(...c.map(x => x.h), ...(levels.length ? levels : [0]));
+      const lo = Math.min(...c.map(x => x.l), ...(levels.length ? levels : [999999999]));
       const w = 900, h = 260, p = 24;
-      const hi = Math.max(...c.map(x => x.h));
-      const lo = Math.min(...c.map(x => x.l));
       const span = (hi - lo) || 1;
       const xStep = (w - 2 * p) / c.length;
       const y = v => h - p - ((v - lo) / span) * (h - 2 * p);
@@ -3063,7 +3067,86 @@
         const bh = Math.max(1, Math.abs(y(k.o) - y(k.c)));
         html += `<rect x="${x - bodyW / 2}" y="${by}" width="${bodyW}" height="${bh}" fill="${color}" opacity="0.9"/>`;
       });
+      const lastX = p + (c.length - 0.5) * xStep;
+      const lineDefs = [
+        ['entry_price', '#93c5fd', 'Entrada'],
+        ['target_price', '#34d399', 'Target'],
+        ['stop_price', '#f87171', 'Stop'],
+        ['exit_price', '#fbbf24', 'Salida'],
+      ];
+      lineDefs.forEach(([key, color, label]) => {
+        const val = Number(markers[key]);
+        if (!Number.isFinite(val) || val <= 0) return;
+        const yy = y(val);
+        html += `<line x1="${p}" y1="${yy}" x2="${w - p}" y2="${yy}" stroke="${color}" stroke-width="1.4" stroke-dasharray="6 4"/>`;
+        html += `<text x="${w - p - 4}" y="${yy - 6}" fill="${color}" text-anchor="end" font-size="11">${label} ${val.toFixed(4)}</text>`;
+      });
+      (markers.grid_levels || []).forEach((val, idx) => {
+        const num = Number(val);
+        if (!Number.isFinite(num) || num <= 0) return;
+        const yy = y(num);
+        html += `<line x1="${p}" y1="${yy}" x2="${w - p}" y2="${yy}" stroke="#60a5fa" stroke-width="0.9" stroke-dasharray="2 6" opacity="0.55"/>`;
+        html += `<text x="${p + 4}" y="${yy - 4}" fill="#93c5fd" font-size="10">G${idx + 1}</text>`;
+      });
+      const firstTs = c[0].t;
+      const lastTs = c[c.length - 1].t;
+      const projectX = (iso) => {
+        const ts = Date.parse(String(iso || ''));
+        if (!Number.isFinite(ts) || lastTs <= firstTs) return null;
+        const ratio = Math.max(0, Math.min(1, (ts - firstTs) / (lastTs - firstTs)));
+        return p + ratio * (w - 2 * p);
+      };
+      const openX = projectX(payload.opened_at);
+      const closeX = projectX(payload.closed_at);
+      if (openX !== null) html += `<line x1="${openX}" y1="${p}" x2="${openX}" y2="${h - p}" stroke="#e5e7eb" stroke-width="1" opacity="0.65"/><text x="${openX + 4}" y="${p + 12}" fill="#e5e7eb" font-size="10">Open</text>`;
+      if (closeX !== null) html += `<line x1="${closeX}" y1="${p}" x2="${closeX}" y2="${h - p}" stroke="#fbbf24" stroke-width="1" opacity="0.75"/><text x="${closeX + 4}" y="${p + 24}" fill="#fbbf24" font-size="10">Close</text>`;
       svg.innerHTML = html;
+    }
+
+    async function openAnalysis(ticker) {
+      const modal = document.getElementById('analysisModal');
+      modal.style.display = 'flex';
+       document.getElementById('tradeMeta').style.display = 'none';
+       document.getElementById('tradeGridWrap').style.display = 'none';
+      const res = await fetch(`/api/analysis/${encodeURIComponent(ticker)}`);
+      const d = await res.json();
+      document.getElementById('anTitle').textContent = `Análisis detallado · ${d.ticker}`;
+      document.getElementById('anNarrativa').textContent = d.narrativa || '';
+      document.getElementById('anPrice').textContent = d.price ?? '-';
+      document.getElementById('anEntry').textContent = d.entry_price ?? '-';
+      document.getElementById('anTarget').textContent = d.target_price ?? '-';
+      document.getElementById('anStop').textContent = d.stop_price ?? '-';
+
+      renderTradeChart(document.getElementById('anCandle'), { candles: d.candles || [], markers: {} });
+    }
+
+    async function openTradeDetail(book, state, orderId) {
+      const modal = document.getElementById('analysisModal');
+      modal.style.display = 'flex';
+      const res = await fetch(`/api/crypto-order-detail/${encodeURIComponent(book)}/${encodeURIComponent(state)}/${encodeURIComponent(orderId)}`);
+      const d = await res.json();
+      document.getElementById('anTitle').textContent = `Trade detail · ${d.ticker}`;
+      document.getElementById('anNarrativa').textContent = d.summary || d.strategy_reason || '';
+      document.getElementById('anPrice').textContent = d.current_price ?? d.exit_price ?? '-';
+      document.getElementById('anEntry').textContent = d.entry_price ?? '-';
+      document.getElementById('anTarget').textContent = d.target_price ?? '-';
+      document.getElementById('anStop').textContent = d.stop_price ?? '-';
+      document.getElementById('tradeMeta').style.display = 'grid';
+      document.getElementById('tdMode').textContent = d.strategy_mode || '-';
+      document.getElementById('tdResult').textContent = d.result || '-';
+      document.getElementById('tdPnl').textContent = d.pnl_usd ?? '-';
+      document.getElementById('tdInterval').textContent = d.interval || '-';
+      const gridWrap = document.getElementById('tradeGridWrap');
+      const levels = (((d.markers || {}).grid_levels) || []).map(x => Number(x)).filter(x => Number.isFinite(x));
+      if (levels.length) {
+        const band = (d.markers || {}).grid_band_index;
+        gridWrap.style.display = 'block';
+        gridWrap.textContent = `Grid lateral ${band !== null && band !== undefined ? `· banda ${band}` : ''}: ${levels.map(x => x.toFixed(4)).join(' | ')}`;
+      } else {
+        gridWrap.style.display = 'none';
+        gridWrap.textContent = '';
+      }
+      renderTradeChart(document.getElementById('anCandle'), d);
     }
     function closeAnalysis() { document.getElementById('analysisModal').style.display = 'none'; }
 

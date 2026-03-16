@@ -8,6 +8,7 @@ Entrena modelos LSTM desde historico local con:
 """
 import argparse
 import csv
+import gc
 import json
 from datetime import datetime, UTC
 from pathlib import Path
@@ -20,6 +21,13 @@ try:
 except ImportError:
     torch = None
     nn = None
+
+if torch is not None:
+    try:
+        torch.set_num_threads(2)
+        torch.set_num_interop_threads(1)
+    except RuntimeError:
+        pass
 
 BASE = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados")
 HIST = BASE / "data" / "history"
@@ -65,13 +73,27 @@ def make_dataset_legacy(series: np.ndarray, lookback: int = 32):
     return np.array(X, dtype=np.float32), np.array(y, dtype=np.float32)
 
 
+def _batched_mse(model, Xva_t, yva_t, batch_size: int):
+    losses = []
+    with torch.no_grad():
+        for start in range(0, len(Xva_t), batch_size):
+            xb = Xva_t[start:start + batch_size]
+            yb = yva_t[start:start + batch_size]
+            pred = model(xb)
+            losses.append(torch.mean((pred - yb) ** 2).item())
+    return float(np.mean(losses)) if losses else float("inf")
+
+
 def train_one(symbol: str, interval: str, lookback: int, epochs: int,
-              batch_size: int = 512, max_samples: int = 120000, patience: int = 5):
+              batch_size: int = 128, max_samples: int = 40000, patience: int = 5,
+              eval_batch_size: int = 256):
     if torch is None:
         return {"symbol": symbol, "ok": False, "error": "torch no instalado"}
 
     # Intentar features mejoradas, fallback a legacy
     use_enhanced = False
+    X = None
+    y = None
     if HAS_ENHANCED:
         ohlcv_path = HIST / f"{symbol}_{interval}.csv"
         if ohlcv_path.exists():
@@ -93,6 +115,9 @@ def train_one(symbol: str, interval: str, lookback: int, epochs: int,
         sd = X.std(axis=1, keepdims=True) + 1e-8
         X = (X - mu) / sd
 
+    if X is None or y is None:
+        return {"symbol": symbol, "ok": False, "error": "no se pudo construir dataset"}
+
     n = len(X)
     cut = int(n * 0.8)
     gap = lookback  # gap para evitar contaminacion
@@ -106,8 +131,8 @@ def train_one(symbol: str, interval: str, lookback: int, epochs: int,
     if len(Xtr) > max_samples:
         Xtr = Xtr[-max_samples:]
         ytr = ytr[-max_samples:]
-    if len(Xva) > max(20000, max_samples // 5):
-        keep = max(20000, max_samples // 5)
+    if len(Xva) > max(8000, max_samples // 4):
+        keep = max(8000, max_samples // 4)
         Xva = Xva[-keep:]
         yva = yva[-keep:]
 
@@ -138,29 +163,33 @@ def train_one(symbol: str, interval: str, lookback: int, epochs: int,
     best_state = None
     patience_counter = 0
 
-    for epoch in range(epochs):
-        model.train()
-        for xb, yb in tr_loader:
-            pred = model(xb)
-            loss = loss_fn(pred, yb)
-            opt.zero_grad()
-            loss.backward()
-            opt.step()
+    epoch = -1
+    try:
+        for epoch in range(epochs):
+            model.train()
+            for xb, yb in tr_loader:
+                pred = model(xb)
+                loss = loss_fn(pred, yb)
+                opt.zero_grad()
+                loss.backward()
+                opt.step()
 
-        # Eval
-        model.eval()
-        with torch.no_grad():
-            va_pred = model(Xva_t)
-            va_loss = loss_fn(va_pred, yva_t).item()
+            model.eval()
+            va_loss = _batched_mse(model, Xva_t, yva_t, eval_batch_size)
 
-        if va_loss < best_val_loss:
-            best_val_loss = va_loss
-            best_state = {k: v.clone() for k, v in model.state_dict().items()}
-            patience_counter = 0
-        else:
-            patience_counter += 1
-            if patience_counter >= patience:
-                break  # early stop
+            if va_loss < best_val_loss:
+                best_val_loss = va_loss
+                best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+                patience_counter = 0
+            else:
+                patience_counter += 1
+                if patience_counter >= patience:
+                    break
+    except RuntimeError as exc:
+        msg = str(exc)
+        if "not enough memory" in msg.lower() or "DefaultCPUAllocator" in msg:
+            return {"symbol": symbol, "ok": False, "error": "memoria insuficiente entrenando"}
+        raise
 
     # Restaurar mejor modelo
     if best_state is not None:
@@ -242,6 +271,9 @@ def main():
     ap.add_argument("--lookback", type=int, default=32)
     ap.add_argument("--epochs", type=int, default=30)
     ap.add_argument("--patience", type=int, default=5)
+    ap.add_argument("--batch-size", type=int, default=128)
+    ap.add_argument("--max-samples", type=int, default=40000)
+    ap.add_argument("--eval-batch-size", type=int, default=256)
     args = ap.parse_args()
 
     if torch is None:
@@ -251,10 +283,20 @@ def main():
     symbols = [s.strip().upper() for s in args.symbols.split(",") if s.strip()]
     out = {"ok": True, "results": []}
     for s in symbols:
-        r = train_one(s, args.interval, args.lookback, args.epochs, patience=args.patience)
+        r = train_one(
+            s,
+            args.interval,
+            args.lookback,
+            args.epochs,
+            batch_size=args.batch_size,
+            max_samples=args.max_samples,
+            patience=args.patience,
+            eval_batch_size=args.eval_batch_size,
+        )
         out["results"].append(r)
         if not r.get("ok"):
             out["ok"] = False
+        gc.collect()
     print(json.dumps(out, ensure_ascii=False))
 
 

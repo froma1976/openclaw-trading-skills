@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 from urllib import request
 import numpy as np
+import csv
 
 try:
     import torch
@@ -27,7 +28,9 @@ MODELS = BASE / "models"
 # TinyLSTM importado desde modulo compartido para evitar drift arquitectural
 import sys
 sys.path.insert(0, str(BASE / "models"))
-from architecture import TinyLSTM  # noqa: E402
+from architecture import TinyLSTM, EnhancedLSTM  # noqa: E402
+sys.path.insert(0, str(BASE / "scripts"))
+from lstm_features import load_ohlcv, make_single_prediction_input  # noqa: E402
 
 
 def get_json(url: str):
@@ -41,6 +44,26 @@ def load_close_series(symbol: str, interval: str = "5m", limit: int = 80):
     data = get_json(url)
     closes = [float(k[4]) for k in data if len(k) > 5]
     return np.array(closes, dtype=np.float32)
+
+
+def load_history_csv(symbol: str, interval: str) -> Path | None:
+    hist = BASE / "data" / "history" / f"{symbol}_{interval}.csv"
+    return hist if hist.exists() else None
+
+
+def load_model(meta: dict, model_p: Path):
+    state_dict = torch.load(model_p, map_location="cpu", weights_only=True)
+    ih0 = state_dict.get("lstm.weight_ih_l0")
+    hh0 = state_dict.get("lstm.weight_hh_l0")
+    input_size = int(ih0.shape[1]) if ih0 is not None else int(meta.get("features", 1) or 1)
+    hidden = int(hh0.shape[1]) if hh0 is not None else 32
+    if input_size > 1 or meta.get("model_type") == "EnhancedLSTM" or "lstm.weight_ih_l1" in state_dict:
+        model = EnhancedLSTM(input_size=input_size, hidden=hidden, dropout=0.15)
+    else:
+        model = TinyLSTM(hidden=hidden)
+    model.load_state_dict(state_dict)
+    model.eval()
+    return model
 
 
 def main():
@@ -62,21 +85,35 @@ def main():
     lookback = int(meta.get("lookback", 32))
     interval = meta.get("interval", "5m")
 
-    series = load_close_series(args.ticker, interval, max(lookback + 40, 80))
-    if len(series) < lookback + 2:
-        print(json.dumps({"ok": False, "error": "datos insuficientes"}, ensure_ascii=False))
+    try:
+        model = load_model(meta, model_p)
+    except RuntimeError as exc:
+        print(json.dumps({"ok": False, "error": f"modelo incompatible: {exc}"}, ensure_ascii=False))
         return
 
-    x = series[-lookback:]
-    mu, sd = x.mean(), x.std() + 1e-8
-    x = ((x - mu) / sd).astype(np.float32)
-
-    model = TinyLSTM(hidden=32)
-    model.load_state_dict(torch.load(model_p, map_location="cpu", weights_only=True))
-    model.eval()
+    features = int(meta.get("features", 1) or 1)
+    if features > 1:
+        hist_csv = load_history_csv(args.ticker, interval)
+        if hist_csv is None:
+            print(json.dumps({"ok": False, "error": "historico local no disponible para features"}, ensure_ascii=False))
+            return
+        x = make_single_prediction_input(load_ohlcv(hist_csv), lookback)
+        if x is None:
+            print(json.dumps({"ok": False, "error": "datos insuficientes"}, ensure_ascii=False))
+            return
+        x_t = torch.tensor(x, dtype=torch.float32)
+    else:
+        series = load_close_series(args.ticker, interval, max(lookback + 40, 80))
+        if len(series) < lookback + 2:
+            print(json.dumps({"ok": False, "error": "datos insuficientes"}, ensure_ascii=False))
+            return
+        x = series[-lookback:]
+        mu, sd = x.mean(), x.std() + 1e-8
+        x = ((x - mu) / sd).astype(np.float32)
+        x_t = torch.tensor(x).unsqueeze(0).unsqueeze(-1)
 
     with torch.no_grad():
-        pred = model(torch.tensor(x).unsqueeze(0).unsqueeze(-1)).item()
+        pred = model(x_t).item()
 
     # pred es retorno esperado próximo; lo convertimos a score simple
     score = 50
