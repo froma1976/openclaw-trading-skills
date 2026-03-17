@@ -1,5 +1,5 @@
 version: 1
-capital_base_usd: 300.0
+capital_base_usd: 500.0
 risk_per_trade_pct: 1.0
 max_daily_loss_pct: 5.0
 defensive_daily_loss_pct: 1.0
@@ -27,9 +27,9 @@ target_extension_min_score: 85
 max_trades_day: 120
 max_trades_hour: 24
 max_active_positions: 8
-alloc_per_trade_usd: 60.0
-max_alloc_per_trade_usd: 100.0
-min_notional_usd: 20.0
+alloc_per_trade_usd: 75.0
+max_alloc_per_trade_usd: 125.0
+min_notional_usd: 50.0
 defensive_scale: 0.35
 normal_min_score: 75
 defensive_min_score: 84

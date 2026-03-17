@@ -36,9 +36,9 @@ STOP_PCT = 0.55
 TIMEOUT_MIN = 30
 MAX_TRADES_DAY = 120
 MAX_TRADES_HOUR = 30
-CRYPTO_CAPITAL_INITIAL_USD = 300.0
+CRYPTO_CAPITAL_INITIAL_USD = 500.0
 MAX_ACTIVE_POSITIONS = 10
-ALLOC_PER_TRADE_USD = 30.0
+ALLOC_PER_TRADE_USD = 75.0
 
 
 def safe_float(value, default=0.0):
@@ -263,9 +263,9 @@ def load_risk_config():
         "max_trades_day": 120,
         "max_trades_hour": 24,
         "max_active_positions": 8,
-        "alloc_per_trade_usd": 60.0,
-        "max_alloc_per_trade_usd": 60.0,
-        "min_notional_usd": 20.0,
+        "alloc_per_trade_usd": 75.0,
+        "max_alloc_per_trade_usd": 125.0,
+        "min_notional_usd": 50.0,
         "defensive_scale": 0.35,
         "normal_min_score": 75,
         "defensive_min_score": 84,
@@ -785,9 +785,11 @@ def _main_locked():
                 order_timeout_force_close_min = int(order.get("timeout_force_close_min") or timeout_force_close_min)
                 if age >= timedelta(minutes=order_timeout_min):
                     pnl_est = safe_float(order.get("pnl_usd_est"), 0)
+                    qty_live = safe_float(order.get("qty"), 0)
                     target_price = safe_float(order.get("target_price"), 0)
                     entry_price = safe_float(order.get("entry_price"), 0)
                     target_progress = 0.0
+                    gross_pnl_est = ((cur - entry_price) * qty_live) if entry_price > 0 and qty_live > 0 else pnl_est
                     if target_price > entry_price > 0:
                         target_progress = (cur - entry_price) / max(target_price - entry_price, 1e-9)
                     extend_timeout = (
@@ -797,7 +799,21 @@ def _main_locked():
                             or target_progress >= near_target_ratio
                         )
                     )
-                    if extend_timeout:
+                    breakeven_timeout_guard = (
+                        gross_pnl_est > 0
+                        and pnl_est <= 0
+                        and age < timedelta(minutes=order_timeout_force_close_min)
+                    )
+                    if breakeven_timeout_guard:
+                        be_timeout_px = breakeven_exit_price(entry_price, qty_live, safe_float(order.get("fee_open_usd") or order.get("fee_usd"), 0), fee_bps)
+                        if be_timeout_px > safe_float(order.get("stop_price"), 0):
+                            order["stop_price"] = round_price(be_timeout_px)
+                        order["timeout_breakeven_guard"] = True
+                        order["timeout_extended"] = True
+                        order["timeout_extended_until"] = (
+                            parse_iso(order.get("opened_at")) + timedelta(minutes=order_timeout_force_close_min)
+                        ).isoformat().replace("+00:00", "Z")
+                    elif extend_timeout:
                         order["timeout_extended"] = True
                         order["timeout_extended_until"] = (
                             parse_iso(order.get("opened_at")) + timedelta(minutes=order_timeout_force_close_min)
