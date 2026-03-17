@@ -8,7 +8,13 @@ $base = 'C:\Users\Fernando\.openclaw\workspace\proyectos\analisis-mercados'
 # 2) generar reporte diario
 & py -3 "$base\scripts\generate_daily_report.py" | Out-Null
 
+# 2b) generar auditoria operativa del sistema
+& py -3 "$base\scripts\generate_system_audit_report.py" | Out-Null
+
 # 3) enviar por Telegram con OpenClaw CLI
 & py -3 "$base\scripts\send_daily_telegram_report.py" | Out-Null
+
+# 4) enviar auditoria operativa por Telegram
+& py -3 "$base\scripts\send_system_audit_report.py" | Out-Null
 
 exit $LASTEXITCODE
