@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import subprocess
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 import requests
@@ -30,6 +31,7 @@ UNIVERSE_STATUS = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis
 MACRO_SENTINEL_PATH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/macro_sentinel.json")
 MOONSHOT_PATH = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/moonshot_candidates.json")
 RUNTIME_LOCK = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/data/locks/crypto_runtime.lock")
+PREDICT_LSTM_SCRIPT = Path("C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/scripts/predict_lstm.py")
 
 TARGET_PCT = 0.9
 STOP_PCT = 0.55
@@ -95,6 +97,50 @@ def infer_setup_tag(candidate: dict, breakout: int, chart: int) -> str:
     if flow > 0:
         return "flow_momentum"
     return "base"
+
+
+def fetch_lstm_signal(symbol: str, cache: dict[str, dict]) -> dict:
+    normalized = normalize_symbol(symbol)
+    if normalized in cache:
+        return cache[normalized]
+    model_path = Path(f"C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/models/lstm_{normalized}.pt")
+    meta_path = Path(f"C:/Users/Fernando/.openclaw/workspace/proyectos/analisis-mercados/models/lstm_{normalized}_meta.json")
+    if not (model_path.exists() and meta_path.exists() and PREDICT_LSTM_SCRIPT.exists()):
+        cache[normalized] = {
+            "lstm_supported": False,
+            "lstm_ok": False,
+            "lstm_score": None,
+            "lstm_vote": "UNAVAILABLE",
+            "lstm_pred_return": None,
+            "lstm_note": "modelo no disponible",
+        }
+        return cache[normalized]
+    try:
+        out = subprocess.check_output(
+            ["C:\\Windows\\py.exe", "-3", str(PREDICT_LSTM_SCRIPT), "--ticker", normalized],
+            text=True,
+            timeout=45,
+            errors="ignore",
+        )
+        payload = json.loads(out.strip()) if out.strip() else {}
+        cache[normalized] = {
+            "lstm_supported": True,
+            "lstm_ok": bool(payload.get("ok")),
+            "lstm_score": payload.get("lstm_score"),
+            "lstm_vote": payload.get("lstm_vote") or ("BUY" if int(payload.get("lstm_score") or 0) >= 65 else "AVOID"),
+            "lstm_pred_return": payload.get("pred_return"),
+            "lstm_note": payload.get("note") or payload.get("error") or "",
+        }
+    except Exception as exc:
+        cache[normalized] = {
+            "lstm_supported": True,
+            "lstm_ok": False,
+            "lstm_score": None,
+            "lstm_vote": "ERROR",
+            "lstm_pred_return": None,
+            "lstm_note": str(exc),
+        }
+    return cache[normalized]
 
 
 def now_iso():
@@ -593,6 +639,7 @@ def _main_locked():
         and c.get("decision_final") == "BUY"
     ]
     market_risk_on = risk_on_enabled and len(risk_on_candidates) >= risk_on_min_candidates
+    lstm_cache = {}
 
     def candidate_priority(item):
         score = int(item.get("score_final") or item.get("score") or 0)
@@ -1029,6 +1076,16 @@ def _main_locked():
         if price is None:
             continue
 
+        lstm_signal = fetch_lstm_signal(ticker_upper, lstm_cache)
+        lstm_score = lstm_signal.get("lstm_score")
+        lstm_vote = str(lstm_signal.get("lstm_vote") or "UNAVAILABLE")
+        lstm_supported = bool(lstm_signal.get("lstm_supported"))
+        lstm_alignment = "neutral"
+        if lstm_vote == "BUY" and candidate.get("decision_final") == "BUY":
+            lstm_alignment = "aligned_buy"
+        elif lstm_vote == "AVOID" and candidate.get("decision_final") == "BUY":
+            lstm_alignment = "conflict_avoid"
+
         symbol_regime = regime_multipliers.get(normalize_symbol(ticker_upper), btc_regime)
         strategy_plan = build_strategy_plan(candidate, ticker_upper, float(price), cfg, btc_regime, symbol_regime)
         strategy_mode = str(strategy_plan.get("strategy_mode") or "scalp_intradia")
@@ -1206,6 +1263,13 @@ def _main_locked():
                 "research_sentiment": candidate.get("research_sentiment"),
                 "research_catalyst_score": candidate.get("research_catalyst_score"),
                 "research_size_scale": round(research_scale, 3),
+                "lstm_supported": lstm_supported,
+                "lstm_ok": bool(lstm_signal.get("lstm_ok")),
+                "lstm_score": lstm_score,
+                "lstm_vote": lstm_vote,
+                "lstm_pred_return": lstm_signal.get("lstm_pred_return"),
+                "lstm_note": lstm_signal.get("lstm_note"),
+                "lstm_alignment": lstm_alignment,
                 "slippage_bps": effective_slippage_bps,
                 "slippage_bps_base": slippage_bps,
                 "fee_bps": fee_bps,

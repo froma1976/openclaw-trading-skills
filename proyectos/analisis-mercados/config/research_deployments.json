@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-12T07:35:30Z",
+  "generated_at": "2026-03-18T02:17:49Z",
   "deployments": [
     {
       "module": "I-Watcher",
@@ -8,6 +8,17 @@
       "applied_from_experiment": "Real-time Insider Buying Validation",
       "applied_at": "2026-03-12T07:35:30Z",
       "rationale": "El filtrado de insiders con umbral adaptativo sale más limpio y defendible."
+    },
+    {
+      "module": "T-Analyst",
+      "deployment_key": "technical_quality_filter",
+      "deployment_value": {
+        "min_score_tech": 72,
+        "min_rel_volume": 0.8
+      },
+      "applied_from_experiment": "Technical Analysis with Real-time Data",
+      "applied_at": "2026-03-18T02:17:49Z",
+      "rationale": "El filtro técnico candidato encuentra setups más selectivos y accionables."
     }
   ]
 }
