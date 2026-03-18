@@ -50,8 +50,13 @@ excluded_symbols:
   - NEAR
   - SEI
 allowed_hours_utc:
-  start: "00:00"
+  start: "12:00"
   end: "23:59"
+blocked_setup_tags:
+  - base
+  - flow_momentum
+  - whale_flow
+  - news_reversal
 execution_mode: sim_only
 range_mode_enabled: true
 range_confidence_min: 0.55

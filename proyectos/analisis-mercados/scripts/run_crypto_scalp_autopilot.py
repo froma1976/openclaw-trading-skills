@@ -321,7 +321,8 @@ def load_risk_config():
         "research_positive_size_scale": 1.15,
         "allowed_symbols": [],
         "excluded_symbols": ["PEPE", "AAVE", "ARB", "BTC", "DOGE", "GALA", "GRT", "MANA", "NEAR", "SEI"],
-        "allowed_hours_utc": {"start": "00:00", "end": "23:59"},
+        "allowed_hours_utc": {"start": "12:00", "end": "23:59"},
+        "blocked_setup_tags": ["base", "flow_momentum", "whale_flow", "news_reversal"],
         "execution_mode": "sim_only",
         "range_mode_enabled": True,
         "range_confidence_min": 0.55,
@@ -1064,7 +1065,7 @@ def _main_locked():
         # --- FILTRO DE EDGE: bloquear setups sin edge demostrado ---
         # Auditoria 2026-03-14: setup "base" tiene 0% win rate historico
         # Confluencia < 3 tiene 11% win rate (edge_score -10)
-        BLOCKED_SETUPS = {"base"}
+        BLOCKED_SETUPS = {str(x) for x in (cfg.get("blocked_setup_tags") or ["base", "flow_momentum", "whale_flow", "news_reversal"]) if str(x).strip()}
         MIN_CONFLUENCE_HARD = 3  # No abrir trades con menos de 3 spies de confluencia
 
         research_sentiment = str(candidate.get("research_sentiment") or "unknown").lower()
@@ -1114,6 +1115,12 @@ def _main_locked():
                 log.info(f"Skipping {ticker}: setup '{setup_tag}' is blocked for scores < 80")
                 continue
             log.info(f"BYPASS: Allowing setup '{setup_tag}' for {ticker} due to extreme score ({score})")
+
+        if lstm_supported and lstm_vote == "AVOID" and strategy_mode not in {"range_lateral"}:
+            if score < 85:
+                log.info(f"Skipping {ticker}: LSTM vote AVOID conflicts with {strategy_mode}")
+                continue
+            log.info(f"BYPASS: Allowing {ticker} despite LSTM AVOID due to extreme score ({score})")
 
         if confluence < effective_min_confluence:
             log.info(f"Skipping {ticker}: confluence {confluence} < effective min {effective_min_confluence}")

@@ -278,6 +278,7 @@ class TestLoadRiskConfig:
         assert isinstance(cfg["fee_bps"], (int, float))
         assert isinstance(cfg["risk_on_max_trades_hour_multiplier"], (int, float))
         assert isinstance(cfg["risk_on_min_score"], (int, float))
+        assert isinstance(cfg["blocked_setup_tags"], list)
 
 
 class TestStrategyRouter:
