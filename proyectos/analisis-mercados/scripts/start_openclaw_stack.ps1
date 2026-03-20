@@ -2,10 +2,25 @@ $ErrorActionPreference = 'Continue'
 $log = 'C:\Users\Fernando\.openclaw\workspace\startup-stack.log'
 "[$(Get-Date -Format s)] inicio startup" | Add-Content $log
 
+function Get-OpenClawProcCount([string]$needle) {
+  return @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -eq 'node.exe' -and ($_.CommandLine -like "*$needle*") }).Count
+}
+
+function Test-ListeningPort([int]$port) {
+  return @(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue).Count -gt 0
+}
+
+$gatewayNeedle = 'openclaw\dist\index.js gateway --port 18789'
+$nodeNeedle = 'openclaw\dist\index.js node run --host 127.0.0.1 --port 18789'
+
 # 1) Gateway
 try {
+  $gatewayBefore = Get-OpenClawProcCount $gatewayNeedle
   & 'C:\Users\Fernando\.openclaw\gateway.cmd' | Out-Null
-  "[$(Get-Date -Format s)] gateway start requested" | Add-Content $log
+  $gatewayListening = Test-ListeningPort 18789
+  $gatewayAfter = Get-OpenClawProcCount $gatewayNeedle
+  "[$(Get-Date -Format s)] gateway start requested before=$gatewayBefore after=$gatewayAfter listening=$gatewayListening" | Add-Content $log
 } catch {
   "[$(Get-Date -Format s)] gateway start error" | Add-Content $log
 }
@@ -14,8 +29,10 @@ Start-Sleep -Seconds 5
 
 # 1b) Node host
 try {
+  $nodeBefore = Get-OpenClawProcCount $nodeNeedle
   & 'C:\Users\Fernando\.openclaw\node.cmd' | Out-Null
-  "[$(Get-Date -Format s)] node host start requested" | Add-Content $log
+  $nodeAfter = Get-OpenClawProcCount $nodeNeedle
+  "[$(Get-Date -Format s)] node host start requested before=$nodeBefore after=$nodeAfter" | Add-Content $log
 } catch {
   "[$(Get-Date -Format s)] node host start error" | Add-Content $log
 }

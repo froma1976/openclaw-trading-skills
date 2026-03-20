@@ -67,7 +67,9 @@ def main():
     by_ticker = {}
     by_result = {}
     by_hour = {}
+    by_open_hour = {}
     by_risk_mode = {}
+    by_setup = {}
 
     used = 0
     for order in rows:
@@ -84,11 +86,15 @@ def main():
         result = str(order.get("result") or "unknown").lower()
         risk_mode = str(order.get("risk_mode") or order.get("mode") or "unknown").lower()
         hour_key = bucket_hour(closed_at)
+        open_hour_key = str(order.get("opened_hour_utc") or closed_at.strftime("%H"))
+        setup_tag = str(order.get("setup_tag") or "unknown")
 
         apply_stats(touch_bucket(by_ticker, ticker), pnl)
         apply_stats(touch_bucket(by_result, result), pnl)
         apply_stats(touch_bucket(by_hour, hour_key), pnl)
+        apply_stats(touch_bucket(by_open_hour, open_hour_key), pnl)
         apply_stats(touch_bucket(by_risk_mode, risk_mode), pnl)
+        apply_stats(touch_bucket(by_setup, setup_tag), pnl)
         used += 1
 
     report = {
@@ -98,7 +104,9 @@ def main():
         "by_ticker": finalize(by_ticker),
         "by_result": finalize(by_result),
         "by_hour_bucket_utc": finalize(by_hour),
+        "by_open_hour_utc": finalize(by_open_hour),
         "by_risk_mode": finalize(by_risk_mode),
+        "by_setup_tag": finalize(by_setup),
     }
     JSON_OUT.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -117,6 +125,14 @@ def main():
 
     lines += ["", "## By hour bucket UTC", "| Key | Count | Win rate | Expectancy USD | PnL USD |", "|---|---:|---:|---:|---:|"]
     for row in report["by_hour_bucket_utc"]:
+        lines.append(f"| {row['key']} | {row['count']} | {row['win_rate']:.2f}% | {row['expectancy_usd']:.4f} | {row['pnl_usd']:.4f} |")
+
+    lines += ["", "## By open hour UTC", "| Key | Count | Win rate | Expectancy USD | PnL USD |", "|---|---:|---:|---:|---:|"]
+    for row in report["by_open_hour_utc"]:
+        lines.append(f"| {row['key']} | {row['count']} | {row['win_rate']:.2f}% | {row['expectancy_usd']:.4f} | {row['pnl_usd']:.4f} |")
+
+    lines += ["", "## By setup tag", "| Key | Count | Win rate | Expectancy USD | PnL USD |", "|---|---:|---:|---:|---:|"]
+    for row in report["by_setup_tag"]:
         lines.append(f"| {row['key']} | {row['count']} | {row['win_rate']:.2f}% | {row['expectancy_usd']:.4f} | {row['pnl_usd']:.4f} |")
 
     lines += ["", "## By risk mode", "| Key | Count | Win rate | Expectancy USD | PnL USD |", "|---|---:|---:|---:|---:|"]

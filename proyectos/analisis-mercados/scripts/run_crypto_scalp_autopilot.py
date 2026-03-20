@@ -546,6 +546,28 @@ def count_resume_candidates(top: list, px: dict, cfg: dict, mode: str, allowed_s
     return count
 
 
+def should_block_by_edge_guardrails(candidate: dict, strategy_mode: str) -> tuple[bool, str]:
+    if strategy_mode == "range_lateral":
+        return False, ""
+
+    maturity = float(candidate.get("trade_edge_maturity") or 0.0)
+    if maturity < 0.6:
+        return False, ""
+
+    setup_edge_score = int(candidate.get("setup_edge_score") or 0)
+    hour_edge_score = int(candidate.get("trade_edge_hour_score") or 0)
+    trade_edge_delta = int(candidate.get("trade_edge_delta") or 0)
+    confluence = int(candidate.get("spy_confluence") or 0)
+
+    if setup_edge_score <= -8:
+        return True, f"setup edge {setup_edge_score}"
+    if hour_edge_score <= -8:
+        return True, f"hour edge {hour_edge_score}"
+    if trade_edge_delta <= -4 and confluence < 4:
+        return True, f"trade edge {trade_edge_delta} confluence {confluence}"
+    return False, ""
+
+
 def maybe_resume_from_pause(daily: dict, mode_state: dict, cfg: dict, now: datetime, resume_candidates: int):
     if not mode_state.get("paused"):
         return mode_state
@@ -1111,10 +1133,8 @@ def _main_locked():
         effective_min_confluence = max(1, min(base_min_confluence, strategy_min_confluence))
 
         if setup_tag in BLOCKED_SETUPS and strategy_mode != "range_lateral":
-            if score < 80:
-                log.info(f"Skipping {ticker}: setup '{setup_tag}' is blocked for scores < 80")
-                continue
-            log.info(f"BYPASS: Allowing setup '{setup_tag}' for {ticker} due to extreme score ({score})")
+            log.info(f"Skipping {ticker}: setup '{setup_tag}' is blocked")
+            continue
 
         if lstm_supported and lstm_vote == "AVOID" and strategy_mode not in {"range_lateral"}:
             if score < 85:
@@ -1124,6 +1144,11 @@ def _main_locked():
 
         if confluence < effective_min_confluence:
             log.info(f"Skipping {ticker}: confluence {confluence} < effective min {effective_min_confluence}")
+            continue
+
+        blocked_by_edge, block_reason = should_block_by_edge_guardrails(candidate, strategy_mode)
+        if blocked_by_edge:
+            log.info(f"Skipping {ticker}: edge guardrail {block_reason}")
             continue
 
         effective_normal_min_score = min(normal_min_score, strategy_min_score)

@@ -500,6 +500,35 @@ def apply_trade_edge_overlay(ticker: str, scored: dict, edge_model: dict):
     return scored
 
 
+def apply_edge_guardrails(scored: dict):
+    maturity = float(scored.get("trade_edge_maturity") or 0.0)
+    if maturity < 0.6:
+        return scored
+
+    trade_edge_delta = int(scored.get("trade_edge_delta") or 0)
+    setup_edge_score = int(scored.get("setup_edge_score") or 0)
+    hour_edge_score = int(scored.get("trade_edge_hour_score") or 0)
+    confluence = int(scored.get("spy_confluence") or 0)
+
+    guardrail_reason = None
+    if setup_edge_score <= -8:
+        guardrail_reason = "setup_edge_guardrail"
+    elif hour_edge_score <= -8:
+        guardrail_reason = "hour_edge_guardrail"
+    elif trade_edge_delta <= -4 and confluence < 4:
+        guardrail_reason = "trade_edge_guardrail"
+
+    if not guardrail_reason:
+        return scored
+
+    reasons = scored.setdefault("reasons", [])
+    if guardrail_reason not in reasons:
+        reasons.append(guardrail_reason)
+    scored["state"] = "WATCH"
+    scored["decision_final"] = "AVOID"
+    return scored
+
+
 def main():
     try:
         with file_lock(RUNTIME_LOCK, stale_seconds=900, wait_seconds=0):
@@ -549,7 +578,7 @@ def _main_locked():
         ordered = sorted(rows, key=lambda x: float(x.get("total_volume") or 0), reverse=True)
         top_rows = ordered[:MAX_SPY_ASSETS] if API_SAVING_MODE else ordered
         for rr in top_rows:
-            spy_allowed.add(SYMBOL.get(rr.get("id"), str(rr.get("symbol", "")).upper()))
+            spy_allowed.add(str(SYMBOL.get(str(rr.get("id") or ""), str(rr.get("symbol", "")).upper()) or ""))
 
     # --- PRE-CALCULAR SPY SIGNALS EN PARALELO (ThreadPoolExecutor) ---
     # Antes: 45+ llamadas HTTP secuenciales (~60s). Ahora: paralelas (~8-12s).
@@ -572,7 +601,7 @@ def _main_locked():
                     pass
 
     for r in rows:
-        ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
+        ticker = str(SYMBOL.get(str(r.get("id") or ""), str(r.get("symbol", "")).upper()) or "")
         p = float(r.get("current_price") or 0)
         ch24 = float(r.get("price_change_percentage_24h") or 0)
         
@@ -599,7 +628,7 @@ def _main_locked():
         ch7 = float(r.get("price_change_percentage_7d_in_currency") or 0)
         sc = score_crypto(r)
 
-        ticker = SYMBOL.get(r.get("id"), str(r.get("symbol", "")).upper())
+        ticker = str(SYMBOL.get(str(r.get("id") or ""), str(r.get("symbol", "")).upper()) or "")
         sc = apply_research_overlay(ticker, sc, research_map or {})
         # Spy signals se pre-calculan en paralelo (ver abajo)
         spy_chart = spy_results.get(ticker, {}).get("chart", 0)
@@ -608,6 +637,7 @@ def _main_locked():
         sc["spy_breakout"] = spy_breakout
         sc["spy_confluence"] = int(sc["spy_news"] + sc["spy_euphoria"] + sc["spy_flow"] + sc["spy_whale"] + sc["spy_chart"] + sc["spy_breakout"])
         sc = apply_trade_edge_overlay(ticker, sc, edge_model)
+        sc = apply_edge_guardrails(sc)
 
         senior_report, technical_report, sentiment_report = build_reports(ticker, p, r, sc)
 

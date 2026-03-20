@@ -44,6 +44,15 @@ def scheduler_health():
         return {}
 
 
+def task_display(task: dict) -> str:
+    name = task.get("task")
+    state = task.get("state")
+    result = task.get("last_result")
+    status = task.get("status") or "unknown"
+    detail = task.get("status_detail") or "na"
+    return f"- {name}: state={state} last_result={result} status={status} detail={detail}"
+
+
 def main():
     learning = load_json(LEARNING, {})
     risk = load_json(RISK, {})
@@ -60,11 +69,10 @@ def main():
     for task in health.get("tasks", []) or []:
         name = task.get("task")
         state = task.get("state")
-        result = task.get("last_result")
-        task_lines.append(f"- {name}: state={state} last_result={result}")
+        task_lines.append(task_display(task))
         if str(state).lower() not in {"ready", "running", "queued", "3", "4"}:
             bad_tasks.append(name)
-        if result not in (0, None):
+        if task.get("is_bad"):
             bad_tasks.append(name)
 
     top_winners = sorted(
@@ -113,6 +121,7 @@ def main():
         f"Trades 7d: {trades_7d} | Wins: {wins} | Losses: {losses}",
         f"Cash: {cash} | Equity: {equity} | Activas: {len(active)} | Cerradas: {len(completed)} | Trades hoy: {daily.get('trades', 0)}",
         f"Dashboard: {health.get('dashboard_health', 'down')} | Gateway: {health.get('gateway_18789', False)}",
+        f"Node host: {health.get('node_host_running', False)} | LSTM 6h lock: {(health.get('lstm_6h_lock') or {}).get('exists', False)}",
         "Mejores tickers recientes: " + (", ".join(f"{k} {v:.3f}" for k, v in top_winners) if top_winners else "sin datos"),
         "Peores tickers recientes: " + (", ".join(f"{k} {v:.3f}" for k, v in top_losers) if top_losers else "sin datos"),
         "Recomendaciones:",
@@ -135,6 +144,8 @@ def main():
         "## Estado operativo",
         f"- Dashboard health: {health.get('dashboard_health', 'down')}",
         f"- Gateway 18789: {health.get('gateway_18789', False)}",
+        f"- Node host running: {health.get('node_host_running', False)}",
+        f"- LSTM 6h lock: {(health.get('lstm_6h_lock') or {}).get('exists', False)} age_min={(health.get('lstm_6h_lock') or {}).get('age_minutes', 'na')} active_processes={(health.get('lstm_6h_lock') or {}).get('active_processes', 'na')}",
         f"- Cash USD: {cash}",
         f"- Equity USD: {equity}",
         f"- Active orders: {len(active)}",

@@ -34,6 +34,7 @@ from run_crypto_scalp_autopilot import (
     infer_setup_tag,
     parse_scalar,
     load_risk_config,
+    should_block_by_edge_guardrails,
 )
 from strategy_router import normalize_symbol, compute_range_reversion_context, compute_bull_trend_context, build_strategy_plan, plan_range_grid
 
@@ -279,6 +280,43 @@ class TestLoadRiskConfig:
         assert isinstance(cfg["risk_on_max_trades_hour_multiplier"], (int, float))
         assert isinstance(cfg["risk_on_min_score"], (int, float))
         assert isinstance(cfg["blocked_setup_tags"], list)
+
+
+class TestEdgeGuardrails:
+    def test_blocks_bad_setup_edge_when_mature(self):
+        candidate = {
+            "trade_edge_maturity": 0.9,
+            "setup_edge_score": -8,
+            "trade_edge_hour_score": 0,
+            "trade_edge_delta": -2,
+            "spy_confluence": 4,
+        }
+        blocked, reason = should_block_by_edge_guardrails(candidate, "scalp_intradia")
+        assert blocked is True
+        assert "setup edge" in reason
+
+    def test_blocks_negative_trade_delta_with_low_confluence(self):
+        candidate = {
+            "trade_edge_maturity": 0.8,
+            "setup_edge_score": -5,
+            "trade_edge_hour_score": -4,
+            "trade_edge_delta": -4,
+            "spy_confluence": 3,
+        }
+        blocked, reason = should_block_by_edge_guardrails(candidate, "bull_trend")
+        assert blocked is True
+        assert "trade edge" in reason
+
+    def test_does_not_block_range_mode(self):
+        candidate = {
+            "trade_edge_maturity": 1.0,
+            "setup_edge_score": -10,
+            "trade_edge_hour_score": -10,
+            "trade_edge_delta": -10,
+            "spy_confluence": 1,
+        }
+        blocked, _ = should_block_by_edge_guardrails(candidate, "range_lateral")
+        assert blocked is False
 
 
 class TestStrategyRouter:
@@ -545,6 +583,7 @@ def run_all():
         TestInferSetupTag,
         TestParseScalar,
         TestLoadRiskConfig,
+        TestEdgeGuardrails,
         TestStrategyRouter,
         TestRiskMetrics,
         TestBootstrapCI,
@@ -589,7 +628,8 @@ def run_all():
 if __name__ == "__main__":
     # Intentar usar pytest si esta disponible
     try:
-        import pytest
+        import importlib
+        pytest = importlib.import_module("pytest")
         sys.exit(pytest.main([__file__, "-v", "--tb=short"]))
     except ImportError:
         sys.exit(run_all())
