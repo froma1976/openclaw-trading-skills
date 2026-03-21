@@ -469,31 +469,62 @@ def allowed_now(cfg: dict, now: datetime) -> bool:
     return start <= current <= end
 
 
+def build_auto_excluded_tickers(cfg: dict, universe: dict) -> tuple[set[str], dict[str, str]]:
+    if not bool(cfg.get("auto_exclude_very_negative_tickers", True)):
+        return set(), {}
+
+    min_count = int(cfg.get("auto_exclude_min_count", 4) or 4)
+    max_expectancy = float(cfg.get("auto_exclude_max_expectancy_usd", -0.08) or -0.08)
+    max_pnl = float(cfg.get("auto_exclude_max_pnl_usd", -0.30) or -0.30)
+    excluded = set()
+    reasons = {}
+    for item in universe.get("details") or []:
+        ticker = str(item.get("ticker") or "").upper()
+        if not ticker:
+            continue
+        count = int(item.get("count") or 0)
+        expectancy = float(item.get("expectancy_usd") or 0.0)
+        pnl = float(item.get("pnl_usd") or 0.0)
+        if count >= min_count and expectancy <= max_expectancy and pnl <= max_pnl:
+            excluded.add(ticker)
+            reasons[ticker] = f"expectancy {expectancy:.4f}, pnl {pnl:.4f}, count {count}"
+    return excluded, reasons
+
+
 def compute_mode(daily: dict, daily_pnl: float, cfg: dict, capital_base_usd: float):
     loss_streak = int(daily.get("loss_streak", 0) or 0)
     pause_after = int(cfg.get("pause_after_consecutive_losses", 3) or 3)
     defensive_after = int(cfg.get("defensive_after_consecutive_losses", max(1, pause_after - 1)) or max(1, pause_after - 1))
     max_daily_loss_pct = float(cfg.get("max_daily_loss_pct", 5.0) or 5.0)
     defensive_daily_loss_pct = float(cfg.get("defensive_daily_loss_pct", 1.0) or 1.0)
+    always_operate = bool(cfg.get("always_operate", False))
     daily_loss_limit_usd = round(capital_base_usd * max_daily_loss_pct / 100.0, 4)
     defensive_daily_loss_usd = round(capital_base_usd * defensive_daily_loss_pct / 100.0, 4)
-    risk_blocked = daily_pnl <= (-daily_loss_limit_usd)
+    risk_blocked = (daily_pnl <= (-daily_loss_limit_usd)) and not always_operate
 
     mode = "normal"
     mode_reason = "operativa normal"
     paused = False
     pause_reason = ""
 
-    if risk_blocked:
-        mode = "paused"
-        mode_reason = "limite de perdida diaria"
-        paused = True
-        pause_reason = mode_reason
+    if daily_pnl <= (-daily_loss_limit_usd):
+        if always_operate:
+            mode = "defensive"
+            mode_reason = f"always_on: limite diario alcanzado ({daily_pnl:.2f} usd)"
+        else:
+            mode = "paused"
+            mode_reason = "limite de perdida diaria"
+            paused = True
+            pause_reason = mode_reason
     elif loss_streak >= pause_after:
-        mode = "paused"
-        mode_reason = f"{pause_after} perdidas seguidas"
-        paused = True
-        pause_reason = mode_reason
+        if always_operate:
+            mode = "defensive"
+            mode_reason = f"always_on: {pause_after} perdidas seguidas"
+        else:
+            mode = "paused"
+            mode_reason = f"{pause_after} perdidas seguidas"
+            paused = True
+            pause_reason = mode_reason
     elif loss_streak >= defensive_after:
         mode = "defensive"
         mode_reason = f"{loss_streak} perdidas seguidas"
@@ -510,6 +541,80 @@ def compute_mode(daily: dict, daily_pnl: float, cfg: dict, capital_base_usd: flo
         "daily_loss_limit_usd": daily_loss_limit_usd,
         "defensive_daily_loss_usd": defensive_daily_loss_usd,
     }
+
+
+def apply_always_on_size_scale(cfg: dict, mode: str, score: int, confluence: int, trade_edge_delta: int, setup_edge_score: int, hour_edge_score: int) -> float:
+    scale = 1.0
+    if not bool(cfg.get("always_operate", False)):
+        return scale
+
+    if mode == "defensive":
+        scale *= float(cfg.get("always_on_defensive_size_scale", 0.72) or 0.72)
+
+    weak_quality = (
+        score < 82
+        or confluence < 4
+        or trade_edge_delta < 0
+        or setup_edge_score < 0
+        or hour_edge_score < 0
+    )
+    if weak_quality:
+        scale *= float(cfg.get("always_on_low_quality_size_scale", 0.58) or 0.58)
+    return max(0.25, scale)
+
+
+def _legacy_compute_mode_reference():
+    return None
+
+
+def maybe_resume_from_pause(daily: dict, mode_state: dict, cfg: dict, now: datetime, resume_candidates: int):
+    if bool(cfg.get("always_operate", False)):
+        daily["paused"] = False
+        daily["pause_reason"] = ""
+        daily["paused_at"] = ""
+        mode_state["paused"] = False
+        mode_state["pause_reason"] = ""
+        return mode_state
+    if not mode_state.get("paused"):
+        return mode_state
+    if mode_state.get("risk_blocked"):
+        return mode_state
+
+    paused_at_raw = daily.get("paused_at")
+    if not paused_at_raw:
+        return mode_state
+
+    try:
+        paused_at = parse_iso(paused_at_raw)
+    except Exception:
+        return mode_state
+
+    resume_after_pause_min = int(cfg.get("resume_after_pause_min", 180) or 180)
+    resume_min_core_candidates = int(cfg.get("resume_min_core_candidates", 1) or 1)
+    resume_in_defensive = bool(cfg.get("resume_in_defensive", True))
+    age_min = int((now - paused_at).total_seconds() // 60)
+
+    if age_min < resume_after_pause_min:
+        mode_state["mode_reason"] = f"pausa activa ({age_min}/{resume_after_pause_min} min)"
+        mode_state["pause_reason"] = mode_state["mode_reason"]
+        return mode_state
+    if resume_candidates < resume_min_core_candidates:
+        mode_state["mode_reason"] = f"pausa activa por falta de setups core ({resume_candidates}/{resume_min_core_candidates})"
+        mode_state["pause_reason"] = mode_state["mode_reason"]
+        return mode_state
+
+    daily["paused"] = False
+    daily["pause_reason"] = ""
+    daily["paused_at"] = ""
+    mode_state["paused"] = False
+    mode_state["pause_reason"] = ""
+    mode_state["mode"] = "defensive" if resume_in_defensive else "normal"
+    mode_state["mode_reason"] = f"reanuda automaticamente con {resume_candidates} setups core"
+    return mode_state
+
+
+def _removed_duplicate_pause_logic_marker():
+    return None
 
 
 def count_resume_candidates(top: list, px: dict, cfg: dict, mode: str, allowed_symbols: set, excluded_symbols: set, universe_core: set, universe_excluded: set) -> int:
@@ -566,45 +671,6 @@ def should_block_by_edge_guardrails(candidate: dict, strategy_mode: str) -> tupl
     if trade_edge_delta <= -4 and confluence < 4:
         return True, f"trade edge {trade_edge_delta} confluence {confluence}"
     return False, ""
-
-
-def maybe_resume_from_pause(daily: dict, mode_state: dict, cfg: dict, now: datetime, resume_candidates: int):
-    if not mode_state.get("paused"):
-        return mode_state
-    if mode_state.get("risk_blocked"):
-        return mode_state
-
-    paused_at_raw = daily.get("paused_at")
-    if not paused_at_raw:
-        return mode_state
-
-    try:
-        paused_at = parse_iso(paused_at_raw)
-    except Exception:
-        return mode_state
-
-    resume_after_pause_min = int(cfg.get("resume_after_pause_min", 180) or 180)
-    resume_min_core_candidates = int(cfg.get("resume_min_core_candidates", 1) or 1)
-    resume_in_defensive = bool(cfg.get("resume_in_defensive", True))
-    age_min = int((now - paused_at).total_seconds() // 60)
-
-    if age_min < resume_after_pause_min:
-        mode_state["mode_reason"] = f"pausa activa ({age_min}/{resume_after_pause_min} min)"
-        mode_state["pause_reason"] = mode_state["mode_reason"]
-        return mode_state
-    if resume_candidates < resume_min_core_candidates:
-        mode_state["mode_reason"] = f"pausa activa por falta de setups core ({resume_candidates}/{resume_min_core_candidates})"
-        mode_state["pause_reason"] = mode_state["mode_reason"]
-        return mode_state
-
-    daily["paused"] = False
-    daily["pause_reason"] = ""
-    daily["paused_at"] = ""
-    mode_state["paused"] = False
-    mode_state["pause_reason"] = ""
-    mode_state["mode"] = "defensive" if resume_in_defensive else "normal"
-    mode_state["mode_reason"] = f"reanuda automaticamente con {resume_candidates} setups core"
-    return mode_state
 
 
 def main():
@@ -748,6 +814,8 @@ def _main_locked():
     universe_core = universe.get("core") or set()
     universe_watch = universe.get("watch") or set()
     universe_excluded = universe.get("excluded") or set()
+    auto_excluded_tickers, auto_excluded_reasons = build_auto_excluded_tickers(cfg, universe)
+    universe_excluded = set(universe_excluded) | auto_excluded_tickers
     runtime_universe, runtime_universe_source = pick_runtime_universe(allowed_symbols, universe_core, universe_watch, universe_excluded)
 
     # --- CIRCUIT BREAKER: parar si el profit factor reciente es muy bajo ---
@@ -759,12 +827,19 @@ def _main_locked():
         rc_gross_loss = abs(sum(float(o.get("pnl_usd") or 0) for o in recent_completed if float(o.get("pnl_usd") or 0) < 0))
         rc_pf = (rc_gross_profit / rc_gross_loss) if rc_gross_loss > 0 else 999.0
         if rc_pf < CIRCUIT_BREAKER_MIN_PF:
-            daily["paused"] = True
-            daily["pause_reason"] = f"CIRCUIT_BREAKER: PF={rc_pf:.2f} en ultimas {CIRCUIT_BREAKER_MIN_TRADES} trades < {CIRCUIT_BREAKER_MIN_PF}"
-            daily["mode"] = "paused"
-            daily["mode_reason"] = daily["pause_reason"]
-            if not daily.get("paused_at"):
-                daily["paused_at"] = now_iso()
+            if bool(cfg.get("always_operate", False)):
+                daily["paused"] = False
+                daily["pause_reason"] = ""
+                daily["mode"] = "defensive"
+                daily["mode_reason"] = f"always_on circuit breaker: PF={rc_pf:.2f}"
+                daily["paused_at"] = ""
+            else:
+                daily["paused"] = True
+                daily["pause_reason"] = f"CIRCUIT_BREAKER: PF={rc_pf:.2f} en ultimas {CIRCUIT_BREAKER_MIN_TRADES} trades < {CIRCUIT_BREAKER_MIN_PF}"
+                daily["mode"] = "paused"
+                daily["mode_reason"] = daily["pause_reason"]
+                if not daily.get("paused_at"):
+                    daily["paused_at"] = now_iso()
 
     # --- COOLDOWN POR TICKER: evitar sobreoperacion en el mismo activo ---
     COOLDOWN_MINUTES = 30  # minutos minimos entre trades del mismo ticker
@@ -1056,6 +1131,8 @@ def _main_locked():
         ticker = candidate.get("ticker")
         ticker_upper = str(ticker or "").upper()
         if ticker_upper in excluded_symbols or ticker_upper in universe_excluded:
+            if ticker_upper in auto_excluded_reasons:
+                log.info(f"Skipping {ticker}: auto-excluded by recent losses ({auto_excluded_reasons[ticker_upper]})")
             continue
         ticker_multiplier, memory_reason = analyze_ticker_memory(completed, ticker)
         if ticker_multiplier <= 0:
@@ -1072,6 +1149,10 @@ def _main_locked():
                 continue
             else:
                 log.info(f"BYPASS: {ticker} (Score {score}) allowed outside universe for high conviction")
+
+        if ticker_upper in auto_excluded_tickers:
+            log.info(f"Skipping {ticker}: veto automatico por perdidas recientes ({auto_excluded_reasons.get(ticker_upper, 'sin detalle')})")
+            continue
 
         if candidate.get("decision_final") != "BUY":
             log.info(f"Skipping {ticker}: final decision is {candidate.get('decision_final')}")
@@ -1204,6 +1285,15 @@ def _main_locked():
         trade_timeout_min = max(15, int(round(timeout_min * strategy_timeout_mult)))
         trade_timeout_profit_grace_min = max(5, int(round(timeout_profit_grace_min * max(0.75, strategy_timeout_mult))))
         trade_timeout_force_close_min = max(trade_timeout_min + 15, int(round(timeout_force_close_min * max(0.65, strategy_timeout_mult))))
+        always_on_size_scale = apply_always_on_size_scale(
+            cfg,
+            mode,
+            score,
+            confluence,
+            int(candidate.get("trade_edge_delta") or 0),
+            int(candidate.get("setup_edge_score") or 0),
+            int(candidate.get("trade_edge_hour_score") or 0),
+        )
 
         last_ticker_trade = recent_ticker_times.get(ticker_upper)
         if strategy_mode != "range_lateral" and last_ticker_trade:
@@ -1237,7 +1327,7 @@ def _main_locked():
 
             cash = float(portfolio.get("cash_usd", 0))
             order_size_scale = float(entry_plan.get("size_scale") or 1.0)
-            target_alloc = alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier * conviction_scale * regime_alloc_mult * strategy_alloc_mult * moonshot_multiplier * order_size_scale
+            target_alloc = alloc_per_trade_usd * entry_scale * research_scale * ticker_multiplier * macro_multiplier * conviction_scale * regime_alloc_mult * strategy_alloc_mult * moonshot_multiplier * order_size_scale * always_on_size_scale
             notional = min(target_alloc, cash, max_alloc_per_trade_usd)
             if notional < min_notional_usd:
                 continue
@@ -1295,6 +1385,7 @@ def _main_locked():
                 "research_sentiment": candidate.get("research_sentiment"),
                 "research_catalyst_score": candidate.get("research_catalyst_score"),
                 "research_size_scale": round(research_scale, 3),
+                "always_on_size_scale": round(always_on_size_scale, 3),
                 "lstm_supported": lstm_supported,
                 "lstm_ok": bool(lstm_signal.get("lstm_ok")),
                 "lstm_score": lstm_score,

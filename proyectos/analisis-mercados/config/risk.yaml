@@ -9,6 +9,7 @@ pause_hours: 24
 resume_after_pause_min: 180
 resume_in_defensive: true
 resume_min_core_candidates: 1
+always_operate: true
 slippage_bps: 5
 fee_bps: 10
 target_pct: 0.9
@@ -50,7 +51,7 @@ excluded_symbols:
   - NEAR
   - SEI
 allowed_hours_utc:
-  start: "12:00"
+  start: "00:00"
   end: "23:59"
 blocked_setup_tags:
   - base
@@ -58,6 +59,12 @@ blocked_setup_tags:
   - whale_flow
   - news_reversal
 execution_mode: sim_only
+auto_exclude_very_negative_tickers: true
+auto_exclude_min_count: 4
+auto_exclude_max_expectancy_usd: -0.08
+auto_exclude_max_pnl_usd: -0.30
+always_on_defensive_size_scale: 0.72
+always_on_low_quality_size_scale: 0.58
 range_mode_enabled: true
 range_confidence_min: 0.55
 range_min_score: 68

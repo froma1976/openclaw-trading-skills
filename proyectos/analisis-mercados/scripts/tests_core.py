@@ -31,6 +31,9 @@ from run_crypto_scalp_autopilot import (
     safe_float,
     breakeven_exit_price,
     estimate_trade_economics,
+    compute_mode,
+    build_auto_excluded_tickers,
+    apply_always_on_size_scale,
     infer_setup_tag,
     parse_scalar,
     load_risk_config,
@@ -319,6 +322,47 @@ class TestEdgeGuardrails:
         assert blocked is False
 
 
+class TestAlwaysOperateControls:
+    def test_compute_mode_stays_defensive_instead_of_paused(self):
+        cfg = {
+            "always_operate": True,
+            "pause_after_consecutive_losses": 3,
+            "defensive_after_consecutive_losses": 2,
+            "max_daily_loss_pct": 5.0,
+            "defensive_daily_loss_pct": 1.0,
+        }
+        mode = compute_mode({"loss_streak": 3}, daily_pnl=-30.0, cfg=cfg, capital_base_usd=500.0)
+        assert mode["mode"] == "defensive"
+        assert mode["paused"] is False
+
+    def test_auto_excludes_very_negative_tickers(self):
+        cfg = {
+            "auto_exclude_very_negative_tickers": True,
+            "auto_exclude_min_count": 4,
+            "auto_exclude_max_expectancy_usd": -0.08,
+            "auto_exclude_max_pnl_usd": -0.30,
+        }
+        universe = {
+            "details": [
+                {"ticker": "NEAR", "count": 4, "expectancy_usd": -0.1764, "pnl_usd": -0.7055},
+                {"ticker": "OP", "count": 6, "expectancy_usd": 0.0569, "pnl_usd": 0.3413},
+            ]
+        }
+        excluded, reasons = build_auto_excluded_tickers(cfg, universe)
+        assert "NEAR" in excluded
+        assert "OP" not in excluded
+        assert "expectancy" in reasons["NEAR"]
+
+    def test_always_on_size_scale_reduces_weak_setups(self):
+        cfg = {
+            "always_operate": True,
+            "always_on_defensive_size_scale": 0.72,
+            "always_on_low_quality_size_scale": 0.58,
+        }
+        scale = apply_always_on_size_scale(cfg, "defensive", 78, 3, -1, -2, 0)
+        assert round(scale, 4) == round(0.72 * 0.58, 4)
+
+
 class TestStrategyRouter:
     def test_normalize_symbol(self):
         assert normalize_symbol("btc") == "BTCUSDT"
@@ -584,6 +628,7 @@ def run_all():
         TestParseScalar,
         TestLoadRiskConfig,
         TestEdgeGuardrails,
+        TestAlwaysOperateControls,
         TestStrategyRouter,
         TestRiskMetrics,
         TestBootstrapCI,
